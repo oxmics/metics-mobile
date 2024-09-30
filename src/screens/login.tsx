@@ -1,8 +1,8 @@
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import ToggleButton from "../components/ToggleButton";
 import React, { useState } from 'react';
 import GradientButton from "../components/GradientButton";
-import { Icon, Snackbar, TextInput } from "react-native-paper";
+import { Snackbar, TextInput } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
@@ -86,7 +86,7 @@ const LoginScreen = () => {
                 visible={snackbarVisible}
                 onDismiss={() => setSnackbarVisible(false)}
                 duration={Snackbar.DURATION_SHORT}
-                theme={{colors: {primary: snackbarColor}}}
+                theme={{colors: {primary: snackbarColor}}}                                                 
             >
                 {snackbarMessage}
             </Snackbar>

@@ -1,11 +1,20 @@
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState } from 'react';
 import GradientButton from "../components/GradientButton";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
 
+type RootStackParamList = {
+    OtpScreen: {
+      email: string;
+    };
+  };
+
 const OtpScreen = () => {
+    const route = useRoute<RouteProp<RootStackParamList, 'OtpScreen'>>();
+    const {email} = route.params;
+
     const navigation = useNavigation<CustomNavigationProp>();
 
     const [otp, setOtp] = useState<string>('');

@@ -5,15 +5,42 @@ import CaptchaCheckbox from "../components/CaptchaCheckbox";
 import { useNavigation } from "@react-navigation/native";
 import { CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
+import useResetPasswordOtp from "../api/auth/useResetPasswordOtp";
+import { ResetPasswordOtpResponseEnum } from "../types/auth";
+import { Snackbar } from "react-native-paper";
+import { isValidEmail } from "../utils/helper";
 
 const ForgotPasswordScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
 
     const [email, setEmail] = useState<string>('');
     const [isRobot, setIsRobot] = useState<boolean>(false);
+    const [snackbarVisible, setSnackbarVisible] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarColor, setSnackbarColor] = useState('green');
 
-    const handleResetPassword = () => {
-        navigation.navigate('Otp');
+    const {mutateAsync: sendOtp, isPending: loading} = useResetPasswordOtp();
+
+    const handleResetPassword = async() => {
+        const result = await sendOtp({email});
+        let message = '';
+
+        switch (result) {
+            case ResetPasswordOtpResponseEnum.FAILED:
+                message = "Sending OTP failed!"
+                break;
+            case ResetPasswordOtpResponseEnum.INVALID:
+                message = "Email id not found!"
+            default:
+                message = 'OTP send'
+                break;
+        }
+
+        setSnackbarMessage(message);
+        setSnackbarVisible(true);
+        if( result === ResetPasswordOtpResponseEnum.SUCCESS){
+            navigation.navigate('Otp', {email: email});
+        }
     }
 
     return(
@@ -39,12 +66,14 @@ const ForgotPasswordScreen = () => {
                 value={email}
                 onChange={setEmail}
                 placeholder="Email"
+                autoCaptalize="none"
             />
             <CaptchaCheckbox isRobot={isRobot} setIsRobot={setIsRobot}/>
             <GradientButton
                 colors={["#00B976", "#00B976"]}
                 label="Next"
                 onPress={handleResetPassword}
+                disabled={!isValidEmail(email) || !isRobot}
             />
             <View style={styles.rememberPassContainer}>
                 <Text style={styles.rememberPasswordText}>Remeber Your Password?</Text>
@@ -52,6 +81,14 @@ const ForgotPasswordScreen = () => {
                     <Text style={styles.loginText}>Login</Text>
                 </TouchableOpacity>
             </View>
+            <Snackbar
+                visible={snackbarVisible}
+                onDismiss={() => setSnackbarVisible(false)}
+                duration={Snackbar.DURATION_SHORT}
+                theme={{colors: {primary: snackbarColor}}}                                                 
+            >
+                {snackbarMessage}
+            </Snackbar>
         </ScrollView>
     );
 }
