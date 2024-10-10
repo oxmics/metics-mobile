@@ -14,3 +14,9 @@ type RootStackParamList = {
     SupplierDashboard: any;
 };
 export type CustomNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+export enum APIResponseEnum {
+    SUCCESS,
+    INVALID,
+    FAILED
+}

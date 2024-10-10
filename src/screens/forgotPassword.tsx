@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import GradientButton from "../components/GradientButton";
 import CaptchaCheckbox from "../components/CaptchaCheckbox";
 import { useNavigation } from "@react-navigation/native";
-import { CustomNavigationProp } from "../types/common";
+import { APIResponseEnum, CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
 import useResetPasswordOtp from "../api/auth/useResetPasswordOtp";
-import { ResetPasswordOtpResponseEnum } from "../types/auth";
 import { Snackbar } from "react-native-paper";
 import { isValidEmail } from "../utils/helper";
 
@@ -24,22 +23,23 @@ const ForgotPasswordScreen = () => {
     const handleResetPassword = async() => {
         const result = await sendOtp({email});
         let message = '';
-
-        switch (result) {
-            case ResetPasswordOtpResponseEnum.FAILED:
-                message = "Sending OTP failed!"
+        let userId = '';
+        switch (result.status) {
+            case APIResponseEnum.FAILED:
+                message = "Sending OTP failed!";
                 break;
-            case ResetPasswordOtpResponseEnum.INVALID:
-                message = "Email id not found!"
+            case APIResponseEnum.INVALID:
+                message = "Email id not found!";
             default:
-                message = 'OTP send'
+                message = 'OTP send';
+                userId = result.user_id;
                 break;
         }
 
         setSnackbarMessage(message);
         setSnackbarVisible(true);
-        if( result === ResetPasswordOtpResponseEnum.SUCCESS){
-            navigation.navigate('Otp', {email: email});
+        if( result.status === APIResponseEnum.SUCCESS){
+            navigation.navigate('Otp', {email: email, userId: userId});
         }
     }
 

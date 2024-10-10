@@ -4,35 +4,36 @@ import { ResetPasswordOtpResponseType } from "../../types/auth";
 import { APIResponseEnum } from "../../types/common";
 
 interface Props {
-  email: string;
+    otp: string;
+    userId: string;
 }
 
-const useResetPasswordOtp = () => {
+const useChangePassword = () => {
 
   const mutation = useMutation({
-    mutationFn: async ({ email }: Props) => {
+    mutationFn: async ({ userId, otp }: Props) => {
       try {
         const response = await axios.post(
-          `${process.env.BASE_URL}/reset-password/`,
+          `${process.env.BASE_URL}/reset-password/${userId}`,
           {
-            email: email,
+            otp: otp,
           }
         );
         
         if (response.data) {
           const data: ResetPasswordOtpResponseType = response.data;
           if (data.user_id){
-            return {status: APIResponseEnum.SUCCESS, user_id: data.user_id};
+            return APIResponseEnum.SUCCESS;
           }else{
-            return {status: APIResponseEnum.INVALID, user_id: ''};
+            return APIResponseEnum.INVALID;
           }
         }else{
-          return {status: APIResponseEnum.FAILED, user_id: ''};
+          return APIResponseEnum.FAILED;
         }
       } catch (error) {
         console.error(error);
         
-        return {status: APIResponseEnum.FAILED, user_id: ''};
+        return APIResponseEnum.FAILED;
       }
     }
   });
@@ -40,4 +41,4 @@ const useResetPasswordOtp = () => {
   return mutation;
 };
 
-export default useResetPasswordOtp;
+export default useChangePassword;

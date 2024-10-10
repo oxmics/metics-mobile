@@ -17,9 +17,3 @@ export type ResetPasswordOtpResponseType = {
     message: string,
     user_id: string
 }
-
-export enum ResetPasswordOtpResponseEnum {
-    SUCCESS,
-    INVALID,
-    FAILED
-}
