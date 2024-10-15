@@ -14,6 +14,8 @@ const useLogin = () => {
   const mutation = useMutation({
     mutationFn: async ({ email, password }: Props) => {
       try {
+        console.log('BASE_URL:', BASE_URL);
+        
         const response = await axios.post(
           `${BASE_URL}/login/`,
           {

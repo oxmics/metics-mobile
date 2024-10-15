@@ -11,6 +11,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import BuyerDashboardScreen from './src/screens/buyerDashboard';
 import SupplierDashboardScreen from './src/screens/supplierDashboard';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
 
 const queryClient = new QueryClient();
 
@@ -20,6 +22,8 @@ function App(): React.JSX.Element {;
   }, []);
 
   const Stack = createNativeStackNavigator();
+
+  const Drawer = createDrawerNavigator();
 
   return (
     <QueryClientProvider client={queryClient}>
