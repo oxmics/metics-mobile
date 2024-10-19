@@ -6,12 +6,17 @@ export enum UserType {
 }
 
 type RootStackParamList = {
+    Splash: any,
     Login: any;
     ForgotPassword: any;
     Otp: any;
     EnterNewPassword: any;
     BuyerDashboard: any;
     SupplierDashboard: any;
+    SupplierPurchaseOrder: any;
+    SupplierPurchaseOrderDetails: any;
+    BuyerPurchaseOrder: any;
+    BuyerPurchaseOrderDetails: any;
 };
 export type CustomNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 

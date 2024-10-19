@@ -46,7 +46,7 @@ const LoginScreen = () => {
             if (active === "buyer"){
                 navigation.navigate('BuyerDashboard');
             }else{
-                navigation.navigate('SupplierDashboard');
+                navigation.navigate('SupplierPurchaseOrder');
             }
         }
     }
