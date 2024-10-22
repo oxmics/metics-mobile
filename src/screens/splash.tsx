@@ -60,7 +60,7 @@ const SplashScreen = () => {
     useEffect(()=>{
         if(animationEnded){
             if(bypassLogin){
-                navigation.replace('BuyerPurchaseOrder')
+                navigation.replace('SupplierRequestHistory')
             }else{
                 navigation.replace('Login')
             }

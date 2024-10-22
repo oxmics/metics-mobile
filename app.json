@@ -1,4 +1,7 @@
 {
   "name": "metics",
-  "displayName": "metics"
+  "displayName": "Metics",
+  "android": {
+    "package": "com.metics"
+  }
 }

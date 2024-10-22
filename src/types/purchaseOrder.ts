@@ -37,7 +37,7 @@ export type PurchaseOrderStatusType = {
 }
 
 type OrganizationDetailsType = {
-    additional_attributes: string[];
+    additional_attributes: {id: string, name: string, value: string}[];
     address_line1: string;
     address_line2: string;
     authorised_sellers: string[]; 
@@ -83,7 +83,7 @@ type BidHeaderDetails = {
     cancellation_date: string|null,
     disqualify_reason: string|null,
     submit_stage: string,
-    note_to_supplier: string,
+    note_to_supplier?: string,
     templates: {
         name: string,
         description: string
@@ -105,7 +105,7 @@ type AuctionHeaderType = {
     is_open: boolean,
     is_editable: boolean,
     need_by_date: string,
-    additional_attributes: any[],
+    additional_attributes: {id: string, name: string, value: string}[],
     attachments: AttachmentType[],
     focal_points: FocalPointsType[],
     authorized_sellers: any[],
@@ -116,7 +116,7 @@ type AuctionHeaderType = {
     can_compare: boolean,
 }
 
-type AttachmentType = {
+export type AttachmentType = {
     id: string,
     created_at: string,
     updated_at: string,
@@ -128,7 +128,7 @@ type AttachmentType = {
     file: string
 }
 
-type FocalPointsType = {
+export type FocalPointsType = {
     id: string,
     created_at: string,
     updated_at: string,

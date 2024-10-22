@@ -1,44 +1,28 @@
 import { StyleSheet, View } from "react-native"
-import { Button, Text } from "react-native-paper"
+import { Divider, Text } from "react-native-paper"
 
 interface props {
     title: string,
-    iterative: boolean,
     contentData: any,
-    footerButtonAvailable?: boolean,
-    buttonFn?: () => void
+    organization_name: string
 }
 
-export const InfoCard = ({footerButtonAvailable, buttonFn, contentData, iterative, title}: props) => {
+export const RequestInfoCard = ({contentData, title, organization_name}: props) => {
+
     return(
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>
-            {iterative ? (
-                contentData.map((item: any, index: number) => {
-                    return (<View style={styles.card} key={index}>
-                        {Object.entries(item).map(([key, value], index) => (
-                            <View key={index} style={styles.row}>
-                              <Text style={styles.rowText}>{key}:</Text>
-                              <Text style={styles.rowText}>{String(value)}</Text>
-                            </View>
-                        ))}
-                    </View>)
-                })
-            ): (
-                <View style={styles.card}>
+            <View style={styles.card}>
+                <Text style={styles.requestedLabel}>Requested By</Text>
+                <Text style={styles.requestedValue}>{organization_name}</Text>
+                <Divider style={{borderColor: "#00000080", backgroundColor: '#00000080', width: '100%'}}/>
                 {Object.entries(contentData).map(([key, value], index) => (
                   <View key={index} style={styles.row}>
                     <Text style={styles.rowText}>{key}:</Text>
                     <Text style={styles.rowText}>{String(value)}</Text>
                   </View>
                 ))}
-              </View>              
-            )}
-            {footerButtonAvailable && buttonFn &&
-                <View style={styles.footer}>
-                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => buttonFn()}>See More</Button>
-                </View>
-            }
+            </View>   
         </View>
     )
 }
@@ -98,5 +82,15 @@ const styles = StyleSheet.create({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    requestedLabel: {
+        color: '#000000B2',
+        fontSize: 11,
+        fontWeight: 300
+    },
+    requestedValue: {
+        color: '#000000',
+        fontSize: 12,
+        fontWeight: 400
     }
 })

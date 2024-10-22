@@ -13,9 +13,11 @@ import BuyerDashboardScreen from './src/screens/Buyer/buyerDashboard';
 import SupplierDashboardScreen from './src/screens/Supplier/supplierDashboard';
 import SupplierPurchaseOrderScreen from './src/screens/Supplier/purchaseOrder';
 import SplashScreen from './src/screens/splash';
-import PurchaseorderDetailsScreen from './src/screens/Supplier/purchaseOrderDetails';
+import SupplierPurchaseorderDetailsScreen from './src/screens/Supplier/purchaseOrderDetails';
 import BuyerPurchaseOrderScreen from './src/screens/Buyer/purchaseOrder';
 import BuyerPurchaseorderDetailsScreen from './src/screens/Buyer/purchaseOrderDetails';
+import SupplierRequestHistory from './src/screens/Supplier/requestHistory';
+import SupplierRequestDetailsScreen from './src/screens/Supplier/requestDetails';
 
 const queryClient = new QueryClient();
 
@@ -41,7 +43,9 @@ function App(): React.JSX.Element {;
             <Stack.Screen name='BuyerPurchaseOrderDetails' component={BuyerPurchaseorderDetailsScreen}/>
             <Stack.Screen name='SupplierDashboard' component={SupplierDashboardScreen}/>
             <Stack.Screen name='SupplierPurchaseOrder' component={SupplierPurchaseOrderScreen}/>
-            <Stack.Screen name='SupplierPurchaseOrderDetails' component={SupplierPurchaseOrderScreen}/>
+            <Stack.Screen name='SupplierPurchaseOrderDetails' component={SupplierPurchaseorderDetailsScreen}/>
+            <Stack.Screen name='SupplierRequestHistory' component={SupplierRequestHistory}/>
+            <Stack.Screen name='SupplierRequestDetails' component={SupplierRequestDetailsScreen}/>
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>

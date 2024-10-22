@@ -15,6 +15,8 @@ type RootStackParamList = {
     SupplierDashboard: any;
     SupplierPurchaseOrder: any;
     SupplierPurchaseOrderDetails: any;
+    SupplierRequestHistory: any,
+    SupplierRequestDetails: any,
     BuyerPurchaseOrder: any;
     BuyerPurchaseOrderDetails: any;
 };

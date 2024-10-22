@@ -73,7 +73,7 @@ const BuyerPurchaseOrderScreen = () => {
             <SafeAreaView style={{flex: 1}}>
                 <FlatList
                     data={displayOrders}
-                    renderItem={({item}) => <TouchableOpacity onPress={()=> navigation.push('BuyerPurchaseOrderDetails', {orderId: item.id})}><DataCard title={item.bid_header_details.auction_header.requisition_number} titleLabel="Requisition Number" status={item.bid_header_details.bid_status === "awarded" ? "AWARDED" : item.bid_header_details.bid_status === "draft" ? "DRAFT": item.bid_header_details.bid_status === "widthdrawn" ? "WITHDRAWN" : item.bid_header_details.bid_status === "disqualified" ? "DISQUALIFIED": item.bid_header_details.bid_status === "cancelled" ? "CANCELLED":"Rejected"} footerLeftText={item.buyer_organisation_details.name} footerRightText={item.total_price}/></TouchableOpacity>}
+                    renderItem={({item}) => <TouchableOpacity onPress={()=> navigation.push('BuyerPurchaseOrderDetails', {orderId: item.id})}><DataCard title={item.bid_header_details.auction_header.requisition_number} titleLabel="Requisition Number" status={item.bid_header_details.bid_status === "awarded" ? "AWARDED" : item.bid_header_details.bid_status === "draft" ? "DRAFT": item.bid_header_details.bid_status === "widthdrawn" ? "WITHDRAWN" : item.bid_header_details.bid_status === "disqualified" ? "DISQUALIFIED": item.bid_header_details.bid_status === "cancelled" ? "CANCELLED":"REJECTED"} footerLeftText={item.buyer_organisation_details.name} footerRightText={item.total_price}/></TouchableOpacity>}
                     keyExtractor={(item: PurchaseOrderType) => item.id}
                     refreshing={loading}
                     onRefresh={() => refetch()}

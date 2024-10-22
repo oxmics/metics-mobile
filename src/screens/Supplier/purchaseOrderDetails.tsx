@@ -1,12 +1,13 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Button, Icon, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Icon, Portal, Text } from "react-native-paper";
 import { CustomNavigationProp } from "../../types/common";
 import usePurchaseOrder from "../../api/purchase order/usePurchaseOrder";
 import { InfoCard } from "../../components/InfoCard";
 import { useMemo, useState } from "react";
 import { formatDate } from "../../utils/helper";
 import useUpdatePurchaseOrderStatus from "../../api/purchase order/usePurchaseOrderStatusUpdate";
+import { BidModal } from "../../components/Modal";
 
 type RootStackParamList = {
     SupplierPurchaseOrderDetailsScreen: {
@@ -20,7 +21,8 @@ const SupplierPurchaseorderDetailsScreen = () => {
     
     const navigation = useNavigation<CustomNavigationProp>();
 
-    const [statusLoading, setStatusLoading] = useState<0|1|2>(0)
+    const [statusLoading, setStatusLoading] = useState<0|1|2>(0);
+    const [showModal, setShowModal] = useState<boolean>(false);
 
     const {data: purchaseOrder, isPending: loading, refetch} = usePurchaseOrder({id: orderId});
 
@@ -120,6 +122,30 @@ const SupplierPurchaseorderDetailsScreen = () => {
         }
     }, [purchaseOrder])
 
+    const handleShowModal= () => {
+        setShowModal(true)
+    };
+
+    const handleHideModal = () => {
+        setShowModal(false)
+    }
+
+    const bidAdditionalDetails = useMemo(() => {
+        if (purchaseOrder){
+            return {
+                'Bidders Bid Number': purchaseOrder.bid_header_details.bidders_bid_number,
+                'Bid status': purchaseOrder.bid_header_details.bid_status,
+                'Response Type': purchaseOrder.bid_header_details.type_of_response,
+                'Bid Expiration Date': formatDate(purchaseOrder.bid_header_details.bid_expiration_date),
+                'Supplier Note': purchaseOrder.bid_header_details.note_to_supplier ? purchaseOrder.bid_header_details.note_to_supplier: "",
+                Status: purchaseOrder.bid_header_details.auction_header.status,
+                'Bid count': purchaseOrder.bid_header_details.auction_header.bid_count
+            }
+        }else{
+            return {}
+        }
+    }, [purchaseOrder])
+
     return(
         <View style={styles.container}>
             <View style={styles.header}>
@@ -146,9 +172,12 @@ const SupplierPurchaseorderDetailsScreen = () => {
                     <InfoCard title="Supplier Details" iterative={false} contentData={supplierDetails}/>
                     <InfoCard title="Organization Details" iterative={false} contentData={organizationDetails}/>
                     <InfoCard title="Items" iterative={true} contentData={itemsDetails}/>
-                    <InfoCard title="Bid Details" iterative={false} contentData={bidDetails}/>
+                    <InfoCard title="Bid Details" iterative={false} contentData={bidDetails} footerButtonAvailable={true} buttonFn={handleShowModal}/>
                 </View>
             </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
+            <Portal>
+                <BidModal closeModal={handleHideModal} show={showModal} contentData={bidAdditionalDetails}/>
+            </Portal>
         </View>
     )
 }
