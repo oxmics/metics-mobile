@@ -17,7 +17,7 @@ export const  DataCard = ({status, footerLeftText, footerRightText, title, title
                     <Text style={styles.titleLabel}>{titleLabel}</Text>
                     <Text style={styles.title}>{title}</Text>
                 </View>
-                <Text style={status === "APPROVED" ? styles.statusGreen : status === "OPEN" ? styles.statusGreen : status === "PENDING" ? styles.statusYellow: status === "AWARDED" ? styles.statusGreen: status === "CANCELLED" ? styles.statusGray: status === "WITHDRAWN" ? styles.statusBlue : status === "DISQUALIFIED" ? styles.statusDarkRed : status === "CLOSED" ? styles.statusRed : styles.statusRed}>{status}</Text>
+                <Text style={status === "APPROVED" ? styles.statusGreen : status === "OPEN" ? styles.statusGreen : status === "PENDING" ? styles.statusYellow: status === "AWARDED" ? styles.statusGreen: status === "CANCELLED" ? styles.statusGray: status === "WITHDRAWN" ? styles.statusBlue : status === "DISQUALIFIED" ? styles.statusDarkRed : status === "CLOSED" ?  styles.statusRed : status === "IN-PROGRESS" ? styles.statusGreen : status === "DRAFT" ? styles.statusOrange : styles.statusRed}>{status}</Text>
             </View>
             <Divider/>
             <View style={styles.footerContainer}>
@@ -90,6 +90,11 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: 400,
         color: '#A80909'
+    },
+    statusOrange: {
+        fontSize: 12,
+        fontWeight: 400,
+        color: '#F7A64F'
     },
     footerContainer: {
         display: 'flex',

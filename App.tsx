@@ -18,6 +18,7 @@ import BuyerPurchaseOrderScreen from './src/screens/Buyer/purchaseOrder';
 import BuyerPurchaseorderDetailsScreen from './src/screens/Buyer/purchaseOrderDetails';
 import SupplierRequestHistory from './src/screens/Supplier/requestHistory';
 import SupplierRequestDetailsScreen from './src/screens/Supplier/requestDetails';
+import BuyerRfqHistory from './src/screens/Buyer/rfqHistory';
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ function App(): React.JSX.Element {;
             <Stack.Screen name='BuyerDashboard' component={BuyerDashboardScreen}/>
             <Stack.Screen name='BuyerPurchaseOrder' component={BuyerPurchaseOrderScreen}/>
             <Stack.Screen name='BuyerPurchaseOrderDetails' component={BuyerPurchaseorderDetailsScreen}/>
+            <Stack.Screen name='BuyerRfqHistory' component={BuyerRfqHistory}/>
             <Stack.Screen name='SupplierDashboard' component={SupplierDashboardScreen}/>
             <Stack.Screen name='SupplierPurchaseOrder' component={SupplierPurchaseOrderScreen}/>
             <Stack.Screen name='SupplierPurchaseOrderDetails' component={SupplierPurchaseorderDetailsScreen}/>

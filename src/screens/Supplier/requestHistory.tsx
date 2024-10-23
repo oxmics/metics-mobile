@@ -82,14 +82,7 @@ const SupplierRequestHistory = () => {
                             </View>}
                             <SafeAreaView style={{flex: 1}}>
                                 <FlatList
-                                    data={displayOpenAuctions}
-                                    renderItem={({item}) => <TouchableOpacity onPress={()=> navigation.push('SupplierRequestDetails', {reqId: item.id})}><DataCard title={item.requisition_number} titleLabel="Reference Number" status={item.is_open ? "OPEN" : "CLOSED"} footerLeftText={item.organization_name} footerRightText={formatDate(item.need_by_date)}/></TouchableOpacity>}
-                                    keyExtractor={(item: AuctionType) => item.id}
-                                    refreshing={loading}
-                                    onRefresh={() => refetch()}
-                                />
-                                <FlatList
-                                    data={displayClosedAuctions}
+                                    data={[...displayOpenAuctions, ...displayClosedAuctions]}
                                     renderItem={({item}) => <TouchableOpacity onPress={()=> navigation.push('SupplierRequestDetails', {reqId: item.id})}><DataCard title={item.requisition_number} titleLabel="Reference Number" status={item.is_open ? "OPEN" : "CLOSED"} footerLeftText={item.organization_name} footerRightText={formatDate(item.need_by_date)}/></TouchableOpacity>}
                                     keyExtractor={(item: AuctionType) => item.id}
                                     refreshing={loading}
