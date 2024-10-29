@@ -13,7 +13,6 @@ const ForgotPasswordScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
 
     const [email, setEmail] = useState<string>('');
-    const [isRobot, setIsRobot] = useState<boolean>(false);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarColor, setSnackbarColor] = useState('green');
@@ -68,12 +67,12 @@ const ForgotPasswordScreen = () => {
                 placeholder="Email"
                 autoCaptalize="none"
             />
-            <CaptchaCheckbox isRobot={isRobot} setIsRobot={setIsRobot}/>
             <GradientButton
                 colors={["#00B976", "#00B976"]}
                 label="Next"
                 onPress={handleResetPassword}
-                disabled={!isValidEmail(email) || !isRobot}
+                disabled={!isValidEmail(email) || loading}
+                loading={loading}
             />
             <View style={styles.rememberPassContainer}>
                 <Text style={styles.rememberPasswordText}>Remeber Your Password?</Text>

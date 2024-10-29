@@ -1,4 +1,4 @@
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+    import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { ActivityIndicator, Button, Icon, Portal, Text } from "react-native-paper";
 import { CustomNavigationProp } from "../../types/common";
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000'
     },
     cardContainer: {
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     },
     orderStatusLabel: {
         fontSize: 14,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#00000099',
         marginLeft: 40
     },
@@ -237,17 +237,17 @@ const styles = StyleSheet.create({
     },
     pendingStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#F7A64F'
     },
     rejectedStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#FC555B'
     },
     acceptedStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#00B528'
     },
     statusBtnContainer: {
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     },
     statusBtnText: {
         fontSize: 12,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#FFFFFF'
     },
     loadingContainer: {

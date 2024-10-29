@@ -1,3 +1,5 @@
+import { TemplateType } from "./template"
+
 export type PurchaseOrderType = {
     id: string,
     details: PurchaseOrderDetailsType[]
@@ -36,7 +38,7 @@ export type PurchaseOrderStatusType = {
     total_price: string
 }
 
-type OrganizationDetailsType = {
+export type OrganizationDetailsType = {
     additional_attributes: {id: string, name: string, value: string}[];
     address_line1: string;
     address_line2: string;
@@ -58,7 +60,7 @@ type OrganizationDetailsType = {
     total_turnover: number;
 }
 
-type PurchaseOrderDetailsType = {
+export type PurchaseOrderDetailsType = {
     purchase_order: string,
     bid_line: string,
     auction_line: string,
@@ -68,7 +70,7 @@ type PurchaseOrderDetailsType = {
     total_price: string
 }
 
-type BidHeaderDetails = {
+export type BidHeaderDetails = {
     id: string,
     created_at: string,
     updated_at: string,
@@ -84,13 +86,10 @@ type BidHeaderDetails = {
     disqualify_reason: string|null,
     submit_stage: string,
     note_to_supplier?: string,
-    templates: {
-        name: string,
-        description: string
-    }[]
+    templates: TemplateType[]
 }
 
-type AuctionHeaderType = {
+export type AuctionHeaderType = {
     id: string,
     created_at: string,
     updated_at: string,
@@ -139,7 +138,7 @@ export type FocalPointsType = {
     role: string
 }
 
-type UserType = {
+export type UserType = {
     email: string,
     first_name: string,
     middle_name: string,

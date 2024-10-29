@@ -17,7 +17,7 @@ const useUpdatePurchaseOrderStatus = () => {
           `/purchase-order-status/`,
           {
             "po_id": id,
-            "po_status": status,
+            "status": status,
           }
         );
         if (response.data) {

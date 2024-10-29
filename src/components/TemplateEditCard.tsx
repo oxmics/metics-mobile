@@ -28,8 +28,8 @@ export const TemplateEditCard = ({closeFn, saveFn, saving, contentData, title}: 
             <TextInput style={styles.inputBox} mode="outlined" underlineStyle={{display: 'none'}} outlineColor="#00000033" activeOutlineColor="#000000AB" value={description} onChangeText={setDescription} placeholder="Description here..." placeholderTextColor={"#00000080"} multiline/>
             <View style={styles.footer}>
                 <View style={styles.btnContainer}>
-                    <Button mode="text" labelStyle={{color: '#000000', fontSize: 11, fontWeight: 600}} onPress={() => closeFn()}>Close</Button>
-                    <Button loading={saving} style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => handleSave()}>Save</Button>
+                    <Button mode="text" labelStyle={{color: '#000000', fontSize: 11, fontWeight: '600'}} onPress={() => closeFn()}>Close</Button>
+                    <Button loading={saving} style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => handleSave()}>Save</Button>
                 </View>
             </View>
         </View>
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 15,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000CC',
         marginLeft: 12,
         marginBottom: 16
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     },
     rowText: {
         color: '#00000099',
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 12
     },
     footer: {

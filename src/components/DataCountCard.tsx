@@ -43,12 +43,12 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 13,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#000000'
     },
     count: {
         fontSize: 13,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#000000B2'
     },
     logoContainer: {

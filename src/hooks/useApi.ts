@@ -24,6 +24,7 @@ export function useApi() {
                 if (error.response && error.response.status === 401) {
                     navigation.navigate('Login');
                 }
+                
                 return Promise.reject(error);
             }
         );

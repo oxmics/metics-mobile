@@ -1,12 +1,12 @@
 import { StyleSheet, View } from "react-native"
 import { Button, Text, TextInput } from "react-native-paper"
-import { CommentType } from "../types/auction"
+import { BidCommentType, CommentType } from "../types/auction"
 import { useEffect, useState } from "react"
-import Timeline from "react-native-timeline-flatlist"
+import Timeline, { Data } from "react-native-timeline-flatlist"
 import { formatDateVerbose } from "../utils/helper"
 
 interface props {
-    comments: CommentType[]|undefined,
+    comments: CommentType[]| BidCommentType[] |undefined,
     buttonFn?: (value: string) => void,
     loading: boolean
 }
@@ -27,13 +27,13 @@ export const CommentCard = ({buttonFn, comments, loading}: props) => {
             })
             setData([...tempData]);
         }
-    }, [comments])
+    }, [comments]);
 
     return(
         <View style={styles.container}>
             <Text style={styles.title}>Comments</Text>
             {comments && data.length > 0 && (
-                <Timeline data={data} circleColor="#D9D9D9" lineColor="#D9D9D9" timeContainerStyle={{minWidth: 150}} descriptionStyle={{flexWrap: 'wrap'}} titleStyle={{flexWrap: 'wrap'}}/>
+                <Timeline data={data} circleColor="#D9D9D9" lineColor="#D9D9D9" timeContainerStyle={{minWidth: 150}} descriptionStyle={{flexWrap: 'wrap', color: "#000000"}} titleStyle={{flexWrap: 'wrap', color: "#000000"}}/>
             )}
             <View style={styles.noteContainer}>
                 <Text style={styles.noteBold}>Note:</Text>
@@ -41,8 +41,8 @@ export const CommentCard = ({buttonFn, comments, loading}: props) => {
             </View>
             { buttonFn &&
                 <View style={styles.footer}>
-                        <TextInput value={comment} onChangeText={setComment} style={styles.commentInput} mode="outlined" placeholder="Comment here..." placeholderTextColor={"#00000099"} cursorColor="#000" outlineColor="#0000004D" selectionColor="#0000004D" activeOutlineColor="#0000004D"/>
-                        <Button loading={loading} disabled={comment.length < 1} style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => {buttonFn(comment); setComment("")}}>Comment</Button>
+                        <TextInput value={comment} onChangeText={setComment} style={styles.commentInput} mode="outlined" placeholder="Comment here..." textColor="#000000" placeholderTextColor={"#00000099"} cursorColor="#000" outlineColor="#0000004D" selectionColor="#0000004D" activeOutlineColor="#0000004D"/>
+                        <Button loading={loading} disabled={comment.length < 1} style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => {buttonFn(comment); setComment("")}}>Comment</Button>
                 </View>
             }
         </View>
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 15,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000CC',
         marginLeft: 12,
         marginBottom: 16
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     },
     rowText: {
         color: '#00000099',
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 12
     },
     noteContainer: {
@@ -101,12 +101,12 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     noteBold: {
-        fontWeight: 700,
+        fontWeight: '700',
         fontSize: 10,
         color: '#000',
     },
     noteDescription: {
-        fontWeight: 500,
+        fontWeight: '500',
         fontSize: 10,
         color: '#00000099'
     },
@@ -140,6 +140,15 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 7,
         borderBottomLeftRadius: 7,
         borderEndColor: '#00B976',
-        height: 40
+        height: 40,
+        backgroundColor: "#FFFFFF"
+    },
+    descriptionContainer:{
+        flexDirection: 'row',
+        paddingRight: 50
+    },
+    textDescription: {
+        marginLeft: 10,
+        color: '#000000'
     }
 })

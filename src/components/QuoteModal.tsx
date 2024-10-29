@@ -118,12 +118,12 @@ const styles = StyleSheet.create({
     },
     rowText: {
         color: '#00000099',
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 12
     },
     title: {
         fontSize: 15,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000CC'
     },
     closeBtn: {

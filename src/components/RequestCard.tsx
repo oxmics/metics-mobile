@@ -1,17 +1,24 @@
 import { StyleSheet, View } from "react-native"
-import { Divider, Text } from "react-native-paper"
+import { Button, Divider, Text } from "react-native-paper"
+import { formatDateString } from "../utils/helper"
 
 interface props {
     title: string,
     contentData: any,
     organization_name: string
+    date: string,
+    buttonAvailable?: boolean,
+    buttonFn?: () => void
 }
 
-export const RequestInfoCard = ({contentData, title, organization_name}: props) => {
+export const RequestInfoCard = ({contentData, date, title, organization_name, buttonAvailable, buttonFn}: props) => {
 
     return(
         <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
+            <View style={styles.titleContainer}>
+                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.date}>{formatDateString(date)}</Text>
+            </View>
             <View style={styles.card}>
                 <Text style={styles.requestedLabel}>Requested By</Text>
                 <Text style={styles.requestedValue}>{organization_name}</Text>
@@ -22,7 +29,12 @@ export const RequestInfoCard = ({contentData, title, organization_name}: props) 
                     <Text style={styles.rowText}>{String(value)}</Text>
                   </View>
                 ))}
-            </View>   
+            </View>
+            {buttonAvailable && buttonFn &&
+                <View style={styles.footer}>
+                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => buttonFn()}>See More</Button>
+                </View>
+            }
         </View>
     )
 }
@@ -38,10 +50,9 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 15,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000CC',
         marginLeft: 12,
-        marginBottom: 16
     },
     card: {
         width: '100%',
@@ -57,16 +68,16 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     row: {
+        width: '100%',
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 5,
         flexWrap: 'wrap'
     },
     rowText: {
         color: '#00000099',
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 12
     },
     footer: {
@@ -86,11 +97,24 @@ const styles = StyleSheet.create({
     requestedLabel: {
         color: '#000000B2',
         fontSize: 11,
-        fontWeight: 300
+        fontWeight: '300'
     },
     requestedValue: {
         color: '#000000',
         fontSize: 12,
-        fontWeight: 400
+        fontWeight: '400'
+    },
+    titleContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 16
+    },
+    date: {
+        fontSize: 10,
+        fontWeight: '400',
+        color: '#000000B2'
     }
+    
 })

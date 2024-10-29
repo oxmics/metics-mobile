@@ -56,3 +56,13 @@ export type CommentType = {
     message: string,
     author: string
 }
+
+export type BidCommentType = {
+    id: string,
+    created_at: string,
+    updated_at: string,
+    created_by: string,
+    bid_header: string,
+    message: string,
+    author: string
+}

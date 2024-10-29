@@ -36,7 +36,7 @@ export const InfoCard = ({footerButtonAvailable, buttonFn, contentData, iterativ
             )}
             {footerButtonAvailable && buttonFn &&
                 <View style={styles.footer}>
-                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => buttonFn()}>See More</Button>
+                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => buttonFn()}>See More</Button>
                 </View>
             }
         </View>
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 15,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000CC',
         marginLeft: 12,
         marginBottom: 16
@@ -73,16 +73,17 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     row: {
+        width: '100%',
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         alignItems: 'center',
         gap: 5,
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
     },
     rowText: {
         color: '#00000099',
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 12
     },
     footer: {

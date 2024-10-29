@@ -9,7 +9,7 @@ interface Props {
   template_data: string,
 }
 
-const useBid = () => {
+const useCreateBid = () => {
     const api = useApi();
 
   const mutation = useMutation({
@@ -45,4 +45,4 @@ const useBid = () => {
   return mutation;
 };
 
-export default useBid;
+export default useCreateBid;

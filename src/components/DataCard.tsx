@@ -54,46 +54,46 @@ const styles = StyleSheet.create({
     titleLabel: {
         color: '#00000099',
         fontSize: 12,
-        fontWeight: 400
+        fontWeight: '400'
     },
     title: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: "#000000"
     },
     statusGreen: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#00FF00'
     },
     statusYellow: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#F7A64F'
     },
     statusRed: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#FF003D'
     },
     statusBlue: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#B9D7FD'
     },
     statusGray: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#DBE1DF'
     },
     statusDarkRed: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#A80909'
     },
     statusOrange: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#F7A64F'
     },
     footerContainer: {
@@ -107,6 +107,6 @@ const styles = StyleSheet.create({
     footerText: {
         color: '#000000B2',
         fontSize: 12,
-        fontWeight: 400
+        fontWeight: '400'
     }
 })

@@ -44,9 +44,9 @@ const LoginScreen = () => {
         setSnackbarVisible(true);
         if (loginResult === LoginResponseEnum.SUCCESS){
             if (active === "buyer"){
-                navigation.navigate('BuyerDashboard');
+                navigation.replace('BuyerDashboard');
             }else{
-                navigation.navigate('SupplierPurchaseOrder');
+                navigation.replace('SupplierDashboard');
             }
         }
     }
@@ -81,7 +81,7 @@ const LoginScreen = () => {
             <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
-            <GradientButton label="Submit" onPress={handleLogin} colors={['#021F66', '#205FA2']} disabled={(!isValidEmail(email) || password.length < 1)}/>
+            <GradientButton label="Submit" onPress={handleLogin} colors={['#021F66', '#205FA2']} disabled={(!isValidEmail(email) || password.length < 1 || loading)} loading={loading}/>
             <Snackbar
                 visible={snackbarVisible}
                 onDismiss={() => setSnackbarVisible(false)}

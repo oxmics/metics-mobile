@@ -1,32 +1,36 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState } from 'react';
 import GradientButton from "../components/GradientButton";
-import { TextInput } from "react-native-paper";
+import { Icon, TextInput } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
+import useChangePassword from "../api/auth/useChangePassword";
 
 const EnterNewPasswordScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
 
+    const {mutateAsync: changePassword, isPending} = useChangePassword();
+
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
     const [hidePass, setHidePass] = useState(true);
     const [hideConfirmPass, setHideConfirmPass] = useState(true);
 
     const handleLogin = () => {
+        changePassword
         navigation.navigate('Login');
     }
 
     return(
         <ScrollView style={styles.container} automaticallyAdjustKeyboardInsets={true}>
-            <View style={styles.header}>
-                <Image
-                    source={require('../../assets/images/Metics-blue.png')}
-                    style={styles.image}
-                    resizeMode="contain"
-                />
-            </View>
+           <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Settings</Text>
+                </View>
             <View style={styles.titleContainer}>
                 <Text style={styles.otpTitle}>Enter New Password</Text>
             </View>
@@ -35,7 +39,7 @@ const EnterNewPasswordScreen = () => {
                 style={styles.inputFields}
                 value={password}
                 onChange={setPassword}
-                placeholder="Password"
+                placeholder="Old Password"
                 secureTextEntry={hidePass ? true : false}
                 suffix={<TextInput.Icon icon={hidePass ? "eye" : "eye-off"} onPressIn={()=> setHidePass(!hidePass)}/>}
             />
@@ -43,22 +47,25 @@ const EnterNewPasswordScreen = () => {
                 style={styles.inputFields2}
                 value={confirmPassword}
                 onChange={setConfirmPassword}
-                placeholder="Confirm Password"
+                placeholder="New Password"
+                secureTextEntry={hideConfirmPass ? true : false}
+                suffix={<TextInput.Icon icon={hideConfirmPass ? "eye" : "eye-off"} onPressIn={()=> setHideConfirmPass(!hideConfirmPass)}/>}
+            />
+             <CustomInput
+                style={styles.inputFields3}
+                value={confirmNewPassword}
+                onChange={setConfirmNewPassword}
+                placeholder="Confirm New Password"
                 secureTextEntry={hideConfirmPass ? true : false}
                 suffix={<TextInput.Icon icon={hideConfirmPass ? "eye" : "eye-off"} onPressIn={()=> setHideConfirmPass(!hideConfirmPass)}/>}
             />
             <GradientButton
                 colors={["#00B976", "#00B976"]}
-                label="Login"
+                label="Change password"
                 onPress={handleLogin}
-                disabled={password !== confirmPassword && password.length > 8}
+                disabled={confirmNewPassword !== confirmPassword && confirmPassword.length > 8 || password.length > 0|| isPending}
+                loading={isPending}
             />
-            <View style={styles.rememberPassContainer}>
-                <Text style={styles.rememberPasswordText}>Remeber Your Password?</Text>
-                <TouchableOpacity onPress={handleLogin}>
-                    <Text style={styles.loginText}>Login</Text>
-                </TouchableOpacity>
-            </View>
         </ScrollView>
     );
 }
@@ -76,9 +83,18 @@ const styles = StyleSheet.create({
         position: 'absolute',
     },
     header: {
-        position: 'relative',
-        top: 0,
-        left: 0,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        gap: 8,
+        paddingHorizontal: 4,
+        paddingVertical: 20
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: '500',
+        color: '#000000'
     },
     titleContainer: {
         width: "100%",
@@ -121,6 +137,12 @@ const styles = StyleSheet.create({
         marginTop: 16
     },
     inputFields2: {
+        borderWidth: 1,
+        borderRadius: 5,
+        backgroundColor: "white",
+        marginTop: 16,
+    },
+    inputFields3: {
         borderWidth: 1,
         borderRadius: 5,
         backgroundColor: "white",

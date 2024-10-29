@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { formatDate } from "../../utils/helper";
 import useUpdatePurchaseOrderStatus from "../../api/purchase order/usePurchaseOrderStatusUpdate";
 import { BidModal } from "../../components/Modal";
+import { BottomNavbar } from "../../components/BottomNavbar";
 
 type RootStackParamList = {
     BuyerPurchaseOrderDetailsScreen: {
@@ -163,38 +164,41 @@ const BuyerPurchaseorderDetailsScreen = () => {
     }
 
     return(
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.replace("SupplierPurchaseOrder")}>
-                    <Icon size={20} source={"arrow-left"} color="#000000"/>
-                </TouchableOpacity>
-                <Text style={styles.title}>Purchase Order Details</Text>
+        <View style={{position: 'relative', flex: 1, backgroundColor: '#FFFFFF'}}>
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.replace("SupplierPurchaseOrder")}>
+                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Purchase Order Details</Text>
+                </View>
+                {(!loading && purchaseOrder) ? <ScrollView>
+                    <View style={styles.statusContainer}>
+                        <Text style={styles.orderStatusLabel}>Order Status:</Text>
+                        <View style={styles.statusValueContainer}>{purchaseOrder.int_status == -1 ? <Text style={styles.rejectedStatus}>REJECTED</Text>:purchaseOrder.int_status == 0? <Text style={styles.pendingStatus}>PENDING</Text> : <Text style={styles.acceptedStatus}>ACCEPTED</Text>}</View>
+                    </View>
+                    {purchaseOrder.int_status === 0 && <View style={styles.statusBtnContainer}>
+                        <Button style={styles.approveBtn} labelStyle={styles.statusBtnText} disabled={sendingStatusUpdate} loading={statusLoading === 1} onPress={() => handleStatusUpdate("Approve")}>
+                            Approve
+                        </Button>
+                        <Button style={styles.rejectBtn} labelStyle={styles.statusBtnText} disabled={sendingStatusUpdate} loading={statusLoading === 2} onPress={() => handleStatusUpdate("Reject")}>
+                            Reject
+                        </Button>
+                    </View>}
+                    <View style={styles.cardContainer}>
+                        <InfoCard title="Auction Details" iterative={false} contentData={auctionDetails}/>
+                        <InfoCard title="Supplier Details" iterative={false} contentData={supplierDetails}/>
+                        <InfoCard title="Organization Details" iterative={false} contentData={organizationDetails}/>
+                        <InfoCard title="Items" iterative={true} contentData={itemsDetails}/>
+                        <InfoCard title="Bid Details" iterative={false} contentData={bidDetails} footerButtonAvailable={true} buttonFn={handleShowModal}/>
+                        {/* <InfoCard title="Template Details" iterative={true} contentData={templateDetails}/> */}
+                    </View>
+                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
+                <Portal>
+                    <BidModal closeModal={handleHideModal} show={showModal} contentData={bidAdditionalDetails}/>
+                </Portal>
             </View>
-            {(!loading && purchaseOrder) ? <ScrollView>
-                <View style={styles.statusContainer}>
-                    <Text style={styles.orderStatusLabel}>Order Status:</Text>
-                    <View style={styles.statusValueContainer}>{purchaseOrder.int_status == -1 ? <Text style={styles.rejectedStatus}>REJECTED</Text>:purchaseOrder.int_status == 0? <Text style={styles.pendingStatus}>PENDING</Text> : <Text style={styles.acceptedStatus}>ACCEPTED</Text>}</View>
-                </View>
-                {purchaseOrder.int_status === 0 && <View style={styles.statusBtnContainer}>
-                    <Button style={styles.approveBtn} labelStyle={styles.statusBtnText} disabled={sendingStatusUpdate} loading={statusLoading === 1} onPress={() => handleStatusUpdate("Approve")}>
-                        Approve
-                    </Button>
-                    <Button style={styles.rejectBtn} labelStyle={styles.statusBtnText} disabled={sendingStatusUpdate} loading={statusLoading === 2} onPress={() => handleStatusUpdate("Reject")}>
-                        Reject
-                    </Button>
-                </View>}
-                <View style={styles.cardContainer}>
-                    <InfoCard title="Auction Details" iterative={false} contentData={auctionDetails}/>
-                    <InfoCard title="Supplier Details" iterative={false} contentData={supplierDetails}/>
-                    <InfoCard title="Organization Details" iterative={false} contentData={organizationDetails}/>
-                    <InfoCard title="Items" iterative={true} contentData={itemsDetails}/>
-                    <InfoCard title="Bid Details" iterative={false} contentData={bidDetails} footerButtonAvailable={true} buttonFn={handleShowModal}/>
-                    {/* <InfoCard title="Template Details" iterative={true} contentData={templateDetails}/> */}
-                </View>
-            </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
-            <Portal>
-                <BidModal closeModal={handleHideModal} show={showModal} contentData={bidAdditionalDetails}/>
-            </Portal>
+            <BottomNavbar/>
         </View>
     )
 }
@@ -206,7 +210,8 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFFFFF'
+        backgroundColor: '#FFFFFF',
+        marginBottom: 80
     },
     header: {
         display: 'flex',
@@ -219,7 +224,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000'
     },
     cardContainer: {
@@ -238,7 +243,7 @@ const styles = StyleSheet.create({
     },
     orderStatusLabel: {
         fontSize: 14,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#00000099',
         marginLeft: 40
     },
@@ -254,17 +259,17 @@ const styles = StyleSheet.create({
     },
     pendingStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#F7A64F'
     },
     rejectedStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#FC555B'
     },
     acceptedStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#00B528'
     },
     statusBtnContainer: {
@@ -292,7 +297,7 @@ const styles = StyleSheet.create({
     },
     statusBtnText: {
         fontSize: 12,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#FFFFFF'
     },
     loadingContainer: {

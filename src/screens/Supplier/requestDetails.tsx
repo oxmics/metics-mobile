@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from "react";
 import { formatDate, formatDateReverse } from "../../utils/helper";
 import { BidModal } from "../../components/Modal";
 import useAuctionDetails from "../../api/auctions/useAuction";
-import useBid from "../../api/auctions/useBid";
 import useAuctionLines from "../../api/auctions/useAuctionLineHeader";
 import useComments from "../../api/auctions/useComments";
 import useCreateComment from "../../api/auctions/useCreateComment";
@@ -24,6 +23,9 @@ import { QuoteModal } from "../../components/QuoteModal";
 import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
 import { AttachmentsCard } from "../../components/AttachmentsCard";
 import { AttachmentType } from "../../types/purchaseOrder";
+import useCreateBid from "../../api/auctions/useCreateBid";
+import useAuctionIgnore from "../../api/auctions/useAuctionIgnore";
+import { BottomNavbar } from "../../components/BottomNavbar";
 
 type RootStackParamList = {
     SupplierRequestDetailsScreen: {
@@ -52,25 +54,27 @@ const SupplierRequestDetailsScreen = () => {
     const {data: templates, isPending: templatesLoading, refetch: refetchTemplates} = useTemplates();
     const {mutateAsync: createComment, isPending: sendingComments} = useCreateComment();
     const {mutateAsync: updateDescription, isPending: updatingDescription} = useUpdateTemplateDescription();
-    const {mutateAsync: bid, isPending: sendingBidUpdate} = useBid();
+    const {mutateAsync: bid, isPending: sendingBidUpdate} = useCreateBid();
+    const {mutateAsync: ignore, isPending: sendingBidIgnore} = useAuctionIgnore();
 
     const handleStatusUpdate = (status: string) => {
         if(status === "Bid") {
             setStatusLoading(1)
+            let tempBidLine: any = auctionLines && auctionLines[0];
+            if(auctionLines && auctionLines[0] && tempBidLine){
+                tempBidLine['price'] = promisedPrice;
+                tempBidLine['promised_date'] = promisedDate ? formatDateReverse(promisedDate?.toISOString()): ""
+            }
+            bid({
+                id: reqId,
+                lst_bid_line: JSON.stringify(tempBidLine ? tempBidLine: []),
+                note_to_supplier: noteToSupplier,
+                template_data: JSON.stringify(selectedTemplate)
+            }).then((res) => {setStatusLoading(0); navigation.navigate('SupplierRequestHistory')})   
         }else{
             setStatusLoading(2)
-        }
-        let tempBidLine: any = auctionLines && auctionLines[0];
-        if(auctionLines && auctionLines[0] && tempBidLine){
-            tempBidLine['price'] = promisedPrice;
-            tempBidLine['promised_date'] = promisedDate ? formatDateReverse(promisedDate?.toISOString()): ""
-        }
-        bid({
-            id: reqId,
-            lst_bid_line: JSON.stringify(tempBidLine ? tempBidLine: []),
-            note_to_supplier: noteToSupplier,
-            template_data: JSON.stringify(selectedTemplate)
-        }).then((res) => {setStatusLoading(0); navigation.navigate('SupplierRequestHistory')})        
+            ignore({id: reqId}).then((res) => {setStatusLoading(0); navigation.navigate('SupplierRequestHistory')})
+        }     
     }
 
     const requestedByDetails = useMemo(() => {
@@ -143,38 +147,41 @@ const SupplierRequestDetailsScreen = () => {
     }
 
     return(
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.replace("SupplierRequestHistory")}>
-                    <Icon size={20} source={"arrow-left"} color="#000000"/>
-                </TouchableOpacity>
-                <Text style={styles.title}>Details</Text>
-            </View>
-            {(!loading && auction) ? <ScrollView>
-                <View style={styles.statusContainer}>
-                    <Text style={styles.orderStatusLabel}>Request</Text>
-                    <View style={styles.statusValueContainer}>
-                        <Button style={styles.approveBtn} labelStyle={styles.statusBtnText} disabled={sendingBidUpdate} loading={statusLoading === 1} onPress={() => handleStatusUpdate("Bid")}>
-                            Bid
-                        </Button>
-                        <Button style={styles.rejectBtn} labelStyle={styles.statusBtnText} disabled={sendingBidUpdate} loading={statusLoading === 2} onPress={() => handleStatusUpdate("Ignore")}>
-                            Ignore
-                        </Button>
+        <View style={{position: 'relative', flex: 1, backgroundColor: '#FFFFFF'}}>
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => navigation.replace("SupplierRequestHistory")}>
+                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Details</Text>
+                </View>
+                {(!loading && auction) ? <ScrollView>
+                    <View style={styles.statusContainer}>
+                        <Text style={styles.orderStatusLabel}>Request</Text>
+                        <View style={styles.statusValueContainer}>
+                            <Button style={styles.approveBtn} labelStyle={styles.statusBtnText} disabled={sendingBidUpdate} loading={statusLoading === 1} onPress={() => handleStatusUpdate("Bid")}>
+                                Bid
+                            </Button>
+                            <Button style={styles.rejectBtn} labelStyle={styles.statusBtnText} disabled={sendingBidUpdate} loading={statusLoading === 2} onPress={() => handleStatusUpdate("Ignore")}>
+                                Ignore
+                            </Button>
+                        </View>
                     </View>
-                </View>
-                <View style={styles.cardContainer}>
-                    <RequestInfoCard title={auction.title} contentData={requestedByDetails} organization_name={auction.organization_name}/>
-                    {attachmentsDetails.length > 0 && <AttachmentsCard title="Attachments" contentData={attachmentsDetails}/>}
-                    <TemplatesCard title="Payment Templates" contentData={templates} selectedTemplate={selectedTemplate} setSelectedTemplate={handleTemplateSelection}/>
-                    {selectedTemplate && showEditTemplate && <TemplateEditCard title={selectedTemplate.name} contentData={selectedTemplate} closeFn={()=>setShowEditTemplate(false)} saveFn={handleUpdateTemplateDescription} saving={updatingDescription}/>}
-                    <NoteCard title="Note to Supplier" content={noteToSupplier} setContent={setNoteToSupplier}/>
-                    <CommentCard comments={comments} buttonFn={handleComment} loading={sendingComments}/>
-                    {quoteDetails && quoteDetails?.length > 0 && <QuoteContainer contentData={quoteDetails[0]} buttonFn={handleShowModal} footerButtonAvailable={true}/>}
-                </View>
-            </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
-            <Portal>
-                <QuoteModal closeModal={handleHideModal} show={showModal} date={promisedDate} price={promisedPrice} setDate={setPromisedDate} setPrice={setPromisedPrice}/>
-            </Portal>
+                    <View style={styles.cardContainer}>
+                        <RequestInfoCard title={auction.title} contentData={requestedByDetails} organization_name={auction.organization_name} date={auction.created_at}/>
+                        {attachmentsDetails.length > 0 && <AttachmentsCard title="Attachments" contentData={attachmentsDetails}/>}
+                        <TemplatesCard title="Payment Templates" contentData={templates} selectedTemplate={selectedTemplate} setSelectedTemplate={handleTemplateSelection}/>
+                        {selectedTemplate && showEditTemplate && <TemplateEditCard title={selectedTemplate.name} contentData={selectedTemplate} closeFn={()=>setShowEditTemplate(false)} saveFn={handleUpdateTemplateDescription} saving={updatingDescription}/>}
+                        <NoteCard title="Note to Supplier" content={noteToSupplier} setContent={setNoteToSupplier}/>
+                        <CommentCard comments={comments} buttonFn={handleComment} loading={sendingComments || commentsLoading}/>
+                        {quoteDetails && quoteDetails?.length > 0 && <QuoteContainer contentData={quoteDetails[0]} buttonFn={handleShowModal} footerButtonAvailable={true}/>}
+                    </View>
+                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
+                <Portal>
+                    <QuoteModal closeModal={handleHideModal} show={showModal} date={promisedDate} price={promisedPrice} setDate={setPromisedDate} setPrice={setPromisedPrice}/>
+                </Portal>
+            </View>
+            <BottomNavbar isSupplier/>
         </View>
     )
 }
@@ -186,7 +193,8 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFFFFF'
+        backgroundColor: '#FFFFFF',
+        marginBottom: 80
     },
     header: {
         display: 'flex',
@@ -199,7 +207,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000'
     },
     cardContainer: {
@@ -219,7 +227,7 @@ const styles = StyleSheet.create({
     },
     orderStatusLabel: {
         fontSize: 20,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#000000E5',
         marginLeft: 12
     },
@@ -232,17 +240,17 @@ const styles = StyleSheet.create({
     },
     pendingStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#F7A64F'
     },
     rejectedStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#FC555B'
     },
     acceptedStatus: {
         fontSize: 12,
-        fontWeight: 400,
+        fontWeight: '400',
         color: '#00B528'
     },
     statusBtnContainer: {
@@ -270,7 +278,7 @@ const styles = StyleSheet.create({
     },
     statusBtnText: {
         fontSize: 12,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#FFFFFF'
     },
     loadingContainer: {

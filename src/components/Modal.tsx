@@ -19,7 +19,7 @@ export const BidModal = ({closeModal, contentData, show}: props) => {
                     </View>
                     ))}
                 </View>  
-                <Button style={styles.closeBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={closeModal}>Close</Button>
+                <Button style={styles.closeBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={closeModal}>Close</Button>
             </View>
         </Modal>
     )
@@ -61,12 +61,12 @@ const styles = StyleSheet.create({
     },
     rowText: {
         color: '#00000099',
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 12
     },
     title: {
         fontSize: 15,
-        fontWeight: 500,
+        fontWeight: '500',
         color: '#000000CC'
     },
     closeBtn: {

@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     },
     rowText: {
         color: '#00000099',
-        fontWeight: 400,
+        fontWeight: '400',
         fontSize: 12
     },
     footer: {
