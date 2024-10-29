@@ -2,21 +2,23 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { ResetPasswordOtpResponseType } from "../../types/auth";
 import { APIResponseEnum } from "../../types/common";
+import { useApi } from "../../hooks/useApi";
 
 interface Props {
-    otp: string;
-    userId: string;
+  new_password: string,
+  old_password: string
 }
 
 const useChangePassword = () => {
-
+  const api = useApi();
   const mutation = useMutation({
-    mutationFn: async ({ userId, otp }: Props) => {
+    mutationFn: async ({ new_password, old_password }: Props) => {
       try {
         const response = await axios.post(
-          `${process.env.BASE_URL}/reset-password/${userId}`,
+          `${process.env.BASE_URL}/change-password/`,
           {
-            otp: otp,
+            old_password,
+            new_password
           }
         );
         

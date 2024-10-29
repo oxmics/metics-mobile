@@ -6,18 +6,19 @@ import { APIResponseEnum } from "../../types/common";
 interface Props {
     otp: string;
     userId: string;
+    new_password: string
 }
 
 const useVerifyOtp = () => {
 
   const mutation = useMutation({
-    mutationFn: async ({ userId, otp }: Props) => {
+    mutationFn: async ({ userId, otp, new_password }: Props) => {
       try {
         const response = await axios.post(
           `${process.env.BASE_URL}/reset-password/${userId}/`,
           {
             otp: otp,
-            new_password: "n3w_p@55w0rd"
+            new_password: new_password
           }
         );
         

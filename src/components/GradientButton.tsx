@@ -1,15 +1,17 @@
 import React from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { ActivityIndicator } from 'react-native-paper';
 
 interface GradientButtonProps {
     label: string,
     onPress: () => void
     colors: string[],
-    disabled?: boolean
+    disabled?: boolean,
+    loading?: boolean
 }
 
-const GradientButton = ({label, onPress, colors, disabled}: GradientButtonProps) => {
+const GradientButton = ({label, onPress, colors, disabled, loading}: GradientButtonProps) => {
     return (
         <TouchableOpacity disabled={disabled && disabled} style={styles.buttonContainer} onPress={onPress}>
             <LinearGradient
@@ -18,7 +20,8 @@ const GradientButton = ({label, onPress, colors, disabled}: GradientButtonProps)
                 end={{ x: 1, y: 0 }}
                 style={styles.button}
             >
-                <Text style={styles.buttonText}>{label}</Text>
+                {loading && <ActivityIndicator size={"small"} color='#FFFFFF'/>}
+                {!loading && <Text style={styles.buttonText}>{label}</Text>}
             </LinearGradient>
         </TouchableOpacity>
     );
@@ -35,6 +38,9 @@ const styles = StyleSheet.create({
     button: {
         paddingVertical: 16,
         borderRadius: 5,
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },

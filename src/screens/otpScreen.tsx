@@ -6,7 +6,7 @@ import { APIResponseEnum, CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
 import useVerifyOtp from "../api/auth/useVerifyOtp";
 import useResetPasswordOtp from "../api/auth/useResetPasswordOtp";
-import { Snackbar } from "react-native-paper";
+import { Snackbar, TextInput } from "react-native-paper";
 
 type RootStackParamList = {
     OtpScreen: {
@@ -22,6 +22,11 @@ const OtpScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
 
     const [otp, setOtp] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [hidePass, setHidePass] = useState(true);
+    const [hideConfirmPass, setHideConfirmPass] = useState(true);
+
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarColor, setSnackbarColor] = useState('green');
@@ -54,7 +59,7 @@ const OtpScreen = () => {
     }
 
     const handleVerifyOtp = async() => {
-        const result = await verifyOtp({otp: otp, userId: userId});
+        const result = await verifyOtp({otp: otp, userId: userId, new_password: confirmPassword});
         let message = "";
 
         switch (result.status) {
@@ -71,7 +76,7 @@ const OtpScreen = () => {
         setSnackbarMessage(message);
         setSnackbarVisible(true);
         if( result.status === APIResponseEnum.SUCCESS){
-            navigation.navigate('EnterNewPassword');
+            navigation.navigate('Login');
         }
     }
 
@@ -114,11 +119,28 @@ const OtpScreen = () => {
                 </TouchableOpacity>
                 <Text style={styles.rememberPasswordText}></Text>
             </View>
+            <CustomInput
+                style={styles.inputFields}
+                value={password}
+                onChange={setPassword}
+                placeholder="Password"
+                secureTextEntry={hidePass ? true : false}
+                suffix={<TextInput.Icon icon={hidePass ? "eye" : "eye-off"} onPressIn={()=> setHidePass(!hidePass)}/>}
+            />
+            <CustomInput
+                style={styles.inputFields2}
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                placeholder="Confirm Password"
+                secureTextEntry={hideConfirmPass ? true : false}
+                suffix={<TextInput.Icon icon={hideConfirmPass ? "eye" : "eye-off"} onPressIn={()=> setHideConfirmPass(!hideConfirmPass)}/>}
+            />
             <GradientButton
                 colors={["#00B976", "#00B976"]}
                 label="Next"
                 onPress={handleVerifyOtp}
-                disabled={otp.length == 0}
+                disabled={otp.length == 0 || confirmPassword !== password || password.length == 0 || confirmPassword.length == 0}
+                loading={verifyOtpLoading}
             />
             <View style={styles.rememberPassContainer}>
                 <Text style={styles.rememberPasswordText}>Remeber Your Password?</Text>
@@ -218,5 +240,12 @@ const styles = StyleSheet.create({
         color: "#000",
         fontWeight: '400',
         fontSize: 14,
+    },
+    inputFields2: {
+        borderWidth: 1,
+        borderRadius: 5,
+        backgroundColor: "white",
+        marginTop: 16,
+        marginBottom: 40
     },
 });
