@@ -16,8 +16,8 @@ const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
     const handleLogout = async (screen: keyof RootStackParamList) => {
         navigation.replace(screen);
         await EncryptedStorage.removeItem('jwt-token');
-          await EncryptedStorage.removeItem('user_id');
-          await EncryptedStorage.removeItem('email');
+        await EncryptedStorage.removeItem('user_id');
+        await EncryptedStorage.removeItem('email');
         closeDrawer();
     };
 

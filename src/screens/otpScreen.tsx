@@ -144,7 +144,7 @@ const OtpScreen = () => {
             />
             <View style={styles.rememberPassContainer}>
                 <Text style={styles.rememberPasswordText}>Remeber Your Password?</Text>
-                <TouchableOpacity onPress={() => Alert.alert("Goto login screen")}>
+                <TouchableOpacity onPress={() => navigation.replace('Login')}>
                     <Text style={styles.loginText}>Login</Text>
                 </TouchableOpacity>
             </View>
