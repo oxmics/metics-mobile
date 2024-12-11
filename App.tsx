@@ -49,7 +49,9 @@ function App(): React.JSX.Element {
         console.log('Device is online');
         if (!oneSignalInitialized) {
           console.log('Initializing OneSignal...');
-          OneSignal.initialize('5802552b-795c-4ae9-94e2-5fb39eac035e');
+          // OneSignal.initialize('5802552b-795c-4ae9-94e2-5fb39eac035e');
+          OneSignal.initialize('733e03ce-8e15-4bbf-bd8b-b4f9d1df8f6d');
+          // 733e03ce-8e15-4bbf-bd8b-b4f9d1df8f6d
           OneSignal.Notifications.requestPermission(true);
           oneSignalInitialized = true; // Set flag to true after initialization
         }
