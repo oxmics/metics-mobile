@@ -8,3 +8,8 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+# OneSignal
+-keep class com.onesignal.** { *; }
+-keep class com.google.firebase.** { *; }
+-dontwarn com.onesignal.**
+-dontwarn com.google.firebase.**
