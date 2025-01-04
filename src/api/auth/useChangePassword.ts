@@ -3,6 +3,7 @@ import axios from "axios";
 import { ResetPasswordOtpResponseType } from "../../types/auth";
 import { APIResponseEnum } from "../../types/common";
 import { useApi } from "../../hooks/useApi";
+import EncryptedStorage from "react-native-encrypted-storage";
 
 interface Props {
   new_password: string,
@@ -14,7 +15,7 @@ const useChangePassword = () => {
   const mutation = useMutation({
     mutationFn: async ({ new_password, old_password }: Props) => {
       try {
-        const response = await axios.post(
+        const response = await api.post(
           `${process.env.BASE_URL}/change-password/`,
           {
             old_password,
@@ -25,6 +26,9 @@ const useChangePassword = () => {
         if (response.data) {
           const data: ResetPasswordOtpResponseType = response.data;
           if (data.user_id){
+            await EncryptedStorage.removeItem('jwt-token');
+            await EncryptedStorage.removeItem('user_id');
+            await EncryptedStorage.removeItem('email');
             return APIResponseEnum.SUCCESS;
           }else{
             return APIResponseEnum.INVALID;

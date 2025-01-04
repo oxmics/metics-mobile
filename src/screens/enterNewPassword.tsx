@@ -19,8 +19,9 @@ const EnterNewPasswordScreen = () => {
     const [hideConfirmPass, setHideConfirmPass] = useState(true);
 
     const handleLogin = () => {
-        changePassword
-        navigation.navigate('Login');
+        changePassword({new_password: confirmNewPassword, old_password: password}).then((res) =>{
+            navigation.navigate('Login');
+        })
     }
 
     return(
@@ -63,7 +64,7 @@ const EnterNewPasswordScreen = () => {
                 colors={["#00B976", "#00B976"]}
                 label="Change password"
                 onPress={handleLogin}
-                disabled={confirmNewPassword !== confirmPassword && confirmPassword.length > 8 || password.length > 0|| isPending}
+                disabled={confirmNewPassword !== confirmPassword || confirmPassword.length < 1 || password.length < 1|| isPending}
                 loading={isPending}
             />
         </ScrollView>
