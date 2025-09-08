@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native"
 import { Text, TextInput, useTheme } from "react-native-paper"
 import { useContext } from "react";
 import { ThemeContext } from "../themes/ThemeContext";
+import { BlurView } from "@react-native-community/blur";
 
 interface props {
     title: string,
@@ -15,8 +16,15 @@ export const NoteCard = ({content, setContent, title}: props) => {
 
     return(
         <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
-            <TextInput style={styles.inputBox} mode="outlined" underlineStyle={{display: 'none'}} outlineColor={theme.colors.placeholder} activeOutlineColor={theme.colors.text} value={content} onChangeText={setContent} placeholder="Note here..." placeholderTextColor={theme.colors.placeholder} multiline textColor={theme.colors.text}/>
+            <BlurView
+                style={styles.blurView}
+                blurType={theme.dark ? "dark" : "light"}
+                blurAmount={10}
+                reducedTransparencyFallbackColor={theme.colors.surface}
+            >
+                <Text style={styles.title}>{title}</Text>
+                <TextInput style={styles.inputBox} mode="outlined" underlineStyle={{display: 'none'}} outlineColor={theme.colors.placeholder} activeOutlineColor={theme.colors.text} value={content} onChangeText={setContent} placeholder="Note here..." placeholderTextColor={theme.colors.placeholder} multiline textColor={theme.colors.text}/>
+            </BlurView>
         </View>
     )
 }
@@ -24,11 +32,11 @@ export const NoteCard = ({content, setContent, title}: props) => {
 const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
         borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: theme.colors.placeholder,
-        backgroundColor: theme.colors.surface,
+        overflow: 'hidden',
+    },
+    blurView: {
+        padding: 16,
     },
     title: {
         fontSize: 15,

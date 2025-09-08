@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { View, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, Switch } from 'react-native';
 import { Drawer, Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';

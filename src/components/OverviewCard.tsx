@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native"
 import { Text, useTheme } from "react-native-paper"
 import { useContext } from "react";
 import { ThemeContext } from "../themes/ThemeContext";
+import { BlurView } from "@react-native-community/blur";
 
 interface props {
     title: string,
@@ -15,9 +16,16 @@ export const OverviewCard = ({title, value, footer}: props) => {
 
     return(
         <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.value}>{value}</Text>
-            {footer && <Text style={styles.footer}>{footer}</Text>}
+            <BlurView
+                style={styles.blurView}
+                blurType={theme.dark ? "dark" : "light"}
+                blurAmount={10}
+                reducedTransparencyFallbackColor={theme.colors.surface}
+            >
+                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.value}>{value}</Text>
+                {footer && <Text style={styles.footer}>{footer}</Text>}
+            </BlurView>
         </View>
     )
 }
@@ -26,17 +34,17 @@ const getStyles = (theme) => StyleSheet.create({
     container: {
         maxHeight: 120, 
         minHeight: 100,
-        borderWidth: 1,
         borderRadius: 20,
-        borderColor: theme.colors.placeholder,
+        marginRight: 12,
+        overflow: 'hidden',
+    },
+    blurView: {
         padding: 20,
-        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
         gap: 12,
-        marginRight: 12
     },
     title: {
         color: theme.colors.placeholder,

@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native"
 import { Button, Text, useTheme } from "react-native-paper"
 import { useContext } from "react";
 import { ThemeContext } from "../themes/ThemeContext";
+import { BlurView } from "@react-native-community/blur";
 
 interface props {
     title: string,
@@ -17,33 +18,40 @@ export const InfoCard = ({footerButtonAvailable, buttonFn, contentData, iterativ
 
     return(
         <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
-            {iterative ? (
-                contentData.map((item: any, index: number) => {
-                    return (<View style={styles.card} key={index}>
-                        {Object.entries(item).map(([key, value], index) => (
-                            <View key={index} style={styles.row}>
-                              <Text style={styles.rowText}>{key}:</Text>
-                              <Text style={styles.rowText}>{String(value)}</Text>
-                            </View>
-                        ))}
-                    </View>)
-                })
-            ): (
-                <View style={styles.card}>
-                {Object.entries(contentData).map(([key, value], index) => (
-                  <View key={index} style={styles.row}>
-                    <Text style={styles.rowText}>{key}:</Text>
-                    <Text style={styles.rowText}>{String(value)}</Text>
-                  </View>
-                ))}
-              </View>              
-            )}
-            {footerButtonAvailable && buttonFn &&
-                <View style={styles.footer}>
-                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => buttonFn()}>See More</Button>
+            <BlurView
+                style={styles.blurView}
+                blurType={theme.dark ? "dark" : "light"}
+                blurAmount={10}
+                reducedTransparencyFallbackColor={theme.colors.surface}
+            >
+                <Text style={styles.title}>{title}</Text>
+                {iterative ? (
+                    contentData.map((item: any, index: number) => {
+                        return (<View style={styles.card} key={index}>
+                            {Object.entries(item).map(([key, value], index) => (
+                                <View key={index} style={styles.row}>
+                                <Text style={styles.rowText}>{key}:</Text>
+                                <Text style={styles.rowText}>{String(value)}</Text>
+                                </View>
+                            ))}
+                        </View>)
+                    })
+                ): (
+                    <View style={styles.card}>
+                    {Object.entries(contentData).map(([key, value], index) => (
+                    <View key={index} style={styles.row}>
+                        <Text style={styles.rowText}>{key}:</Text>
+                        <Text style={styles.rowText}>{String(value)}</Text>
+                    </View>
+                    ))}
                 </View>
-            }
+                )}
+                {footerButtonAvailable && buttonFn &&
+                    <View style={styles.footer}>
+                        <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => buttonFn()}>See More</Button>
+                    </View>
+                }
+            </BlurView>
         </View>
     )
 }
@@ -51,11 +59,11 @@ export const InfoCard = ({footerButtonAvailable, buttonFn, contentData, iterativ
 const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
         borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: theme.colors.placeholder,
-        backgroundColor: theme.colors.surface,
+        overflow: 'hidden',
+    },
+    blurView: {
+        padding: 16,
     },
     title: {
         fontSize: 15,

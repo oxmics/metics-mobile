@@ -10,6 +10,7 @@ import useLogin from "../api/auth/useLogin";
 import { LoginResponseEnum } from "../types/auth";
 import { isValidEmail } from "../utils/helper";
 import { ThemeContext } from "../themes/ThemeContext";
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const LoginScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
@@ -45,10 +46,11 @@ const LoginScreen = () => {
         setSnackbarMessage(message);
         setSnackbarVisible(true);
         if (loginResult === LoginResponseEnum.SUCCESS){
+            EncryptedStorage.setItem('user_type', active);
             if (active === "buyer"){
-                navigation.replace('BuyerDashboard');
+                navigation.replace('BuyerMain');
             }else{
-                navigation.replace('SupplierDashboard');
+                navigation.replace('SupplierMain');
             }
         }
     }
@@ -69,14 +71,14 @@ const LoginScreen = () => {
             <Text style={styles.loginAsText}>Login as</Text>
             <ToggleButton active={active} setActive={setActive}/>
             <CustomInput
-                style={styles.inputFields}
+                style={styles.inputField}
                 value={email}
                 onChange={setEmail}
                 placeholder="Email"
                 autoCaptalize="none"
             />
             <CustomInput
-                style={styles.inputFields}
+                style={styles.inputField}
                 value={password}
                 onChange={setPassword}
                 placeholder="Password"
@@ -86,7 +88,7 @@ const LoginScreen = () => {
             <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                 <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
-            <GradientButton label="Submit" onPress={handleLogin} colors={['#021F66', '#205FA2']} disabled={(!isValidEmail(email) || password.length < 1 || loading)} loading={loading}/>
+            <GradientButton label="Submit" onPress={handleLogin} disabled={(!isValidEmail(email) || password.length < 1 || loading)} loading={loading}/>
             <Snackbar
                 visible={snackbarVisible}
                 onDismiss={() => setSnackbarVisible(false)}
@@ -142,11 +144,11 @@ const getStyles = (theme) => StyleSheet.create({
         fontSize: 14,
         marginTop: 16
     },
-    inputFields: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: theme.colors.surface,
+    inputField: {
+        backgroundColor: 'transparent',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.placeholder,
+        paddingHorizontal: 0,
         marginTop: 16,
-        borderColor: theme.colors.placeholder,
     }
 });

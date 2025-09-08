@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native"
 import { Divider, Text, useTheme } from "react-native-paper"
 import { useContext } from "react";
 import { ThemeContext } from "../themes/ThemeContext";
+import { BlurView } from "@react-native-community/blur";
 
 interface props {
     status: string,
@@ -17,30 +18,38 @@ export const  DataCard = ({status, footerLeftText, footerRightText, title, title
 
     return (
         <View style={styles.dataCardContainer}>
-            <View style={styles.header}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.titleLabel}>{titleLabel}</Text>
-                    <Text style={styles.title}>{title}</Text>
+            <BlurView
+                style={styles.blurView}
+                blurType={theme.dark ? "dark" : "light"}
+                blurAmount={10}
+                reducedTransparencyFallbackColor={theme.colors.surface}
+            >
+                <View style={styles.header}>
+                    <View style={styles.titleContainer}>
+                        <Text style={styles.titleLabel}>{titleLabel}</Text>
+                        <Text style={styles.title}>{title}</Text>
+                    </View>
+                    <Text style={status === "APPROVED" ? styles.statusGreen : status === "OPEN" ? styles.statusGreen : status === "PENDING" ? styles.statusYellow: status === "AWARDED" ? styles.statusGreen: status === "CANCELLED" ? styles.statusGray: status === "WITHDRAWN" ? styles.statusBlue : status === "DISQUALIFIED" ? styles.statusDarkRed : status === "CLOSED" ?  styles.statusRed : status === "IN-PROGRESS" ? styles.statusGreen : status === "DRAFT" ? styles.statusOrange : styles.statusRed}>{status}</Text>
                 </View>
-                <Text style={status === "APPROVED" ? styles.statusGreen : status === "OPEN" ? styles.statusGreen : status === "PENDING" ? styles.statusYellow: status === "AWARDED" ? styles.statusGreen: status === "CANCELLED" ? styles.statusGray: status === "WITHDRAWN" ? styles.statusBlue : status === "DISQUALIFIED" ? styles.statusDarkRed : status === "CLOSED" ?  styles.statusRed : status === "IN-PROGRESS" ? styles.statusGreen : status === "DRAFT" ? styles.statusOrange : styles.statusRed}>{status}</Text>
-            </View>
-            <Divider style={{backgroundColor: theme.colors.placeholder}}/>
-            <View style={styles.footerContainer}>
-                <Text style={styles.footerText}>{footerLeftText}</Text>
-                <Text style={styles.footerText}>{footerRightText}</Text>
-            </View>
+                <Divider style={{backgroundColor: theme.colors.placeholder}}/>
+                <View style={styles.footerContainer}>
+                    <Text style={styles.footerText}>{footerLeftText}</Text>
+                    <Text style={styles.footerText}>{footerRightText}</Text>
+                </View>
+            </BlurView>
         </View>
     )
 }
 
 const getStyles = (theme) => StyleSheet.create({
     dataCardContainer: {
-        borderWidth: 1,
-        borderColor: theme.colors.placeholder,
         borderRadius: 10,
         width: "100%",
         marginBottom: 16,
-        backgroundColor: theme.colors.surface
+        overflow: 'hidden',
+    },
+    blurView: {
+        padding: 1,
     },
     header: {
         display: 'flex',

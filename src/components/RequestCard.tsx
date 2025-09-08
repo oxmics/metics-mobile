@@ -3,6 +3,7 @@ import { Button, Divider, Text, useTheme } from "react-native-paper"
 import { formatDateString } from "../utils/helper"
 import { useContext } from "react"
 import { ThemeContext } from "../themes/ThemeContext"
+import { BlurView } from "@react-native-community/blur"
 
 interface props {
     title: string,
@@ -19,26 +20,33 @@ export const RequestInfoCard = ({contentData, date, title, organization_name, bu
 
     return(
         <View style={styles.container}>
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>{title}</Text>
-                <Text style={styles.date}>{formatDateString(date)}</Text>
-            </View>
-            <View style={styles.card}>
-                <Text style={styles.requestedLabel}>Requested By</Text>
-                <Text style={styles.requestedValue}>{organization_name}</Text>
-                <Divider style={{borderColor: theme.colors.placeholder, backgroundColor: theme.colors.placeholder, width: '100%'}}/>
-                {Object.entries(contentData).map(([key, value], index) => (
-                  <View key={index} style={styles.row}>
-                    <Text style={styles.rowText}>{key}:</Text>
-                    <Text style={styles.rowText}>{String(value)}</Text>
-                  </View>
-                ))}
-            </View>
-            {buttonAvailable && buttonFn &&
-                <View style={styles.footer}>
-                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => buttonFn()}>See More</Button>
+            <BlurView
+                style={styles.blurView}
+                blurType={theme.dark ? "dark" : "light"}
+                blurAmount={10}
+                reducedTransparencyFallbackColor={theme.colors.surface}
+            >
+                <View style={styles.titleContainer}>
+                    <Text style={styles.title}>{title}</Text>
+                    <Text style={styles.date}>{formatDateString(date)}</Text>
                 </View>
-            }
+                <View style={styles.card}>
+                    <Text style={styles.requestedLabel}>Requested By</Text>
+                    <Text style={styles.requestedValue}>{organization_name}</Text>
+                    <Divider style={{borderColor: theme.colors.placeholder, backgroundColor: theme.colors.placeholder, width: '100%'}}/>
+                    {Object.entries(contentData).map(([key, value], index) => (
+                    <View key={index} style={styles.row}>
+                        <Text style={styles.rowText}>{key}:</Text>
+                        <Text style={styles.rowText}>{String(value)}</Text>
+                    </View>
+                    ))}
+                </View>
+                {buttonAvailable && buttonFn &&
+                    <View style={styles.footer}>
+                        <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => buttonFn()}>See More</Button>
+                    </View>
+                }
+            </BlurView>
         </View>
     )
 }
@@ -46,11 +54,11 @@ export const RequestInfoCard = ({contentData, date, title, organization_name, bu
 const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
         borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: theme.colors.placeholder,
-        backgroundColor: theme.colors.surface,
+        overflow: 'hidden',
+    },
+    blurView: {
+        padding: 16,
     },
     title: {
         fontSize: 15,

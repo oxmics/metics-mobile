@@ -41,7 +41,7 @@ const EnterNewPasswordScreen = () => {
             </View>
             <Text style={styles.inputLabelText}>Please enter your new password</Text>
             <CustomInput
-                style={styles.inputFields}
+                style={styles.inputField}
                 value={password}
                 onChange={setPassword}
                 placeholder="Old Password"
@@ -49,7 +49,7 @@ const EnterNewPasswordScreen = () => {
                 suffix={<TextInput.Icon icon={hidePass ? "eye" : "eye-off"} onPressIn={()=> setHidePass(!hidePass)}/>}
             />
             <CustomInput
-                style={styles.inputFields2}
+                style={styles.inputField}
                 value={confirmPassword}
                 onChange={setConfirmPassword}
                 placeholder="New Password"
@@ -57,7 +57,7 @@ const EnterNewPasswordScreen = () => {
                 suffix={<TextInput.Icon icon={hideConfirmPass ? "eye" : "eye-off"} onPressIn={()=> setHideConfirmPass(!hideConfirmPass)}/>}
             />
              <CustomInput
-                style={styles.inputFields3}
+                style={[styles.inputField, {marginBottom: 40}]}
                 value={confirmNewPassword}
                 onChange={setConfirmNewPassword}
                 placeholder="Confirm New Password"
@@ -65,7 +65,6 @@ const EnterNewPasswordScreen = () => {
                 suffix={<TextInput.Icon icon={hideConfirmPass ? "eye" : "eye-off"} onPressIn={()=> setHideConfirmPass(!hideConfirmPass)}/>}
             />
             <GradientButton
-                colors={["#00B976", "#00B976"]}
                 label="Change password"
                 onPress={handleLogin}
                 disabled={confirmNewPassword !== confirmPassword || confirmPassword.length < 1 || password.length < 1|| isPending}
@@ -135,27 +134,12 @@ const getStyles = (theme) => StyleSheet.create({
         fontWeight: '400',
         fontSize: 14,
     },
-    inputFields: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: theme.colors.surface,
+    inputField: {
+        backgroundColor: 'transparent',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.placeholder,
+        paddingHorizontal: 0,
         marginTop: 16,
-        borderColor: theme.colors.placeholder,
-    },
-    inputFields2: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: theme.colors.surface,
-        marginTop: 16,
-        borderColor: theme.colors.placeholder,
-    },
-    inputFields3: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: theme.colors.surface,
-        marginTop: 16,
-        marginBottom: 40,
-        borderColor: theme.colors.placeholder,
     },
     rememberPassContainer: {
         display: 'flex',

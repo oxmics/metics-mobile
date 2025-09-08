@@ -1,8 +1,29 @@
 import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 import { colors } from './colors';
 
+const fontConfig = {
+  fontFamily: 'Poppins-Regular',
+  fontFamilyMedium: 'Poppins-Medium',
+  fontFamilyBold: 'Poppins-Bold',
+};
+
 export const lightTheme = {
   ...MD3LightTheme,
+  fonts: {
+    ...MD3LightTheme.fonts,
+    regular: {
+      fontFamily: fontConfig.fontFamily,
+      fontWeight: 'normal',
+    },
+    medium: {
+      fontFamily: fontConfig.fontFamilyMedium,
+      fontWeight: 'normal',
+    },
+    bold: {
+      fontFamily: fontConfig.fontFamilyBold,
+      fontWeight: 'normal',
+    },
+  },
   colors: {
     ...MD3LightTheme.colors,
     primary: colors.light.primary,
@@ -17,6 +38,21 @@ export const lightTheme = {
 
 export const darkTheme = {
   ...MD3DarkTheme,
+  fonts: {
+    ...MD3DarkTheme.fonts,
+    regular: {
+      fontFamily: fontConfig.fontFamily,
+      fontWeight: 'normal',
+    },
+    medium: {
+      fontFamily: fontConfig.fontFamilyMedium,
+      fontWeight: 'normal',
+    },
+    bold: {
+      fontFamily: fontConfig.fontFamilyBold,
+      fontWeight: 'normal',
+    },
+  },
   colors: {
     ...MD3DarkTheme.colors,
     primary: colors.dark.primary,

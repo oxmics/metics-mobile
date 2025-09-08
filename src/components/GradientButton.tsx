@@ -1,35 +1,31 @@
 import React from 'react';
-import { Text, TouchableOpacity, StyleSheet } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { ActivityIndicator } from 'react-native-paper';
+import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, useTheme } from 'react-native-paper';
 
 interface GradientButtonProps {
     label: string,
-    onPress: () => void
-    colors: string[],
+    onPress: () => void,
     disabled?: boolean,
     loading?: boolean
 }
 
-const GradientButton = ({label, onPress, colors, disabled, loading}: GradientButtonProps) => {
+const GradientButton = ({label, onPress, disabled, loading}: GradientButtonProps) => {
+    const theme = useTheme();
+    const styles = getStyles(theme);
+
     return (
-        <TouchableOpacity disabled={disabled && disabled} style={styles.buttonContainer} onPress={onPress}>
-            <LinearGradient
-                colors={disabled ? ["#585656", "#585656"]:colors}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.button}
-            >
+        <TouchableOpacity disabled={disabled || loading} style={styles.buttonContainer} onPress={onPress}>
+            <View style={[styles.button, disabled && styles.disabledButton]}>
                 {loading && <ActivityIndicator size={"small"} color='#FFFFFF'/>}
                 {!loading && <Text style={styles.buttonText}>{label}</Text>}
-            </LinearGradient>
+            </View>
         </TouchableOpacity>
     );
 };
 
 export default GradientButton;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     buttonContainer: {
         width: '100%',
         alignSelf: 'center',
@@ -37,16 +33,28 @@ const styles = StyleSheet.create({
     },
     button: {
         paddingVertical: 16,
-        borderRadius: 5,
+        borderRadius: 10,
         display: 'flex',
         flexDirection: 'row',
         gap: 8,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: theme.colors.primary,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    disabledButton: {
+        backgroundColor: theme.colors.disabled,
     },
     buttonText: {
         color: '#fff',
         fontSize: 16,
-        fontWeight: '400',
+        fontWeight: '600',
     },
 });

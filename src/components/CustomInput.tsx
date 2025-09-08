@@ -22,7 +22,7 @@ export const CustomInput = ({autoCaptalize ,onChange, keyboardType, placeholder,
                 placeholderTextColor={theme.colors.placeholder}
                 secureTextEntry={secureTextEntry !== null ? secureTextEntry : false}
                 textColor={theme.colors.text}
-                cursorColor="#1BBB6B"
+                cursorColor={theme.colors.primary}
                 underlineStyle={{display: 'none'}}
                 autoCapitalize={autoCaptalize !== null ? autoCaptalize : "none"}
                 right={suffix}

@@ -111,7 +111,7 @@ const OtpScreen = () => {
             </View>
             <Text style={styles.inputLabelText}>Enter OTP sent to your email</Text>
             <CustomInput
-                style={styles.inputFields}
+                style={styles.inputField}
                 value={otp}
                 onChange={setOtp}
                 placeholder="OTP"
@@ -124,7 +124,7 @@ const OtpScreen = () => {
                 <Text style={styles.rememberPasswordText}></Text>
             </View>
             <CustomInput
-                style={styles.inputFields}
+                style={styles.inputField}
                 value={password}
                 onChange={setPassword}
                 placeholder="Password"
@@ -132,7 +132,7 @@ const OtpScreen = () => {
                 suffix={<TextInput.Icon icon={hidePass ? "eye" : "eye-off"} onPressIn={()=> setHidePass(!hidePass)}/>}
             />
             <CustomInput
-                style={styles.inputFields2}
+                style={[styles.inputField, {marginBottom: 40}]}
                 value={confirmPassword}
                 onChange={setConfirmPassword}
                 placeholder="Confirm Password"
@@ -140,7 +140,6 @@ const OtpScreen = () => {
                 suffix={<TextInput.Icon icon={hideConfirmPass ? "eye" : "eye-off"} onPressIn={()=> setHideConfirmPass(!hideConfirmPass)}/>}
             />
             <GradientButton
-                colors={["#00B976", "#00B976"]}
                 label="Next"
                 onPress={handleVerifyOtp}
                 disabled={otp.length == 0 || confirmPassword !== password || password.length == 0 || confirmPassword.length == 0}
@@ -215,12 +214,12 @@ const getStyles = (theme) => StyleSheet.create({
         fontWeight: '400',
         fontSize: 14,
     },
-    inputFields: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: theme.colors.surface,
+    inputField: {
+        backgroundColor: 'transparent',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.placeholder,
+        paddingHorizontal: 0,
         marginTop: 16,
-        borderColor: theme.colors.placeholder,
     },
     rememberPassContainer: {
         display: 'flex',
@@ -245,13 +244,5 @@ const getStyles = (theme) => StyleSheet.create({
         color: theme.colors.text,
         fontWeight: '400',
         fontSize: 14,
-    },
-    inputFields2: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: theme.colors.surface,
-        marginTop: 16,
-        marginBottom: 40,
-        borderColor: theme.colors.placeholder,
     },
 });

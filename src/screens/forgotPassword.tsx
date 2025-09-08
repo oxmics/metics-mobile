@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import React, { useState, useContext } from 'react';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import GradientButton from "../components/GradientButton";
@@ -62,14 +62,13 @@ const ForgotPasswordScreen = () => {
             </View>
             <Text style={styles.inputLabelText}>Enter Your Email</Text>
             <CustomInput
-                style={styles.inputFields}
+                style={styles.inputField}
                 value={email}
                 onChange={setEmail}
                 placeholder="Email"
                 autoCaptalize="none"
             />
             <GradientButton
-                colors={["#00B976", "#00B976"]}
                 label="Next"
                 onPress={handleResetPassword}
                 disabled={!isValidEmail(email) || loading}
@@ -138,12 +137,12 @@ const getStyles = (theme) => StyleSheet.create({
         fontWeight: '400',
         fontSize: 14,
     },
-    inputFields: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: theme.colors.surface,
+    inputField: {
+        backgroundColor: 'transparent',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.placeholder,
+        paddingHorizontal: 0,
         marginTop: 16,
-        borderColor: theme.colors.placeholder,
     },
     rememberPassContainer: {
         display: 'flex',

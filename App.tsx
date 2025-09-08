@@ -8,18 +8,14 @@ import {PaperProvider} from 'react-native-paper';
 import EnterNewPasswordScreen from './src/screens/enterNewPassword';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
-import BuyerDashboardScreen from './src/screens/Buyer/buyerDashboard';
-import SupplierDashboardScreen from './src/screens/Supplier/supplierDashboard';
-import SupplierPurchaseOrderScreen from './src/screens/Supplier/purchaseOrder';
 import SplashScreen from './src/screens/splash';
 import SupplierPurchaseorderDetailsScreen from './src/screens/Supplier/purchaseOrderDetails';
-import BuyerPurchaseOrderScreen from './src/screens/Buyer/purchaseOrder';
 import BuyerPurchaseorderDetailsScreen from './src/screens/Buyer/purchaseOrderDetails';
-import SupplierRequestHistory from './src/screens/Supplier/requestHistory';
 import SupplierRequestDetailsScreen from './src/screens/Supplier/requestDetails';
-import BuyerRfqHistoryScreen from './src/screens/Buyer/rfqHistory';
 import BuyerRfqDetailsScreen from './src/screens/Buyer/rfqDetails';
 import BuyerBidsDetailsScreen from './src/screens/Buyer/bidDetails';
+import BuyerMain from './src/screens/Buyer/BuyerMain';
+import SupplierMain from './src/screens/Supplier/SupplierMain';
 import {LogLevel, OneSignal} from 'react-native-onesignal';
 import NetInfo from '@react-native-community/netinfo';
 import {PermissionsAndroid, Platform} from 'react-native';
@@ -53,20 +49,16 @@ function AppNav() {
             component={EnterNewPasswordScreen}
           />
           <Stack.Screen
-            name="BuyerDashboard"
-            component={BuyerDashboardScreen}
+            name="BuyerMain"
+            component={BuyerMain}
           />
           <Stack.Screen
-            name="BuyerPurchaseOrder"
-            component={BuyerPurchaseOrderScreen}
+            name="SupplierMain"
+            component={SupplierMain}
           />
           <Stack.Screen
             name="BuyerPurchaseOrderDetails"
             component={BuyerPurchaseorderDetailsScreen}
-          />
-          <Stack.Screen
-            name="BuyerRfqHistory"
-            component={BuyerRfqHistoryScreen}
           />
           <Stack.Screen
             name="BuyerRfqDetails"
@@ -77,20 +69,8 @@ function AppNav() {
             component={BuyerBidsDetailsScreen}
           />
           <Stack.Screen
-            name="SupplierDashboard"
-            component={SupplierDashboardScreen}
-          />
-          <Stack.Screen
-            name="SupplierPurchaseOrder"
-            component={SupplierPurchaseOrderScreen}
-          />
-          <Stack.Screen
             name="SupplierPurchaseOrderDetails"
             component={SupplierPurchaseorderDetailsScreen}
-          />
-          <Stack.Screen
-            name="SupplierRequestHistory"
-            component={SupplierRequestHistory}
           />
           <Stack.Screen
             name="SupplierRequestDetails"

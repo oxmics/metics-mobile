@@ -1,90 +1,53 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { Image, StyleSheet, View, Animated, Dimensions } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { StyleSheet, View } from "react-native";
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { CustomNavigationProp } from "../types/common";
 import { ThemeContext } from "../themes/ThemeContext";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+import LottieView from 'lottie-react-native';
 
 const SplashScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
     const { theme } = useContext(ThemeContext);
 
     const [bypassLogin, setBypassLogin] = useState<boolean>(false);
-    const [animationEnded, setAnimationEnded] = useState<boolean>(false);
-    const topValue = useRef(new Animated.Value((screenHeight / 2) - 47.5)).current; // Half of initial height (71 / 2)
-    const leftValue = useRef(new Animated.Value((screenWidth / 2) - 107)).current; // Half of initial width (145 / 2)
-    const widthValue = useRef(new Animated.Value(214)).current;
-    const heightValue = useRef(new Animated.Value(95)).current;
+    const [userType, setUserType] = useState<string | null>(null);
 
     useEffect(() => {
-        getToken();
-        setTimeout(() => {
-            startAnimation();
-        }, 2000);
+        getData();
     }, []);
 
-    const getToken = async () => {
+    const getData = async () => {
         const token = await EncryptedStorage.getItem('jwt-token');
-        if (token) {
+        const type = await EncryptedStorage.getItem('user_type');
+        if (token && type) {
             setBypassLogin(true);
+            setUserType(type);
         }
     };
 
-    const startAnimation = () => {
-        Animated.parallel([
-            Animated.timing(topValue, {
-                toValue: 20,
-                duration: 500,
-                useNativeDriver: false,
-            }),
-            Animated.timing(leftValue, {
-                toValue: 20,
-                duration: 500,
-                useNativeDriver: false,
-            }),
-            Animated.timing(widthValue, {
-                toValue: 145,
-                duration: 500,
-                useNativeDriver: false,
-            }),
-            Animated.timing(heightValue, {
-                toValue: 71,
-                duration: 500,
-                useNativeDriver: false,
-            }),
-        ]).start(() => {
-            setAnimationEnded(true);
-        });
-    };
-
-    useEffect(()=>{
-        if(animationEnded){
-            if(bypassLogin){
-                navigation.replace('SupplierDashboard')
-            }else{
-                navigation.replace('Login')
+    const onAnimationFinish = () => {
+        if (bypassLogin) {
+            if (userType === 'buyer') {
+                navigation.replace('BuyerMain');
+            } else {
+                navigation.replace('SupplierMain');
             }
-        } 
-    }, [animationEnded, bypassLogin])
+        } else {
+            navigation.replace('Login');
+        }
+    };
 
     const styles = getStyles(theme);
 
     return (
         <View style={styles.container}>
-            <Animated.Image
-                source={require('../../assets/images/Metics-blue.png')}
-                style={[
-                    styles.image,
-                    {
-                        top: topValue,
-                        left: leftValue,
-                        width: widthValue,
-                        height: heightValue,
-                    },
-                ]}
-                resizeMode="contain"
+            <LottieView
+                source={require('../../assets/lottie/loading_animation.json')}
+                autoPlay
+                loop={false}
+                onAnimationFinish={onAnimationFinish}
+                style={styles.lottie}
             />
         </View>
     );
@@ -94,9 +57,12 @@ const getStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    image: {
-        position: 'absolute',
+    lottie: {
+        width: 200,
+        height: 200,
     },
 });
 
