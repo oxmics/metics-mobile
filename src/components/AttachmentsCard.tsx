@@ -1,6 +1,8 @@
 import { Linking, StyleSheet, View } from "react-native"
-import { DataTable, Text } from "react-native-paper"
+import { DataTable, Text, useTheme } from "react-native-paper"
 import { AttachmentType } from "../types/purchaseOrder"
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     title: string,
@@ -8,6 +10,8 @@ interface props {
 }
 
 export const AttachmentsCard = ({contentData, title}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
     const openLinkInBrowser = (url: string) => {
         Linking.openURL(url).catch((err) => {
           console.error("Failed to open URL:", err);
@@ -19,15 +23,15 @@ export const AttachmentsCard = ({contentData, title}: props) => {
             <Text style={styles.title}>{title}</Text>
             <DataTable>
                 <DataTable.Header>
-                    <DataTable.Cell>Name</DataTable.Cell>
-                    <DataTable.Cell>Description</DataTable.Cell>
+                    <DataTable.Cell><Text style={styles.rowText}>Name</Text></DataTable.Cell>
+                    <DataTable.Cell><Text style={styles.rowText}>Description</Text></DataTable.Cell>
                 </DataTable.Header>
             </DataTable>
             {contentData.map((item: AttachmentType, index: number) => {
                 return (
-                    <DataTable.Row>
+                    <DataTable.Row key={index}>
                         <DataTable.Cell onPress={() => openLinkInBrowser(`https://metics.org/${item.file}`)}><Text style={{color: "#0D6EFD", textDecorationLine: "underline"}}>{item.name}</Text></DataTable.Cell>
-                        <DataTable.Cell><Text style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap'}}>{item.description}</Text></DataTable.Cell>
+                        <DataTable.Cell><Text style={[styles.rowText, {display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap'}]}>{item.description}</Text></DataTable.Cell>
                     </DataTable.Row>
                 )
             })}
@@ -35,19 +39,19 @@ export const AttachmentsCard = ({contentData, title}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC',
+        color: theme.colors.text,
         marginLeft: 12,
         marginBottom: 16
     },
@@ -56,8 +60,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'flex-start',
@@ -73,7 +77,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap'
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.text,
         fontWeight: '400',
         fontSize: 12
     },

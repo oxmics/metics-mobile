@@ -1,16 +1,18 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import GradientButton from "../components/GradientButton";
 import CaptchaCheckbox from "../components/CaptchaCheckbox";
 import { useNavigation } from "@react-navigation/native";
 import { APIResponseEnum, CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
 import useResetPasswordOtp from "../api/auth/useResetPasswordOtp";
-import { Snackbar } from "react-native-paper";
+import { Snackbar, useTheme } from "react-native-paper";
 import { isValidEmail } from "../utils/helper";
+import { ThemeContext } from "../themes/ThemeContext";
 
 const ForgotPasswordScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
 
     const [email, setEmail] = useState<string>('');
     const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -41,6 +43,8 @@ const ForgotPasswordScreen = () => {
             navigation.navigate('Otp', {email: email, userId: userId});
         }
     }
+
+    const styles = getStyles(theme);
 
     return(
         <ScrollView style={styles.container} automaticallyAdjustKeyboardInsets={true}>
@@ -94,12 +98,12 @@ const ForgotPasswordScreen = () => {
 
 export default ForgotPasswordScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         display: "flex",
         flexDirection: "column",
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         height: "100%",
         width: "100%",
         position: 'absolute',
@@ -127,26 +131,27 @@ const styles = StyleSheet.create({
         marginTop: 40
     },
     resetPasswordTitle: {
-        color:'#000',
+        color: theme.colors.text,
         fontSize: 22,
         fontWeight: '600'
     },
     inputLabelText: {
-        color:"#000",
+        color: theme.colors.text,
         fontSize: 14,
         fontWeight: "400",
         marginTop: 40
     },
     loginText: {
-        color: "#1000C2",
+        color: theme.colors.primary,
         fontWeight: '400',
         fontSize: 14,
     },
     inputFields: {
         borderWidth: 1,
         borderRadius: 5,
-        backgroundColor: "white",
+        backgroundColor: theme.colors.surface,
         marginTop: 16,
+        borderColor: theme.colors.placeholder,
     },
     rememberPassContainer: {
         display: 'flex',
@@ -157,6 +162,6 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     rememberPasswordText:{
-        color: '#000'
+        color: theme.colors.text
     }
 });

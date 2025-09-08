@@ -1,8 +1,10 @@
 import { StyleSheet, View } from "react-native"
-import { Text } from "react-native-paper"
+import { Text, useTheme } from "react-native-paper";
 import { BidLineType } from "../types/bids"
 import { formatDate } from "../utils/helper"
 import { AuctionLinesType } from "../types/auction"
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     auctionLines: AuctionLinesType[],
@@ -10,11 +12,13 @@ interface props {
 }
 
 export const BidNegotaiteCard = ({auctionLines, bidLine}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
 
     return(
         <View style={styles.container}>
                 {auctionLines.map((auctionLine, index) => (
-                    <View style={styles.card}>
+                    <View style={styles.card} key={index}>
                     <View style={styles.row}>
                         <Text style={styles.rowText}>Product Name</Text>
                         <Text style={styles.date}>{auctionLine.product_name}</Text>
@@ -41,19 +45,19 @@ export const BidNegotaiteCard = ({auctionLines, bidLine}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC',
+        color: theme.colors.text,
         marginLeft: 12,
     },
     card: {
@@ -61,8 +65,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'flex-start',
@@ -79,7 +83,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap'
     },
     rowText: {
-        color: '#000000',
+        color: theme.colors.text,
         fontWeight: '400',
         fontSize: 10
     },
@@ -100,7 +104,7 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 10,
         fontWeight: '400',
-        color: '#000000B2'
+        color: theme.colors.placeholder
     }
     
 })

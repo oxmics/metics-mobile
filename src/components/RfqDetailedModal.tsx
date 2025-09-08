@@ -1,9 +1,10 @@
 import { StyleSheet, View } from "react-native"
-import { Button, Divider, Modal, Text } from "react-native-paper"
+import { Button, Divider, Modal, Text, useTheme } from "react-native-paper"
 import { AuctionLinesType, AuctionType } from "../types/auction"
 import { formatDateString } from "../utils/helper"
 import { InfoCard } from "./InfoCard"
-import { useMemo } from "react"
+import { useContext, useMemo } from "react"
+import { ThemeContext } from "../themes/ThemeContext"
 
 interface props {
     show: boolean,
@@ -12,6 +13,8 @@ interface props {
     auctionLines: AuctionLinesType[]
 }
 export const RfqDetailedModal = ({closeModal, auction, auctionLines, show}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
     
     const itemsDetails = useMemo(() => {
         if (auctionLines){
@@ -40,7 +43,7 @@ export const RfqDetailedModal = ({closeModal, auction, auctionLines, show}: prop
                 <View style={styles.card}>
                     <Text style={styles.requestedLabel}>Requested By</Text>
                     <Text style={styles.requestedValue}>{auction.organization_name}</Text>
-                    <Divider style={{borderColor: "#00000080", backgroundColor: '#00000080', width: '100%'}}/>
+                    <Divider style={{borderColor: theme.colors.placeholder, backgroundColor: theme.colors.placeholder, width: '100%'}}/>
                     <View style={styles.row}>
                         <Text style={styles.rowText}>RFQ Title:</Text>
                         <Text style={styles.rowText}>{auction.title}</Text>
@@ -69,9 +72,9 @@ export const RfqDetailedModal = ({closeModal, auction, auctionLines, show}: prop
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.surface,
         paddingVertical: 20, 
         paddingHorizontal: 16,
         display: 'flex',
@@ -87,8 +90,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'space-between',
@@ -106,14 +109,14 @@ const styles = StyleSheet.create({
         marginBottom: 12
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontWeight: '400',
         fontSize: 12
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC'
+        color: theme.colors.text
     },
     closeBtn: {
         backgroundColor: '#00B976',
@@ -133,15 +136,15 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 10,
         fontWeight: '400',
-        color: '#000000B2'
+        color: theme.colors.placeholder
     },
     requestedLabel: {
-        color: '#000000B2',
+        color: theme.colors.placeholder,
         fontSize: 11,
         fontWeight: '300'
     },
     requestedValue: {
-        color: '#000000',
+        color: theme.colors.text,
         fontSize: 12,
         fontWeight: '400'
     },

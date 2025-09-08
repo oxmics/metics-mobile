@@ -1,7 +1,9 @@
-import { Button, Modal, Text } from "react-native-paper"
+import { Button, Modal, Text, useTheme } from "react-native-paper"
 import { SupplierActivityLogsType } from "../types/dashboard"
 import { ScrollView, StyleSheet, View } from "react-native"
 import { daysAgo } from "../utils/helper"
+import { useContext } from "react"
+import { ThemeContext } from "../themes/ThemeContext"
 
 interface props {
     show: boolean,
@@ -10,6 +12,9 @@ interface props {
 }
 
 export const RecentUpdatesModal = ({hideModal, logs, show}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return(
         <Modal visible={show} onDismiss={hideModal} dismissable dismissableBackButton>
             <View style={styles.holder}>
@@ -35,7 +40,7 @@ export const RecentUpdatesModal = ({hideModal, logs, show}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     holder: {
         display: 'flex',
         justifyContent: 'center',
@@ -45,11 +50,11 @@ const styles = StyleSheet.create({
     },
     container: {
         borderWidth: 1,
-        borderColor: '#00000033',
+        borderColor: theme.colors.placeholder,
         borderRadius: 10,
         width: '80%',
         height: '100%',
-        backgroundColor: '#FFFFFF'
+        backgroundColor: theme.colors.surface
     },
     body: {
         padding: 20,
@@ -61,7 +66,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         borderBottomWidth: 1,
-        borderBottomColor: '#00000033',
+        borderBottomColor: theme.colors.placeholder,
         paddingVertical: 8,
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
@@ -70,17 +75,17 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 13,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     description: {
         width: '60%',
         flexWrap: 'wrap',
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontSize: 12,
         fontWeight: '400'
     },
     date: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontSize: 12,
         fontWeight: '400'
     },
@@ -99,6 +104,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#00000033',
+        borderTopColor: theme.colors.placeholder,
     }
 })

@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native"
-import { Button, Text } from "react-native-paper"
+import { Button, Text, useTheme } from "react-native-paper"
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     contentData: any,
@@ -8,6 +10,8 @@ interface props {
 }
 
 export const QuoteContainer = ({footerButtonAvailable, buttonFn, contentData,}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
 
     return(
         <View style={styles.container}>
@@ -26,22 +30,22 @@ export const QuoteContainer = ({footerButtonAvailable, buttonFn, contentData,}: 
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         padding: 28,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
     },
     card: {
         width: '100%',
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'flex-start',
@@ -56,7 +60,7 @@ const styles = StyleSheet.create({
         marginBottom: 12
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontWeight: '400',
         fontSize: 12
     },

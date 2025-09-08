@@ -1,8 +1,8 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Icon, Portal, Text } from "react-native-paper";
+import { ActivityIndicator, Icon, Portal, Text, useTheme } from "react-native-paper";
 import { CustomNavigationProp } from "../../types/common";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useContext } from "react";
 import useAuctionDetails from "../../api/auctions/useAuction";
 import useAuctionLines from "../../api/auctions/useAuctionLineHeader";
 import useComments from "../../api/auctions/useComments";
@@ -13,6 +13,7 @@ import { BidsCard } from "../../components/BidsCard";
 import useBids from "../../api/bids/useBids";
 import { RfqDetailedModal } from "../../components/RfqDetailedModal";
 import { BottomNavbar } from "../../components/BottomNavbar";
+import { ThemeContext } from "../../themes/ThemeContext";
 
 type RootStackParamList = {
     BuyerRfqDetailsScreen: {
@@ -23,6 +24,7 @@ type RootStackParamList = {
 const BuyerRfqDetailsScreen = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'BuyerRfqDetailsScreen'>>();
     const {reqId} = route.params;
+    const { theme } = useContext(ThemeContext);
     
     const navigation = useNavigation<CustomNavigationProp>();
 
@@ -58,12 +60,14 @@ const BuyerRfqDetailsScreen = () => {
         })
     }
 
+    const styles = getStyles(theme);
+
     return(
-        <View style={{position: 'relative', flex: 1, backgroundColor: '#FFFFFF'}}>
+        <View style={{position: 'relative', flex: 1, backgroundColor: theme.colors.background}}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation.replace("BuyerRfqHistory")}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                        <Icon size={20} source={"arrow-left"} color={theme.colors.text}/>
                     </TouchableOpacity>
                     <Text style={styles.title}>Details</Text>
                 </View>
@@ -71,9 +75,9 @@ const BuyerRfqDetailsScreen = () => {
                     <View style={styles.cardContainer}>
                         <RequestInfoCard title={auction.title} contentData={requestedByDetails} organization_name={auction.organization_name} date={auction.created_at} buttonAvailable={true} buttonFn={handleShowModal}/>
                         <CommentCard comments={comments} buttonFn={handleComment} loading={sendingComments}/>
-                        {bids && !bidsLoading ? <BidsCard buttonFn={()=>{}} contentData={bids}/>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
+                        {bids && !bidsLoading ? <BidsCard buttonFn={()=>{}} contentData={bids}/>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color={theme.colors.text}/></View>}
                     </View>
-                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
+                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color={theme.colors.text}/></View>}
                 <Portal>
                     {auctionLines && auction && <RfqDetailedModal auctionLines={auctionLines} auction={auction} closeModal={handleHideModal} show={showModal}/>}
                 </Portal>
@@ -85,12 +89,12 @@ const BuyerRfqDetailsScreen = () => {
 
 export default BuyerRfqDetailsScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         marginBottom: 80,
     },
     header: {
@@ -105,7 +109,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     cardContainer: {
         display: 'flex',
@@ -125,7 +129,7 @@ const styles = StyleSheet.create({
     orderStatusLabel: {
         fontSize: 20,
         fontWeight: '400',
-        color: '#000000E5',
+        color: theme.colors.placeholder,
         marginLeft: 12
     },
     statusValueContainer: {

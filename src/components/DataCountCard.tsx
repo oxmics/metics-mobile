@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native"
-import { Icon, Text } from "react-native-paper"
+import { Icon, Text, useTheme } from "react-native-paper"
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     title: string,
@@ -8,6 +10,9 @@ interface props {
 }
 
 export const DataCountCard = ({count, icon, title}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return(
         <View style={styles.container}>
             <View style={styles.textContainer}>
@@ -21,18 +26,19 @@ export const DataCountCard = ({count, icon, title}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         borderWidth: 0.5,
         borderRadius: 10,
-        borderColor: '#0000004D',
+        borderColor: theme.colors.placeholder,
         paddingHorizontal: 32,
         paddingVertical: 18,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: theme.colors.surface
     },
     textContainer: {
         display: 'flex',
@@ -44,12 +50,12 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 13,
         fontWeight: '400',
-        color: '#000000'
+        color: theme.colors.text
     },
     count: {
         fontSize: 13,
         fontWeight: '400',
-        color: '#000000B2'
+        color: theme.colors.placeholder
     },
     logoContainer: {
         borderRadius: 6,

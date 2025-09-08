@@ -1,7 +1,9 @@
 import { StyleSheet, Text, View } from "react-native"
 import { SupplierActivityLogsType } from "../types/dashboard"
 import { daysAgo } from "../utils/helper"
-import { Button } from "react-native-paper"
+import { Button, useTheme } from "react-native-paper"
+import { useContext } from "react"
+import { ThemeContext } from "../themes/ThemeContext"
 
 interface props {
     logs: SupplierActivityLogsType[],
@@ -9,6 +11,9 @@ interface props {
 }
 
 export const RecentUpdatesCard = ({logs, viewAll}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return(
         <View style={styles.container}>
             <View style={styles.body}>
@@ -22,7 +27,7 @@ export const RecentUpdatesCard = ({logs, viewAll}: props) => {
                             </View>
                         </View>
                     )
-                }}): <View><Text>No recent updates</Text></View>}
+                }}): <View><Text style={{color: theme.colors.text}}>No recent updates</Text></View>}
             </View>
             {logs.length > 0 && <View style={styles.footer}>
                 <Button onPress={viewAll} mode="text" textColor="#1BBB6B">View All</Button>
@@ -31,13 +36,13 @@ export const RecentUpdatesCard = ({logs, viewAll}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         borderWidth: 1,
-        borderColor: '#00000033',
+        borderColor: theme.colors.placeholder,
         borderRadius: 10,
         width: '100%',
-        backgroundColor: '#FFFFFF'
+        backgroundColor: theme.colors.surface
     },
     body: {
         padding: 20,
@@ -47,7 +52,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         borderBottomWidth: 1,
-        borderBottomColor: '#00000033',
+        borderBottomColor: theme.colors.placeholder,
         paddingVertical: 8,
         justifyContent: 'flex-start',
         alignItems: 'flex-start'
@@ -55,17 +60,17 @@ const styles = StyleSheet.create({
     heading: {
         fontSize: 13,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     description: {
         width: '60%',
         flexWrap: 'wrap',
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontSize: 12,
         fontWeight: '400'
     },
     date: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontSize: 12,
         fontWeight: '400'
     },
@@ -84,6 +89,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#00000033',
+        borderTopColor: theme.colors.placeholder,
     }
 })

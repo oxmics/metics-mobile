@@ -1,7 +1,8 @@
 import { StyleSheet, View } from "react-native"
-import { ActivityIndicator, Button, Checkbox, DataTable, Text } from "react-native-paper"
+import { ActivityIndicator, Button, Checkbox, DataTable, Text, useTheme } from "react-native-paper"
 import { TemplateType } from "../types/template"
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     title: string,
@@ -16,6 +17,8 @@ export const TemplatesCard = ({contentData, title, selectedTemplate, setSelected
     const [itemsPerPage, onItemsPerPageChange] = useState(
         numberOfItemsPerPageList[0]
     );
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
 
     const from = page * itemsPerPage;
     const to = Math.min((page + 1) * itemsPerPage, contentData ? contentData.length : 10);
@@ -37,16 +40,16 @@ export const TemplatesCard = ({contentData, title, selectedTemplate, setSelected
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>
             {contentData ? <View style={styles.card}>
-                <DataTable style={{backgroundColor: '#FFFFFF'}}>
+                <DataTable style={{backgroundColor: theme.colors.surface}}>
                     <DataTable.Header style={{width: '100%'}}>
-                        <DataTable.Title style={{width: '15%'}}>Sl no</DataTable.Title>
-                        <DataTable.Title style={{width: '75%'}}>Name</DataTable.Title>
-                        <DataTable.Title style={{width: '15%'}}>Select</DataTable.Title>
+                        <DataTable.Title style={{width: '15%'}} textStyle={{color: theme.colors.text}}>Sl no</DataTable.Title>
+                        <DataTable.Title style={{width: '75%'}} textStyle={{color: theme.colors.text}}>Name</DataTable.Title>
+                        <DataTable.Title style={{width: '15%'}} textStyle={{color: theme.colors.text}}>Select</DataTable.Title>
                     </DataTable.Header>
                     {contentData.slice(from, to).map((item, index)=> (
                         <DataTable.Row key={item.id} style={{width: '100%'}}>
-                            <DataTable.Cell style={{width: '15%'}}>{(index+1)+(page*itemsPerPage)}</DataTable.Cell>
-                            <DataTable.Cell style={{width: '70%'}}>{item.name}</DataTable.Cell>
+                            <DataTable.Cell style={{width: '15%'}} textStyle={{color: theme.colors.text}}>{(index+1)+(page*itemsPerPage)}</DataTable.Cell>
+                            <DataTable.Cell style={{width: '70%'}} textStyle={{color: theme.colors.text}}>{item.name}</DataTable.Cell>
                             <DataTable.Cell style={{width: '15%'}}><Checkbox color="#00B976" status={ selectedTemplate ? selectedTemplate.id === item.id ? "checked" : "unchecked" : "unchecked"} onPress={()=> handleTemplateSelect(item)}/></DataTable.Cell>
                         </DataTable.Row>
                     ))}
@@ -60,6 +63,7 @@ export const TemplatesCard = ({contentData, title, selectedTemplate, setSelected
                         onItemsPerPageChange={onItemsPerPageChange}
                         showFastPaginationControls
                         selectPageDropdownLabel={'Rows per page'}
+                        theme={theme}
                     />
                 </DataTable>
             </View> : <ActivityIndicator size={"small"}/>}
@@ -67,19 +71,19 @@ export const TemplatesCard = ({contentData, title, selectedTemplate, setSelected
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC',
+        color: theme.colors.text,
         marginLeft: 12,
         marginBottom: 16
     },
@@ -89,8 +93,8 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'flex-start',
@@ -106,7 +110,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap'
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontWeight: '400',
         fontSize: 12
     },

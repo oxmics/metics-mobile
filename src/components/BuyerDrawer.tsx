@@ -1,12 +1,14 @@
-import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Drawer, Text } from 'react-native-paper';
+import React, { useContext } from 'react';
+import { View, StyleSheet, Image, TouchableOpacity, Switch } from 'react-native';
+import { Drawer, Text, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { CustomNavigationProp, RootStackParamList } from '../types/common';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import { ThemeContext } from '../themes/ThemeContext';
 
 const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { isDark, theme, toggleTheme } = useContext(ThemeContext);
 
     const handleNavigation = (screen: string) => {
         navigation.navigate(screen as never);
@@ -21,6 +23,8 @@ const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
         closeDrawer();
     };
 
+    const styles = getStyles(theme);
+
     return (
         <View style={styles.drawerContainer}>
             <View style={styles.header}>
@@ -30,28 +34,32 @@ const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
                 <TouchableOpacity onPress={() => handleNavigation('BuyerDashboard')}>
                     <View style={styles.itemRow}>
                         <Image source={require('../../assets/images/home.png')} resizeMode='contain'/>
-                        <Text>Dashboard</Text>
+                        <Text style={styles.drawerText}>Dashboard</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleNavigation('BuyerRfqHistory')}>
                     <View style={styles.itemRow}>
                         <Image source={require('../../assets/images/rfq-w.png')} resizeMode='contain'/>
-                        <Text>RFQ</Text>
+                        <Text style={styles.drawerText}>RFQ</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleNavigation('BuyerPurchaseOrder')}>
                     <View style={styles.itemRow}>
                         <Image source={require('../../assets/images/orders-w.png')} resizeMode='contain'/>
-                        <Text>Purchase Orders</Text>
+                        <Text style={styles.drawerText}>Purchase Orders</Text>
                     </View>
                 </TouchableOpacity>
             </Drawer.Section>
 
             <Drawer.Section showDivider={false} style={styles.logoutSection}>
+                <View style={styles.itemRow}>
+                    <Text style={styles.drawerText}>Dark Mode</Text>
+                    <Switch value={isDark} onValueChange={toggleTheme} />
+                </View>
                 <TouchableOpacity onPress={() => handleNavigation('EnterNewPassword')}>
                     <View style={styles.itemRow}>
                         <Image source={require('../../assets/images/settings.png')} resizeMode='contain'/>
-                        <Text>Settings</Text>
+                        <Text style={styles.drawerText}>Settings</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleLogout('Login')}>
@@ -65,12 +73,12 @@ const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     drawerContainer: {
         position: 'relative',
         flex: 1,
         paddingTop: 45,
-        backgroundColor: '#ffffff',
+        backgroundColor: theme.colors.background,
     },
     header: {
         paddingLeft: 28,
@@ -94,6 +102,9 @@ const styles = StyleSheet.create({
     image: {
         height: 42,
         width: 134
+    },
+    drawerText: {
+      color: theme.colors.text
     }
 });
 

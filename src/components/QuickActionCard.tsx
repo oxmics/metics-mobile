@@ -1,12 +1,18 @@
 import { useNavigation } from "@react-navigation/native"
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { CustomNavigationProp } from "../types/common";
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
+import { useTheme } from "react-native-paper";
 
 interface props {
     isBuyer?: boolean
 }
 export const RFQQuickActionCard = ({isBuyer}: props) => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return(
         <TouchableOpacity onPress={() => isBuyer ? navigation.navigate('BuyerRfqHistory'): navigation.navigate('SupplierRequestHistory')}>
             <View style={styles.container}>
@@ -19,6 +25,9 @@ export const RFQQuickActionCard = ({isBuyer}: props) => {
 
 export const OrdersQuickActionCard = ({isBuyer}: props) => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return(
         <TouchableOpacity onPress={() => isBuyer ? navigation.navigate('BuyerPurchaseOrder'): navigation.navigate('SupplierPurchaseOrder')}>
             <View style={styles.container}>
@@ -29,7 +38,7 @@ export const OrdersQuickActionCard = ({isBuyer}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         display: 'flex',
         flexDirection: 'row',
@@ -37,14 +46,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 16,
         borderWidth: 1,
-        borderColor: '#00000033',
+        borderColor: theme.colors.placeholder,
         borderRadius: 10,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.surface,
         height: 56,
         marginRight: 8  
     },
     title: {
-        color: '#000000CC',
+        color: theme.colors.text,
         fontSize: 13,
         fontWeight: "400",
         flexWrap: 'wrap',
@@ -52,6 +61,7 @@ const styles = StyleSheet.create({
     },
     image: {
         height: 20,
-        width: 20
+        width: 20,
+        tintColor: theme.colors.text
     }
 })

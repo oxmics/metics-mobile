@@ -1,9 +1,9 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Button, Icon, Portal, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Icon, Portal, Text, useTheme } from "react-native-paper";
 import { CustomNavigationProp } from "../../types/common";
 import { InfoCard } from "../../components/InfoCard";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { formatDate, formatDateReverse } from "../../utils/helper";
 import { BidModal } from "../../components/Modal";
 import useAuctionDetails from "../../api/auctions/useAuction";
@@ -26,6 +26,7 @@ import { AttachmentType } from "../../types/purchaseOrder";
 import useCreateBid from "../../api/auctions/useCreateBid";
 import useAuctionIgnore from "../../api/auctions/useAuctionIgnore";
 import { BottomNavbar } from "../../components/BottomNavbar";
+import { ThemeContext } from "../../themes/ThemeContext";
 
 type RootStackParamList = {
     SupplierRequestDetailsScreen: {
@@ -36,6 +37,7 @@ type RootStackParamList = {
 const SupplierRequestDetailsScreen = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'SupplierRequestDetailsScreen'>>();
     const {reqId} = route.params;
+    const { theme } = useContext(ThemeContext);
     
     const navigation = useNavigation<CustomNavigationProp>();
 
@@ -146,12 +148,14 @@ const SupplierRequestDetailsScreen = () => {
         });
     }
 
+    const styles = getStyles(theme);
+
     return(
-        <View style={{position: 'relative', flex: 1, backgroundColor: '#FFFFFF'}}>
+        <View style={{position: 'relative', flex: 1, backgroundColor: theme.colors.background}}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation.replace("SupplierRequestHistory")}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                        <Icon size={20} source={"arrow-left"} color={theme.colors.text}/>
                     </TouchableOpacity>
                     <Text style={styles.title}>Details</Text>
                 </View>
@@ -176,7 +180,7 @@ const SupplierRequestDetailsScreen = () => {
                         <CommentCard comments={comments} buttonFn={handleComment} loading={sendingComments || commentsLoading}/>
                         {quoteDetails && quoteDetails?.length > 0 && <QuoteContainer contentData={quoteDetails[0]} buttonFn={handleShowModal} footerButtonAvailable={true}/>}
                     </View>
-                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
+                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color={theme.colors.text}/></View>}
                 <Portal>
                     <QuoteModal closeModal={handleHideModal} show={showModal} date={promisedDate} price={promisedPrice} setDate={setPromisedDate} setPrice={setPromisedPrice}/>
                 </Portal>
@@ -188,12 +192,12 @@ const SupplierRequestDetailsScreen = () => {
 
 export default SupplierRequestDetailsScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         marginBottom: 80
     },
     header: {
@@ -208,7 +212,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     cardContainer: {
         display: 'flex',
@@ -228,7 +232,7 @@ const styles = StyleSheet.create({
     orderStatusLabel: {
         fontSize: 20,
         fontWeight: '400',
-        color: '#000000E5',
+        color: theme.colors.placeholder,
         marginLeft: 12
     },
     statusValueContainer: {

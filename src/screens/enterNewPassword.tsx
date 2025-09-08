@@ -1,14 +1,16 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import GradientButton from "../components/GradientButton";
-import { Icon, TextInput } from "react-native-paper";
+import { Icon, TextInput, useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
 import useChangePassword from "../api/auth/useChangePassword";
+import { ThemeContext } from "../themes/ThemeContext";
 
 const EnterNewPasswordScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
 
     const {mutateAsync: changePassword, isPending} = useChangePassword();
 
@@ -24,11 +26,13 @@ const EnterNewPasswordScreen = () => {
         })
     }
 
+    const styles = getStyles(theme);
+
     return(
         <ScrollView style={styles.container} automaticallyAdjustKeyboardInsets={true}>
            <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                        <Icon size={20} source={"arrow-left"} color={theme.colors.text}/>
                     </TouchableOpacity>
                     <Text style={styles.title}>Settings</Text>
                 </View>
@@ -73,12 +77,12 @@ const EnterNewPasswordScreen = () => {
 
 export default EnterNewPasswordScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         display: "flex",
         flexDirection: "column",
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         height: "100%",
         width: "100%",
         position: 'absolute',
@@ -95,7 +99,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     titleContainer: {
         width: "100%",
@@ -116,39 +120,42 @@ const styles = StyleSheet.create({
         marginTop: 40
     },
     otpTitle: {
-        color:'#000',
+        color: theme.colors.text,
         fontSize: 22,
         fontWeight: '600'
     },
     inputLabelText: {
-        color:"#000",
+        color: theme.colors.text,
         fontSize: 14,
         fontWeight: "400",
         marginTop: 40
     },
     loginText: {
-        color: "#1000C2",
+        color: theme.colors.primary,
         fontWeight: '400',
         fontSize: 14,
     },
     inputFields: {
         borderWidth: 1,
         borderRadius: 5,
-        backgroundColor: "white",
-        marginTop: 16
+        backgroundColor: theme.colors.surface,
+        marginTop: 16,
+        borderColor: theme.colors.placeholder,
     },
     inputFields2: {
         borderWidth: 1,
         borderRadius: 5,
-        backgroundColor: "white",
+        backgroundColor: theme.colors.surface,
         marginTop: 16,
+        borderColor: theme.colors.placeholder,
     },
     inputFields3: {
         borderWidth: 1,
         borderRadius: 5,
-        backgroundColor: "white",
+        backgroundColor: theme.colors.surface,
         marginTop: 16,
-        marginBottom: 40
+        marginBottom: 40,
+        borderColor: theme.colors.placeholder,
     },
     rememberPassContainer: {
         display: 'flex',
@@ -159,7 +166,7 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     rememberPasswordText:{
-        color: '#000'
+        color: theme.colors.text
     },
     resendOtpContainer: {
         display: 'flex',
@@ -170,7 +177,7 @@ const styles = StyleSheet.create({
         marginTop: 6
     },
     resendOtpText: {
-        color: "#000",
+        color: theme.colors.text,
         fontWeight: '400',
         fontSize: 14,
     },

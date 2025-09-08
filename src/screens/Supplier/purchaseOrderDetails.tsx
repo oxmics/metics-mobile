@@ -1,13 +1,14 @@
-    import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Button, Icon, Portal, Text } from "react-native-paper";
+import { ActivityIndicator, Button, Icon, Portal, Text, useTheme } from "react-native-paper";
 import { CustomNavigationProp } from "../../types/common";
 import usePurchaseOrder from "../../api/purchase order/usePurchaseOrder";
 import { InfoCard } from "../../components/InfoCard";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useContext } from "react";
 import { formatDate } from "../../utils/helper";
 import useUpdatePurchaseOrderStatus from "../../api/purchase order/usePurchaseOrderStatusUpdate";
 import { BidModal } from "../../components/Modal";
+import { ThemeContext } from "../../themes/ThemeContext";
 
 type RootStackParamList = {
     SupplierPurchaseOrderDetailsScreen: {
@@ -18,6 +19,7 @@ type RootStackParamList = {
 const SupplierPurchaseorderDetailsScreen = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'SupplierPurchaseOrderDetailsScreen'>>();
     const {orderId} = route.params;
+    const { theme } = useContext(ThemeContext);
     
     const navigation = useNavigation<CustomNavigationProp>();
 
@@ -146,11 +148,13 @@ const SupplierPurchaseorderDetailsScreen = () => {
         }
     }, [purchaseOrder])
 
+    const styles = getStyles(theme);
+
     return(
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.replace("SupplierPurchaseOrder")}>
-                    <Icon size={20} source={"arrow-left"} color="#000000"/>
+                    <Icon size={20} source={"arrow-left"} color={theme.colors.text}/>
                 </TouchableOpacity>
                 <Text style={styles.title}>Purchase Order Details</Text>
             </View>
@@ -174,7 +178,7 @@ const SupplierPurchaseorderDetailsScreen = () => {
                     <InfoCard title="Items" iterative={true} contentData={itemsDetails}/>
                     <InfoCard title="Bid Details" iterative={false} contentData={bidDetails} footerButtonAvailable={true} buttonFn={handleShowModal}/>
                 </View>
-            </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
+            </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color={theme.colors.text}/></View>}
             <Portal>
                 <BidModal closeModal={handleHideModal} show={showModal} contentData={bidAdditionalDetails}/>
             </Portal>
@@ -184,12 +188,12 @@ const SupplierPurchaseorderDetailsScreen = () => {
 
 export default SupplierPurchaseorderDetailsScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFFFFF'
+        backgroundColor: theme.colors.background,
     },
     header: {
         display: 'flex',
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     cardContainer: {
         display: 'flex',
@@ -222,7 +226,7 @@ const styles = StyleSheet.create({
     orderStatusLabel: {
         fontSize: 14,
         fontWeight: '400',
-        color: '#00000099',
+        color: theme.colors.placeholder,
         marginLeft: 40
     },
     statusValueContainer: {

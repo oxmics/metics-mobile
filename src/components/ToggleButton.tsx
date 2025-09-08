@@ -1,12 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { useTheme } from 'react-native-paper';
+import { ThemeContext } from '../themes/ThemeContext';
 
 interface ToggleButtonProps {
     active: string,
     setActive: React.Dispatch<React.SetStateAction<string>>
 }
 const ToggleButton = ({active, setActive}: ToggleButtonProps) => {
-    const slideAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(active === 'supplier' ? 0 : 1)).current;
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
 
     // Function to handle the toggle
     const toggleActive = (val: string) => {
@@ -63,15 +67,17 @@ const ToggleButton = ({active, setActive}: ToggleButtonProps) => {
 
 export default ToggleButton;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         width: 248,
-        backgroundColor: '#585656',
+        backgroundColor: theme.colors.surface,
         borderRadius: 25,
         position: 'relative',
+        borderWidth: 1,
+        borderColor: theme.colors.placeholder
     },
     button: {
         flex: 1,
@@ -81,7 +87,7 @@ const styles = StyleSheet.create({
         borderRadius: 25,
     },
     buttonText: {
-        color: '#fff',
+        color: theme.colors.text,
         fontWeight: 'bold',
     },
     activeButton: {

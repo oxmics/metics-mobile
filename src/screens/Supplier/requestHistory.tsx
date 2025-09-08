@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native"
 import { CustomNavigationProp } from "../../types/common";
-import { Icon, Searchbar, Text } from "react-native-paper";
-import { useEffect, useState } from "react";
+import { Button, Icon, Searchbar, Text, useTheme } from "react-native-paper";
+import { useEffect, useState, useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useAuctionHeaders from "../../api/auctions/useAuctionHeaders";
 import { AuctionType } from "../../types/auction";
@@ -11,9 +11,11 @@ import { DataCard } from "../../components/DataCard";
 import { formatDate } from "../../utils/helper";
 import { Tabs, TabScreen, TabsProvider } from "react-native-paper-tabs";
 import { BottomNavbar } from "../../components/BottomNavbar";
+import { ThemeContext } from "../../themes/ThemeContext";
 
 const SupplierRequestHistory = () => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
 
     const {data: auctions, isPending: loading, refetch} = useAuctionHeaders();
 
@@ -53,17 +55,19 @@ const SupplierRequestHistory = () => {
             handleSearch();
     }, [debouncedSearchQuery])
 
+    const styles = getStyles(theme);
+
     return(
-        <View style={{position: 'relative', flex: 1, backgroundColor: '#FFFFFF'}}>
+        <View style={{flex: 1, position: 'relative', backgroundColor: theme.colors.background}}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation.replace("SupplierDashboard")}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                        <Icon size={20} source={"arrow-left"} color={theme.colors.text}/>
                     </TouchableOpacity>
                     <Text style={styles.title}>Request History</Text>
                 </View>
                 <TabsProvider defaultIndex={0}>
-                    <Tabs mode="fixed" tabLabelStyle={{color:"#000000", fontSize: 15, fontWeight: '400'}} style={{backgroundColor: "#FFFFFF", borderBottomWidth: 1, borderBottomColor: '#0000004D', marginHorizontal: -20}} theme={{colors: {primary: '#000000CC'}}}>
+                    <Tabs mode="fixed" tabLabelStyle={{color:theme.colors.text, fontSize: 15, fontWeight: '400'}} style={{backgroundColor: theme.colors.surface, borderBottomWidth: 1, borderBottomColor: theme.colors.placeholder, marginHorizontal: -20}} theme={{colors: {primary: theme.colors.primary}}}>
                         <TabScreen label="All">
                             <View style={styles.container}>
                                 {(displayClosedAuctions.length + displayOpenAuctions.length) > 0 && <View style={styles.filterBar}>
@@ -73,10 +77,10 @@ const SupplierRequestHistory = () => {
                                         value={searchQuery}
                                         onChangeText={setSearchQuery}
                                         style={styles.searchbar}
-                                        iconColor="#0000004D"
-                                        inputStyle={{color: '#000000', minHeight: 0,}}
-                                        placeholderTextColor={"#00000080"}
-                                        cursorColor={"#000000"}
+                                        iconColor={theme.colors.placeholder}
+                                        inputStyle={{color: theme.colors.text, minHeight: 0,}}
+                                        placeholderTextColor={theme.colors.placeholder}
+                                        cursorColor={theme.colors.primary}
                                         textAlign="left"
                                         selectTextOnFocus
                                         onClearIconPress={()=>setSearchQuery("")}
@@ -102,10 +106,10 @@ const SupplierRequestHistory = () => {
                                         value={searchQuery}
                                         onChangeText={setSearchQuery}
                                         style={styles.searchbar}
-                                        iconColor="#0000004D"
-                                        inputStyle={{color: '#000000', minHeight: 0,}}
-                                        placeholderTextColor={"#00000080"}
-                                        cursorColor={"#000000"}
+                                        iconColor={theme.colors.placeholder}
+                                        inputStyle={{color: theme.colors.text, minHeight: 0,}}
+                                        placeholderTextColor={theme.colors.placeholder}
+                                        cursorColor={theme.colors.primary}
                                         textAlign="left"
                                         selectTextOnFocus
                                         onClearIconPress={()=>setSearchQuery("")}
@@ -131,10 +135,10 @@ const SupplierRequestHistory = () => {
                                         value={searchQuery}
                                         onChangeText={setSearchQuery}
                                         style={styles.searchbar}
-                                        iconColor="#0000004D"
-                                        inputStyle={{color: '#000000', minHeight: 0,}}
-                                        placeholderTextColor={"#00000080"}
-                                        cursorColor={"#000000"}
+                                        iconColor={theme.colors.placeholder}
+                                        inputStyle={{color: theme.colors.text, minHeight: 0,}}
+                                        placeholderTextColor={theme.colors.placeholder}
+                                        cursorColor={theme.colors.primary}
                                         textAlign="left"
                                         selectTextOnFocus
                                         onClearIconPress={()=>setSearchQuery("")}
@@ -161,12 +165,12 @@ const SupplierRequestHistory = () => {
 
 export default SupplierRequestHistory;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         marginBottom: 20
     },
     header: {
@@ -181,7 +185,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     filterBar: {
         display: 'flex',
@@ -196,9 +200,9 @@ const styles = StyleSheet.create({
     },
     searchbar: {
         width: '50%',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.surface,
         borderWidth: 1,
-        borderColor: '#0000004D',
+        borderColor: theme.colors.placeholder,
         height: 40
     }
 });

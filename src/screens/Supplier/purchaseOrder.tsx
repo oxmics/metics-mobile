@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Button, Icon, Searchbar, Text } from "react-native-paper";
+import { Button, Icon, Searchbar, Text, useTheme } from "react-native-paper";
 import { CustomNavigationProp } from "../../types/common";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { DataCard } from "../../components/DataCard";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { PurchaseOrderStatusType } from "../../types/purchaseOrder";
@@ -10,10 +10,12 @@ import usePurchaseOrderStatus from "../../api/purchase order/usePurchaseOrderSta
 import { DataCountCard } from "../../components/DataCountCard";
 import useDebounce from "../../hooks/useDebounce";
 import { BottomNavbar } from "../../components/BottomNavbar";
+import { ThemeContext } from "../../themes/ThemeContext";
 
 const SupplierPurchaseOrderScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
     const {data: purchaseOrders, isPending: loading, refetch} = usePurchaseOrderStatus();
+    const { theme } = useContext(ThemeContext);
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [displayOrders, setDisplayOrders] = useState<PurchaseOrderStatusType[]>([]);
@@ -45,12 +47,14 @@ const SupplierPurchaseOrderScreen = () => {
             handleSearch();
     }, [debouncedSearchQuery])
 
+    const styles = getStyles(theme);
+
     return (
-        <View style={{position: 'relative', flex: 1, backgroundColor: '#FFFFFF'}}>
+        <View style={{position: 'relative', flex: 1, backgroundColor: theme.colors.background}}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation.replace("SupplierDashboard")}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                        <Icon size={20} source={"arrow-left"} color={theme.colors.text}/>
                     </TouchableOpacity>
                     <Text style={styles.title}>Purchase Order</Text>
                 </View>
@@ -63,10 +67,10 @@ const SupplierPurchaseOrderScreen = () => {
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                         style={styles.searchbar}
-                        iconColor="#0000004D"
-                        inputStyle={{color: '#000000', minHeight: 0,}}
-                        placeholderTextColor={"#00000080"}
-                        cursorColor={"#000000"}
+                        iconColor={theme.colors.placeholder}
+                        inputStyle={{color: theme.colors.text, minHeight: 0,}}
+                        placeholderTextColor={theme.colors.placeholder}
+                        cursorColor={theme.colors.primary}
                         textAlign="left"
                         selectTextOnFocus
                         onClearIconPress={()=>setSearchQuery("")}
@@ -89,12 +93,12 @@ const SupplierPurchaseOrderScreen = () => {
 
 export default SupplierPurchaseOrderScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         marginBottom: 80
     },
     header: {
@@ -109,7 +113,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     filterBar: {
         display: 'flex',
@@ -124,9 +128,9 @@ const styles = StyleSheet.create({
     },
     searchbar: {
         width: '50%',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.surface,
         borderWidth: 1,
-        borderColor: '#0000004D',
+        borderColor: theme.colors.placeholder,
         height: 40
     }
 });

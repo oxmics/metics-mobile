@@ -1,8 +1,8 @@
 import { Modal, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Icon, Portal, Switch, Text } from "react-native-paper";
+import { ActivityIndicator, Icon, Portal, Switch, Text, useTheme } from "react-native-paper";
 import useSupplierDashboard from "../../api/dashboard/useSupplierDashboard";
 import useSupplierActivityLogs from "../../api/dashboard/useSupplierActivityLogs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { OverviewCard } from "../../components/OverviewCard";
 import { OrdersQuickActionCard, RFQQuickActionCard } from "../../components/QuickActionCard";
 import { RecentUpdatesCard } from "../../components/RecentUpdatesCard";
@@ -11,9 +11,11 @@ import { useNavigation } from "@react-navigation/native";
 import { CustomNavigationProp } from "../../types/common";
 import CustomDrawer from "../../components/SupplierDrawer";
 import { BottomNavbar } from "../../components/BottomNavbar";
+import { ThemeContext } from "../../themes/ThemeContext";
 
 const SupplierDashboardScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
 
     const [drawerVisible, setDrawerVisible] = useState(false);
 
@@ -44,8 +46,10 @@ const SupplierDashboardScreen = () => {
         }
     }, [isSupplier])
 
+    const styles = getStyles(theme);
+
     return (
-        <View style={{flex: 1, position: 'relative', backgroundColor: '#FFFFFF'}}>
+        <View style={{flex: 1, position: 'relative', backgroundColor: theme.colors.background}}>
             <Modal
                 transparent={true}
                 visible={drawerVisible}
@@ -62,12 +66,12 @@ const SupplierDashboardScreen = () => {
                     />
                 </View>
             </Modal>
-            {(loading || loadingLogs) ? (<View style={styles.loadingContainer}><ActivityIndicator size={"large"} color="#000000"/></View>):(<ScrollView style={styles.container} refreshControl={
+            {(loading || loadingLogs) ? (<View style={styles.loadingContainer}><ActivityIndicator size={"large"} color={theme.colors.text}/></View>):(<ScrollView style={styles.container} refreshControl={
                 <RefreshControl refreshing={loading || loadingLogs} onRefresh={handleRefetch} />
             }>
                 <View style={styles.headerContainer}>
                     <View style={styles.menuBtnContainer}>
-                        <TouchableOpacity onPress={toggleDrawer}><Icon source={"menu"} size={20}/></TouchableOpacity>
+                        <TouchableOpacity onPress={toggleDrawer}><Icon source={"menu"} size={20} color={theme.colors.text}/></TouchableOpacity>
                         <Text style={styles.title}>Dashboard</Text>
                     </View>
                     <Switch 
@@ -110,7 +114,7 @@ const SupplierDashboardScreen = () => {
 
 export default SupplierDashboardScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         flex: 1,
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 22,
         fontWeight: "600",
-        color: '#000000',
+        color: theme.colors.text,
         marginLeft: 16,
     },
     section: {
@@ -145,7 +149,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 22,
         fontWeight: "400",
-        color: '#000',
+        color: theme.colors.text,
         marginBottom: 8,
         marginLeft: 16
     },
@@ -163,7 +167,7 @@ const styles = StyleSheet.create({
     },
     drawerContainer: {
         width: '80%', 
-        backgroundColor: '#ffffff',
+        backgroundColor: theme.colors.background,
         shadowColor: '#000',
         shadowOffset: { width: 2, height: 0 },
         shadowOpacity: 0.3,

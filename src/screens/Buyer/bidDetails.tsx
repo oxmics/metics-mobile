@@ -1,8 +1,8 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Icon, Portal, Text } from "react-native-paper";
+import { ActivityIndicator, Icon, Portal, Text, useTheme } from "react-native-paper";
 import { CustomNavigationProp } from "../../types/common";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useContext } from "react";
 import { CommentCard } from "../../components/CommentCard";
 import useBid from "../../api/bids/useBid";
 import useBidComments from "../../api/bids/useBidComments";
@@ -14,6 +14,7 @@ import { TemplatesCard } from "../../components/TemplatesCard";
 import { BidNegotaiteCard } from "../../components/BidNegotiateCard";
 import { BidDetailsCard } from "../../components/BidDetailsCard";
 import { BottomNavbar } from "../../components/BottomNavbar";
+import { ThemeContext } from "../../themes/ThemeContext";
 
 type RootStackParamList = {
     BuyerBidsDetailsScreen: {
@@ -25,6 +26,7 @@ type RootStackParamList = {
 const BuyerBidsDetailsScreen = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'BuyerBidsDetailsScreen'>>();
     const {bidId, reqId} = route.params;
+    const { theme } = useContext(ThemeContext);
     
     const navigation = useNavigation<CustomNavigationProp>();
 
@@ -50,12 +52,14 @@ const BuyerBidsDetailsScreen = () => {
         })
     }
 
+    const styles = getStyles(theme);
+
     return(
-        <View style={{position: 'relative', flex: 1, backgroundColor: '#FFFFFF'}}>
+        <View style={{position: 'relative', flex: 1, backgroundColor: theme.colors.background}}>
             <View style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={() => navigation.replace("BuyerRfqDetails", {reqId: reqId})}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                        <Icon size={20} source={"arrow-left"} color={theme.colors.text}/>
                     </TouchableOpacity>
                     <Text style={styles.title}>Details</Text>
                 </View>
@@ -66,7 +70,7 @@ const BuyerBidsDetailsScreen = () => {
                         <CommentCard comments={comments} buttonFn={handleComment} loading={sendingComments}/>
                         {bidLines && auctionLines && auctionLines.length > 0 && <BidNegotaiteCard auctionLines={auctionLines} bidLine={bidLines}/>}
                     </View>
-                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
+                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color={theme.colors.text}/></View>}
                 {/* <Portal>
                     {auctionLines && auction && <RfqDetailedModal auctionLines={auctionLines} auction={auction} closeModal={handleHideModal} show={showModal}/>}
                 </Portal> */}
@@ -78,12 +82,12 @@ const BuyerBidsDetailsScreen = () => {
 
 export default BuyerBidsDetailsScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         marginBottom: 80
     },
     header: {
@@ -98,7 +102,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: '500',
-        color: '#000000'
+        color: theme.colors.text
     },
     cardContainer: {
         display: 'flex',
@@ -118,7 +122,7 @@ const styles = StyleSheet.create({
     orderStatusLabel: {
         fontSize: 20,
         fontWeight: '400',
-        color: '#000000E5',
+        color: theme.colors.placeholder,
         marginLeft: 12
     },
     statusValueContainer: {

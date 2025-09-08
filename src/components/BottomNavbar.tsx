@@ -1,12 +1,16 @@
 import { useNavigation } from "@react-navigation/native"
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native"
 import { CustomNavigationProp } from "../types/common";
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 interface props {
     isSupplier?: boolean
 }
 
 export const BottomNavbar = ({isSupplier}:props) => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
 
     return(
         <View style={styles.holder}>
@@ -28,7 +32,7 @@ export const BottomNavbar = ({isSupplier}:props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     holder: {
         display: 'flex',
         width: '100%',
@@ -43,7 +47,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 40,
         borderRadius: 16,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.surface,
         padding: 28,
         // Shadow for iOS
         shadowColor: '#000000',
@@ -57,6 +61,7 @@ const styles = StyleSheet.create({
     },
     image: {
         height: 20,
-        width: 20
+        width: 20,
+        tintColor: theme.colors.text
     }
 })

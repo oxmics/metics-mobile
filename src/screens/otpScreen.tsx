@@ -1,12 +1,13 @@
 import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import GradientButton from "../components/GradientButton";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { APIResponseEnum, CustomNavigationProp } from "../types/common";
 import { CustomInput } from "../components/CustomInput";
 import useVerifyOtp from "../api/auth/useVerifyOtp";
 import useResetPasswordOtp from "../api/auth/useResetPasswordOtp";
-import { Snackbar, TextInput } from "react-native-paper";
+import { Snackbar, TextInput, useTheme } from "react-native-paper";
+import { ThemeContext } from "../themes/ThemeContext";
 
 type RootStackParamList = {
     OtpScreen: {
@@ -20,6 +21,7 @@ const OtpScreen = () => {
     const {email, userId} = route.params;
 
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
 
     const [otp, setOtp] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -93,6 +95,8 @@ const OtpScreen = () => {
         return () => clearInterval(timer);
     }, [countdown]);
 
+    const styles = getStyles(theme);
+
     return(
         <ScrollView style={styles.container} automaticallyAdjustKeyboardInsets={true}>
             <View style={styles.header}>
@@ -162,12 +166,12 @@ const OtpScreen = () => {
 
 export default OtpScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         display: "flex",
         flexDirection: "column",
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         height: "100%",
         width: "100%",
         position: 'absolute',
@@ -196,26 +200,27 @@ const styles = StyleSheet.create({
         marginTop: 40
     },
     otpTitle: {
-        color:'#000',
+        color: theme.colors.text,
         fontSize: 22,
         fontWeight: '600'
     },
     inputLabelText: {
-        color:"#000",
+        color: theme.colors.text,
         fontSize: 14,
         fontWeight: "400",
         marginTop: 40
     },
     loginText: {
-        color: "#1000C2",
+        color: theme.colors.primary,
         fontWeight: '400',
         fontSize: 14,
     },
     inputFields: {
         borderWidth: 1,
         borderRadius: 5,
-        backgroundColor: "white",
+        backgroundColor: theme.colors.surface,
         marginTop: 16,
+        borderColor: theme.colors.placeholder,
     },
     rememberPassContainer: {
         display: 'flex',
@@ -226,7 +231,7 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     rememberPasswordText:{
-        color: '#000'
+        color: theme.colors.text
     },
     resendOtpContainer: {
         display: 'flex',
@@ -237,15 +242,16 @@ const styles = StyleSheet.create({
         marginTop: 6
     },
     resendOtpText: {
-        color: "#000",
+        color: theme.colors.text,
         fontWeight: '400',
         fontSize: 14,
     },
     inputFields2: {
         borderWidth: 1,
         borderRadius: 5,
-        backgroundColor: "white",
+        backgroundColor: theme.colors.surface,
         marginTop: 16,
-        marginBottom: 40
+        marginBottom: 40,
+        borderColor: theme.colors.placeholder,
     },
 });

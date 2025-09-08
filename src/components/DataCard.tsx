@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native"
-import { Divider, Text } from "react-native-paper"
+import { Divider, Text, useTheme } from "react-native-paper"
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     status: string,
@@ -10,6 +12,9 @@ interface props {
 }
 
 export const  DataCard = ({status, footerLeftText, footerRightText, title, titleLabel}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return (
         <View style={styles.dataCardContainer}>
             <View style={styles.header}>
@@ -19,7 +24,7 @@ export const  DataCard = ({status, footerLeftText, footerRightText, title, title
                 </View>
                 <Text style={status === "APPROVED" ? styles.statusGreen : status === "OPEN" ? styles.statusGreen : status === "PENDING" ? styles.statusYellow: status === "AWARDED" ? styles.statusGreen: status === "CANCELLED" ? styles.statusGray: status === "WITHDRAWN" ? styles.statusBlue : status === "DISQUALIFIED" ? styles.statusDarkRed : status === "CLOSED" ?  styles.statusRed : status === "IN-PROGRESS" ? styles.statusGreen : status === "DRAFT" ? styles.statusOrange : styles.statusRed}>{status}</Text>
             </View>
-            <Divider/>
+            <Divider style={{backgroundColor: theme.colors.placeholder}}/>
             <View style={styles.footerContainer}>
                 <Text style={styles.footerText}>{footerLeftText}</Text>
                 <Text style={styles.footerText}>{footerRightText}</Text>
@@ -28,13 +33,14 @@ export const  DataCard = ({status, footerLeftText, footerRightText, title, title
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     dataCardContainer: {
         borderWidth: 1,
-        borderColor: '#00000033',
+        borderColor: theme.colors.placeholder,
         borderRadius: 10,
         width: "100%",
-        marginBottom: 16
+        marginBottom: 16,
+        backgroundColor: theme.colors.surface
     },
     header: {
         display: 'flex',
@@ -52,14 +58,14 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start'
     },
     titleLabel: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontSize: 12,
         fontWeight: '400'
     },
     title: {
         fontSize: 12,
         fontWeight: '400',
-        color: "#000000"
+        color: theme.colors.text
     },
     statusGreen: {
         fontSize: 12,
@@ -105,7 +111,7 @@ const styles = StyleSheet.create({
         paddingVertical: 24,
     },
     footerText: {
-        color: '#000000B2',
+        color: theme.colors.placeholder,
         fontSize: 12,
         fontWeight: '400'
     }

@@ -1,9 +1,10 @@
 import { StyleSheet, View } from "react-native"
-import { Button, Text, TextInput } from "react-native-paper"
+import { Button, Text, TextInput, useTheme } from "react-native-paper"
 import { BidCommentType, CommentType } from "../types/auction"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import Timeline, { Data } from "react-native-timeline-flatlist"
 import { formatDateVerbose } from "../utils/helper"
+import { ThemeContext } from "../themes/ThemeContext"
 
 interface props {
     comments: CommentType[]| BidCommentType[] |undefined,
@@ -14,6 +15,8 @@ interface props {
 export const CommentCard = ({buttonFn, comments, loading}: props) => {
     const [data, setData] = useState<any[]>([]);
     const [comment, setComment] = useState<string>("");
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
 
     useEffect(() => {
         if (comments) {
@@ -33,7 +36,7 @@ export const CommentCard = ({buttonFn, comments, loading}: props) => {
         <View style={styles.container}>
             <Text style={styles.title}>Comments</Text>
             {comments && data.length > 0 && (
-                <Timeline data={data} circleColor="#D9D9D9" lineColor="#D9D9D9" timeContainerStyle={{minWidth: 150}} descriptionStyle={{flexWrap: 'wrap', color: "#000000"}} titleStyle={{flexWrap: 'wrap', color: "#000000"}}/>
+                <Timeline data={data} circleColor={theme.colors.placeholder} lineColor={theme.colors.placeholder} timeContainerStyle={{minWidth: 150}} descriptionStyle={{flexWrap: 'wrap', color: theme.colors.text}} titleStyle={{flexWrap: 'wrap', color: theme.colors.text}}/>
             )}
             <View style={styles.noteContainer}>
                 <Text style={styles.noteBold}>Note:</Text>
@@ -41,7 +44,7 @@ export const CommentCard = ({buttonFn, comments, loading}: props) => {
             </View>
             { buttonFn &&
                 <View style={styles.footer}>
-                        <TextInput value={comment} onChangeText={setComment} style={styles.commentInput} mode="outlined" placeholder="Comment here..." textColor="#000000" placeholderTextColor={"#00000099"} cursorColor="#000" outlineColor="#0000004D" selectionColor="#0000004D" activeOutlineColor="#0000004D"/>
+                        <TextInput value={comment} onChangeText={setComment} style={styles.commentInput} mode="outlined" placeholder="Comment here..." textColor={theme.colors.text} placeholderTextColor={theme.colors.placeholder} cursorColor={theme.colors.text} outlineColor={theme.colors.placeholder} selectionColor={theme.colors.placeholder} activeOutlineColor={theme.colors.placeholder}/>
                         <Button loading={loading} disabled={comment.length < 1} style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => {buttonFn(comment); setComment("")}}>Comment</Button>
                 </View>
             }
@@ -49,19 +52,19 @@ export const CommentCard = ({buttonFn, comments, loading}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC',
+        color: theme.colors.text,
         marginLeft: 12,
         marginBottom: 16
     },
@@ -70,8 +73,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'flex-start',
@@ -87,7 +90,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap'
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontWeight: '400',
         fontSize: 12
     },
@@ -97,18 +100,18 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         gap: 8,
-        backgroundColor: '#ECECEC',
+        backgroundColor: theme.colors.background,
         borderRadius: 5,
     },
     noteBold: {
         fontWeight: '700',
         fontSize: 10,
-        color: '#000',
+        color: theme.colors.text,
     },
     noteDescription: {
         fontWeight: '500',
         fontSize: 10,
-        color: '#00000099'
+        color: theme.colors.placeholder
     },
     footer: {
         width: '100%',
@@ -141,7 +144,7 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 7,
         borderEndColor: '#00B976',
         height: 40,
-        backgroundColor: "#FFFFFF"
+        backgroundColor: theme.colors.surface
     },
     descriptionContainer:{
         flexDirection: 'row',
@@ -149,6 +152,6 @@ const styles = StyleSheet.create({
     },
     textDescription: {
         marginLeft: 10,
-        color: '#000000'
+        color: theme.colors.text
     }
 })

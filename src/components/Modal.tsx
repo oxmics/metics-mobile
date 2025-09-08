@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native"
-import { Button, Modal, Text } from "react-native-paper"
+import { Button, Modal, Text, useTheme } from "react-native-paper"
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     show: boolean,
@@ -7,6 +9,9 @@ interface props {
     contentData: any
 }
 export const BidModal = ({closeModal, contentData, show}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return(
         <Modal visible={show} onDismiss={closeModal}>
             <View style={styles.container}>
@@ -25,9 +30,9 @@ export const BidModal = ({closeModal, contentData, show}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.surface,
         paddingVertical: 20, 
         paddingHorizontal: 16,
         display: 'flex',
@@ -43,8 +48,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'flex-start',
@@ -60,14 +65,14 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap'
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontWeight: '400',
         fontSize: 12
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC'
+        color: theme.colors.text
     },
     closeBtn: {
         backgroundColor: '#00B976',

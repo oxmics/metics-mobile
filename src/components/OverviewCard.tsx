@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native"
-import { Text } from "react-native-paper"
+import { Text, useTheme } from "react-native-paper"
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     title: string,
@@ -8,6 +10,9 @@ interface props {
 }
 
 export const OverviewCard = ({title, value, footer}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return(
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>
@@ -17,15 +22,15 @@ export const OverviewCard = ({title, value, footer}: props) => {
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         maxHeight: 120, 
         minHeight: 100,
         borderWidth: 1,
         borderRadius: 20,
-        borderColor: '#00000033',
+        borderColor: theme.colors.placeholder,
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
@@ -34,17 +39,17 @@ const styles = StyleSheet.create({
         marginRight: 12
     },
     title: {
-        color: '#000000A6',
+        color: theme.colors.placeholder,
         fontSize: 12,
         fontWeight: '400'
     },
     value: {
-        color: '#000000',
+        color: theme.colors.text,
         fontSize: 20,
         fontWeight: '400'
     },
     footer: {
-        color: '#000000A6',
+        color: theme.colors.placeholder,
         fontSize: 12,
         fontWeight: '400'
     },

@@ -1,23 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { StyleSheet, View } from "react-native"
-import { Button, Modal, PaperProvider, Text, TextInput } from "react-native-paper"
+import { Button, Modal, PaperProvider, Text, TextInput, useTheme } from "react-native-paper"
 import { DatePickerInput} from "react-native-paper-dates";
 import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
-import { MD3LightTheme as DefaultTheme} from "react-native-paper";
-
-const customTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "#00B976",
-    onPrimary: "#FFFFFF",
-    onSurface: "#000000",
-    surface: "#FFFFFF",
-    onSurfaceVariant: "#000000",
-    secondary: "#000000",
-  },
-};
-
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     show: boolean,
@@ -30,6 +16,8 @@ interface props {
 export const QuoteModal = ({closeModal,date, price, setDate, setPrice, show}: props) => {
     const [inputDate, setInputDate] = useState<Date|undefined>(undefined);
     const [inputPrice, setInputPrice] = useState<string>("");
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
 
     const handleAdd = () => {
         setDate(inputDate);
@@ -40,7 +28,7 @@ export const QuoteModal = ({closeModal,date, price, setDate, setPrice, show}: pr
         <Modal visible={show} onDismiss={closeModal} dismissable>
                 <View style={styles.container}>
                     <Text style={styles.title}>Quote</Text>
-                    <Text>Promised Price</Text>
+                    <Text style={{color: theme.colors.text}}>Promised Price</Text>
                     <View style={{height: 50, width: '100%'}}>
                         <TextInput 
                             placeholder="Price" 
@@ -48,17 +36,17 @@ export const QuoteModal = ({closeModal,date, price, setDate, setPrice, show}: pr
                             value={inputPrice} 
                             onChangeText={setInputPrice} 
                             keyboardType="numeric" 
-                            textColor="#000000" 
-                            outlineColor="#00000033" 
+                            textColor={theme.colors.text}
+                            outlineColor={theme.colors.placeholder}
                             underlineStyle={{display: 'none'}} 
                             style={styles.inputBox} 
-                            activeOutlineColor="#000000AB"
-                            placeholderTextColor={"#00000033"}
+                            activeOutlineColor={theme.colors.text}
+                            placeholderTextColor={theme.colors.placeholder}
                         />
                     </View>
-                    <Text>Promised Date</Text>
+                    <Text style={{color: theme.colors.text}}>Promised Date</Text>
                     <View style={{height: 50}}>
-                        <PaperProvider theme={customTheme}>
+                        <PaperProvider theme={theme as any}>
                         <DatePickerInput
                             withDateFormatInLabel={false}
                             mode="outlined"
@@ -66,13 +54,13 @@ export const QuoteModal = ({closeModal,date, price, setDate, setPrice, show}: pr
                             value={inputDate}
                             onChange={(d) => setInputDate(d)}
                             inputMode="start"
-                            textColor="#000000"
-                            outlineColor="#00000033"
+                            textColor={theme.colors.text}
+                            outlineColor={theme.colors.placeholder}
                             underlineStyle={{display: 'none'}}
                             style={styles.inputBox}
-                            activeOutlineColor="#000000AB"
+                            activeOutlineColor={theme.colors.text}
                             placeholder="10/11/24"
-                            placeholderTextColor={"#00000033"}
+                            placeholderTextColor={theme.colors.placeholder}
                         />
                         </PaperProvider>
                     </View>
@@ -82,9 +70,9 @@ export const QuoteModal = ({closeModal,date, price, setDate, setPrice, show}: pr
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.surface,
         paddingVertical: 20, 
         paddingHorizontal: 16,
         display: 'flex',
@@ -100,8 +88,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'flex-start',
@@ -117,14 +105,14 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap'
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontWeight: '400',
         fontSize: 12
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC'
+        color: theme.colors.text
     },
     closeBtn: {
         backgroundColor: '#00B976',
@@ -135,6 +123,6 @@ const styles = StyleSheet.create({
     },
     inputBox: {
         borderRadius: 10,
-        backgroundColor: '#FFFFFF'
+        backgroundColor: theme.colors.surface
     },
 })

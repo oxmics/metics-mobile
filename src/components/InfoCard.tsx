@@ -1,5 +1,7 @@
 import { StyleSheet, View } from "react-native"
-import { Button, Text } from "react-native-paper"
+import { Button, Text, useTheme } from "react-native-paper"
+import { useContext } from "react";
+import { ThemeContext } from "../themes/ThemeContext";
 
 interface props {
     title: string,
@@ -10,6 +12,9 @@ interface props {
 }
 
 export const InfoCard = ({footerButtonAvailable, buttonFn, contentData, iterative, title}: props) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
     return(
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>
@@ -43,19 +48,19 @@ export const InfoCard = ({footerButtonAvailable, buttonFn, contentData, iterativ
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC',
+        color: theme.colors.text,
         marginLeft: 12,
         marginBottom: 16
     },
@@ -64,8 +69,8 @@ const styles = StyleSheet.create({
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
         display: 'flex',
         flexDirection:'column',
         justifyContent: 'flex-start',
@@ -82,7 +87,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontWeight: '400',
         fontSize: 12
     },

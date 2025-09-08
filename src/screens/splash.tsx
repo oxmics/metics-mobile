@@ -1,13 +1,15 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { Image, StyleSheet, View, Animated, Dimensions } from "react-native";
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { CustomNavigationProp } from "../types/common";
+import { ThemeContext } from "../themes/ThemeContext";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const SplashScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { theme } = useContext(ThemeContext);
 
     const [bypassLogin, setBypassLogin] = useState<boolean>(false);
     const [animationEnded, setAnimationEnded] = useState<boolean>(false);
@@ -67,6 +69,8 @@ const SplashScreen = () => {
         } 
     }, [animationEnded, bypassLogin])
 
+    const styles = getStyles(theme);
+
     return (
         <View style={styles.container}>
             <Animated.Image
@@ -86,10 +90,10 @@ const SplashScreen = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
     },
     image: {
         position: 'absolute',

@@ -1,7 +1,8 @@
 import { StyleSheet, View } from "react-native"
-import { Button, Text, TextInput } from "react-native-paper"
+import { Button, Text, TextInput, useTheme } from "react-native-paper"
 import { TemplateType } from "../types/template"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
+import { ThemeContext } from "../themes/ThemeContext"
 
 interface props {
     title: string,
@@ -13,6 +14,8 @@ interface props {
 
 export const TemplateEditCard = ({closeFn, saveFn, saving, contentData, title}: props) => {
     const [description, setDescription] = useState<string>("");
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
 
     useEffect(() => {
         setDescription(contentData.display_description)
@@ -25,10 +28,10 @@ export const TemplateEditCard = ({closeFn, saveFn, saving, contentData, title}: 
     return(
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>
-            <TextInput style={styles.inputBox} mode="outlined" underlineStyle={{display: 'none'}} outlineColor="#00000033" activeOutlineColor="#000000AB" value={description} onChangeText={setDescription} placeholder="Description here..." placeholderTextColor={"#00000080"} multiline/>
+            <TextInput style={styles.inputBox} mode="outlined" underlineStyle={{display: 'none'}} outlineColor={theme.colors.placeholder} activeOutlineColor={theme.colors.text} value={description} onChangeText={setDescription} placeholder="Description here..." placeholderTextColor={theme.colors.placeholder} multiline textColor={theme.colors.text}/>
             <View style={styles.footer}>
                 <View style={styles.btnContainer}>
-                    <Button mode="text" labelStyle={{color: '#000000', fontSize: 11, fontWeight: '600'}} onPress={() => closeFn()}>Close</Button>
+                    <Button mode="text" labelStyle={{color: theme.colors.text, fontSize: 11, fontWeight: '600'}} onPress={() => closeFn()}>Close</Button>
                     <Button loading={saving} style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => handleSave()}>Save</Button>
                 </View>
             </View>
@@ -36,27 +39,27 @@ export const TemplateEditCard = ({closeFn, saveFn, saving, contentData, title}: 
     )
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         width: '100%',
         padding: 16,
         borderRadius: 10,
         borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        borderColor: theme.colors.placeholder,
+        backgroundColor: theme.colors.surface,
     },
     title: {
         fontSize: 15,
         fontWeight: '500',
-        color: '#000000CC',
+        color: theme.colors.text,
         marginLeft: 12,
         marginBottom: 16
     },
     inputBox: {
         borderRadius: 10,
-        borderColor: '#00000033',
+        borderColor: theme.colors.placeholder,
         height: 120,
-        backgroundColor: '#FFFFFF'
+        backgroundColor: theme.colors.surface
     },
     row: {
         display: 'flex',
@@ -67,7 +70,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap'
     },
     rowText: {
-        color: '#00000099',
+        color: theme.colors.placeholder,
         fontWeight: '400',
         fontSize: 12
     },
@@ -82,7 +85,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         borderWidth: 1,
-        borderColor: '#00000033',
+        borderColor: theme.colors.placeholder,
         borderRadius: 10
     },
     footerBtn: {
