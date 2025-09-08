@@ -1,9 +1,9 @@
 import { useNavigation } from "@react-navigation/native"
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { CustomNavigationProp } from "../types/common";
 import { useContext } from "react";
 import { ThemeContext } from "../themes/ThemeContext";
-import { useTheme } from "react-native-paper";
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface props {
     isBuyer?: boolean
@@ -16,7 +16,7 @@ export const RFQQuickActionCard = ({isBuyer}: props) => {
     return(
         <TouchableOpacity onPress={() => isBuyer ? navigation.navigate('BuyerRfqHistory'): navigation.navigate('SupplierRequestHistory')}>
             <View style={styles.container}>
-                <Image source={require("../../assets/images/rfq.png")} resizeMode="contain" style={styles.image}/>
+                <MaterialCommunityIcons name="file-document-outline" size={24} color={theme.colors.text} />
                 <Text style={styles.title}>View Request</Text>
             </View>
         </TouchableOpacity>
@@ -31,7 +31,7 @@ export const OrdersQuickActionCard = ({isBuyer}: props) => {
     return(
         <TouchableOpacity onPress={() => isBuyer ? navigation.navigate('BuyerPurchaseOrder'): navigation.navigate('SupplierPurchaseOrder')}>
             <View style={styles.container}>
-                <Image source={require("../../assets/images/orders.png")} resizeMode="contain" style={styles.image}/>
+                <MaterialCommunityIcons name="briefcase-outline" size={24} color={theme.colors.text} />
                 <Text style={styles.title}>View Purchase Orders</Text>
             </View>
         </TouchableOpacity>
@@ -58,10 +58,5 @@ const getStyles = (theme) => StyleSheet.create({
         fontWeight: "400",
         flexWrap: 'wrap',
         marginLeft: 12
-    },
-    image: {
-        height: 20,
-        width: 20,
-        tintColor: theme.colors.text
     }
 })

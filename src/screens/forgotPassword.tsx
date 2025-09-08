@@ -1,5 +1,6 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useState, useContext } from 'react';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import GradientButton from "../components/GradientButton";
 import CaptchaCheckbox from "../components/CaptchaCheckbox";
 import { useNavigation } from "@react-navigation/native";
@@ -56,11 +57,7 @@ const ForgotPasswordScreen = () => {
                 />
             </View>
             <View style={styles.titleContainer}>
-                <Image
-                    source={require('../../assets/images/key_circle.png')}
-                    style={styles.titleImage}
-                    resizeMode="contain"
-                />
+                <MaterialCommunityIcons name="key-outline" size={50} color={theme.colors.primary} />
                 <Text style={styles.resetPasswordTitle}>Reset Your Password</Text>
             </View>
             <Text style={styles.inputLabelText}>Enter Your Email</Text>
@@ -124,11 +121,6 @@ const getStyles = (theme) => StyleSheet.create({
     image: {
         height: 71,
         width: 145,
-    },
-    titleImage: {
-        height: 50,
-        width: 50,
-        marginTop: 40
     },
     resetPasswordTitle: {
         color: theme.colors.text,

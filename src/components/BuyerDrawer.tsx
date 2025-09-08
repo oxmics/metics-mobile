@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Switch } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { Drawer, Text, useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { CustomNavigationProp, RootStackParamList } from '../types/common';
 import EncryptedStorage from 'react-native-encrypted-storage';
@@ -33,19 +34,19 @@ const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
             <Drawer.Section style={styles.drawerSection} showDivider={false}>
                 <TouchableOpacity onPress={() => handleNavigation('BuyerDashboard')}>
                     <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/home.png')} resizeMode='contain'/>
+                        <MaterialCommunityIcons name="home-outline" size={24} color={theme.colors.text} />
                         <Text style={styles.drawerText}>Dashboard</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleNavigation('BuyerRfqHistory')}>
                     <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/rfq-w.png')} resizeMode='contain'/>
+                        <MaterialCommunityIcons name="file-document-outline" size={24} color={theme.colors.text} />
                         <Text style={styles.drawerText}>RFQ</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleNavigation('BuyerPurchaseOrder')}>
                     <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/orders-w.png')} resizeMode='contain'/>
+                        <MaterialCommunityIcons name="briefcase-outline" size={24} color={theme.colors.text} />
                         <Text style={styles.drawerText}>Purchase Orders</Text>
                     </View>
                 </TouchableOpacity>
@@ -58,13 +59,13 @@ const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
                 </View>
                 <TouchableOpacity onPress={() => handleNavigation('EnterNewPassword')}>
                     <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/settings.png')} resizeMode='contain'/>
+                        <MaterialCommunityIcons name="cog-outline" size={24} color={theme.colors.text} />
                         <Text style={styles.drawerText}>Settings</Text>
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleLogout('Login')}>
                     <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/logout.png')} resizeMode='contain'/>
+                        <MaterialCommunityIcons name="logout" size={24} color={'#FF0000'} />
                         <Text style={{color: '#FF0000'}}>Logout</Text>
                     </View>
                 </TouchableOpacity>
