@@ -1,5 +1,5 @@
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import BootSplash from 'react-native-bootsplash';
 import LoginScreen from './src/screens/login';
 import ForgotPasswordScreen from './src/screens/forgotPassword';
@@ -23,8 +23,85 @@ import BuyerBidsDetailsScreen from './src/screens/Buyer/bidDetails';
 import {LogLevel, OneSignal} from 'react-native-onesignal';
 import NetInfo from '@react-native-community/netinfo';
 import {PermissionsAndroid, Platform} from 'react-native';
+import { ThemeProvider, ThemeContext } from './src/themes/ThemeContext';
 
 const queryClient = new QueryClient();
+const Stack = createNativeStackNavigator();
+
+function AppNav() {
+  const { theme } = useContext(ThemeContext);
+
+  return (
+    <PaperProvider theme={theme}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Splash"
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            animationTypeForReplace: 'pop',
+          }}>
+          <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen
+            name="ForgotPassword"
+            component={ForgotPasswordScreen}
+          />
+          <Stack.Screen name="Otp" component={OtpScreen} />
+          <Stack.Screen
+            name="EnterNewPassword"
+            component={EnterNewPasswordScreen}
+          />
+          <Stack.Screen
+            name="BuyerDashboard"
+            component={BuyerDashboardScreen}
+          />
+          <Stack.Screen
+            name="BuyerPurchaseOrder"
+            component={BuyerPurchaseOrderScreen}
+          />
+          <Stack.Screen
+            name="BuyerPurchaseOrderDetails"
+            component={BuyerPurchaseorderDetailsScreen}
+          />
+          <Stack.Screen
+            name="BuyerRfqHistory"
+            component={BuyerRfqHistoryScreen}
+          />
+          <Stack.Screen
+            name="BuyerRfqDetails"
+            component={BuyerRfqDetailsScreen}
+          />
+          <Stack.Screen
+            name="BuyerBidsDetails"
+            component={BuyerBidsDetailsScreen}
+          />
+          <Stack.Screen
+            name="SupplierDashboard"
+            component={SupplierDashboardScreen}
+          />
+          <Stack.Screen
+            name="SupplierPurchaseOrder"
+            component={SupplierPurchaseOrderScreen}
+          />
+          <Stack.Screen
+            name="SupplierPurchaseOrderDetails"
+            component={SupplierPurchaseorderDetailsScreen}
+          />
+          <Stack.Screen
+            name="SupplierRequestHistory"
+            component={SupplierRequestHistory}
+          />
+          <Stack.Screen
+            name="SupplierRequestDetails"
+            component={SupplierRequestDetailsScreen}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
+  );
+}
+
 
 function App(): React.JSX.Element {
   if (Platform.OS === 'android' && Platform.Version >= 33) {
@@ -75,77 +152,12 @@ function App(): React.JSX.Element {
       OneSignal.Notifications.removeEventListener('click', clickListener);
     };
   }, []);
-  const Stack = createNativeStackNavigator();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PaperProvider>
-        <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName="Splash"
-            screenOptions={{
-              headerShown: false,
-              animation: 'slide_from_right',
-              animationTypeForReplace: 'pop',
-            }}>
-            <Stack.Screen name="Splash" component={SplashScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen
-              name="ForgotPassword"
-              component={ForgotPasswordScreen}
-            />
-            <Stack.Screen name="Otp" component={OtpScreen} />
-            <Stack.Screen
-              name="EnterNewPassword"
-              component={EnterNewPasswordScreen}
-            />
-            <Stack.Screen
-              name="BuyerDashboard"
-              component={BuyerDashboardScreen}
-            />
-            <Stack.Screen
-              name="BuyerPurchaseOrder"
-              component={BuyerPurchaseOrderScreen}
-            />
-            <Stack.Screen
-              name="BuyerPurchaseOrderDetails"
-              component={BuyerPurchaseorderDetailsScreen}
-            />
-            <Stack.Screen
-              name="BuyerRfqHistory"
-              component={BuyerRfqHistoryScreen}
-            />
-            <Stack.Screen
-              name="BuyerRfqDetails"
-              component={BuyerRfqDetailsScreen}
-            />
-            <Stack.Screen
-              name="BuyerBidsDetails"
-              component={BuyerBidsDetailsScreen}
-            />
-            <Stack.Screen
-              name="SupplierDashboard"
-              component={SupplierDashboardScreen}
-            />
-            <Stack.Screen
-              name="SupplierPurchaseOrder"
-              component={SupplierPurchaseOrderScreen}
-            />
-            <Stack.Screen
-              name="SupplierPurchaseOrderDetails"
-              component={SupplierPurchaseorderDetailsScreen}
-            />
-            <Stack.Screen
-              name="SupplierRequestHistory"
-              component={SupplierRequestHistory}
-            />
-            <Stack.Screen
-              name="SupplierRequestDetails"
-              component={SupplierRequestDetailsScreen}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </PaperProvider>
+      <ThemeProvider>
+        <AppNav />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

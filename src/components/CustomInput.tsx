@@ -1,5 +1,5 @@
 import { KeyboardTypeOptions, StyleProp, TextStyle } from "react-native"
-import { TextInput } from "react-native-paper"
+import { TextInput, useTheme } from "react-native-paper"
 
 interface CustomInputProp {
     value: string,
@@ -12,15 +12,16 @@ interface CustomInputProp {
     keyboardType?: KeyboardTypeOptions | undefined
 }
 export const CustomInput = ({autoCaptalize ,onChange, keyboardType, placeholder, secureTextEntry, style, suffix, value}: CustomInputProp) => {
+    const theme = useTheme();
     return (
         <TextInput
                 style={style && style}
                 value={value}
                 onChangeText={onChange}
                 placeholder={placeholder && placeholder}
-                placeholderTextColor={"#00000080"}
+                placeholderTextColor={theme.colors.placeholder}
                 secureTextEntry={secureTextEntry !== null ? secureTextEntry : false}
-                textColor="#000"
+                textColor={theme.colors.text}
                 cursorColor="#1BBB6B"
                 underlineStyle={{display: 'none'}}
                 autoCapitalize={autoCaptalize !== null ? autoCaptalize : "none"}

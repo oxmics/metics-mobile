@@ -1,6 +1,6 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Switch } from "react-native";
 import ToggleButton from "../components/ToggleButton";
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import GradientButton from "../components/GradientButton";
 import { Snackbar, TextInput } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
@@ -9,9 +9,11 @@ import { CustomInput } from "../components/CustomInput";
 import useLogin from "../api/auth/useLogin";
 import { LoginResponseEnum } from "../types/auth";
 import { isValidEmail } from "../utils/helper";
+import { ThemeContext } from "../themes/ThemeContext";
 
 const LoginScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const { isDark, theme, toggleTheme } = useContext(ThemeContext);
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -51,6 +53,8 @@ const LoginScreen = () => {
         }
     }
 
+    const styles = getStyles(theme);
+
     return(
         <ScrollView style={styles.container} automaticallyAdjustKeyboardInsets={true}>
             <View style={styles.header}>
@@ -59,6 +63,7 @@ const LoginScreen = () => {
                     style={styles.image}
                     resizeMode="contain"
                 />
+                <Switch value={isDark} onValueChange={toggleTheme} />
             </View>
             <Text style={styles.welcomeText}>Welcome to Metics</Text>
             <Text style={styles.loginAsText}>Login as</Text>
@@ -96,12 +101,12 @@ const LoginScreen = () => {
 
 export default LoginScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
         display: "flex",
         flexDirection: "column",
         padding: 20,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: theme.colors.background,
         height: "100%",
         width: "100%",
         position: 'absolute',
@@ -110,26 +115,29 @@ const styles = StyleSheet.create({
         position: 'relative',
         top: 0,
         left: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     image: {
         height: 71,
         width: 145,
     },
     welcomeText: {
-        color:'#000000',
+        color: theme.colors.text,
         fontSize: 24,
         fontWeight: '700',
         marginTop: 80
     },
     loginAsText: {
-        color:'#000000',
+        color: theme.colors.text,
         fontSize: 16,
         fontWeight: '400',
         marginTop: 20,
         marginBottom: 16
     },
     forgotPasswordText: {
-        color: "#1000C2",
+        color: theme.colors.primary,
         fontWeight: '400',
         fontSize: 14,
         marginTop: 16
@@ -137,7 +145,8 @@ const styles = StyleSheet.create({
     inputFields: {
         borderWidth: 1,
         borderRadius: 5,
-        backgroundColor: "white",
-        marginTop: 16
+        backgroundColor: theme.colors.surface,
+        marginTop: 16,
+        borderColor: theme.colors.placeholder,
     }
 });
