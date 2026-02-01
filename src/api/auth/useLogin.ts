@@ -1,6 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { LoginResponseEnum, LoginResponseType } from "../../types/auth";
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { LoginResponseEnum, LoginResponseType } from '../../types/auth';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { BASE_URL } from '@env';
 
@@ -31,10 +31,10 @@ const useLogin = () => {
           return LoginResponseEnum.INVALID;
         }
       } catch (error) {
-        console.error("Login API Failed!", error);
+        console.error('Login API Failed!', error);
         return LoginResponseEnum.FAILED;
       }
-    }
+    },
   });
 
   return mutation;

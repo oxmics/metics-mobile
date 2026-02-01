@@ -1,16 +1,25 @@
-import { useNavigation } from "@react-navigation/native";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native"
-import { CustomNavigationProp } from "../../types/common";
-import { Button, Icon, Searchbar, Text } from "react-native-paper";
-import { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { AuctionType } from "../../types/auction";
-import useDebounce from "../../hooks/useDebounce";
-import { DataCard } from "../../components/DataCard";
-import { formatDate } from "../../utils/helper";
-import { Tabs, TabScreen, TabsProvider } from "react-native-paper-tabs";
-import useMyAuctions from "../../api/auctions/useMyAuctions";
-import { BottomNavbar } from "../../components/BottomNavbar";
+import { useNavigation } from '@react-navigation/native';
+import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
+import { CustomNavigationProp } from '../../types/common';
+import { Icon, Searchbar, Text, ActivityIndicator } from 'react-native-paper';
+import { useEffect, useState, useCallback } from 'react';
+import { AuctionType } from '../../types/auction';
+import useDebounce from '../../hooks/useDebounce';
+import { DataCard } from '../../components/DataCard';
+import { formatDate } from '../../utils/helper';
+import { Tabs, TabScreen, TabsProvider } from 'react-native-paper-tabs';
+import useMyAuctions from '../../api/auctions/useMyAuctions';
+import { BottomNavbar } from '../../components/BottomNavbar';
+import { colors, typography, spacing, borderRadius } from '../../theme';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
+
+const EmptyState = () => (
+    <View style={styles.emptyState}>
+        <Icon source="file-document-outline" size={48} color={colors.neutral.text.tertiary} />
+        <Text style={styles.emptyTitle}>No RFQs Found</Text>
+        <Text style={styles.emptySubtitle}>Your requests will appear here</Text>
+    </View>
+);
 
 const BuyerRfqHistoryScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
@@ -19,7 +28,7 @@ const BuyerRfqHistoryScreen = () => {
     const [count, setCount] = useState<number>(0);
     const [pageCount, setPageCount] = useState<number>(1);
 
-    const {data, isPending: loading, refetch} = useMyAuctions({page: pageCount});
+    const { data, isPending: loading, refetch } = useMyAuctions({ page: pageCount });
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [displayInProgress, setDisplayInProgress] = useState<AuctionType[]>([]);
@@ -27,241 +36,354 @@ const BuyerRfqHistoryScreen = () => {
     const [displayCompleted, setDisplayCompleted] = useState<AuctionType[]>([]);
 
     useEffect(() => {
-        if(data){
-            setAuctions(data.results);
-            setCount(data.count);
+        try {
+            if (data?.results) {
+                console.log('[BuyerRfqHistory] Loaded auctions:', data.results.length);
+                setAuctions(data.results);
+                setCount(data.count ?? 0);
+            } else {
+                console.log('[BuyerRfqHistory] No results in data');
+            }
+        } catch (err) {
+            console.error('Error processing auction data:', err);
+            setAuctions([]);
+            setCount(0);
         }
     }, [data]);
 
     const debouncedSearchQuery = useDebounce(searchQuery, 800);
 
-    const handleDisplayAuctions = () => {
-        if(auctions) {
-            let inProgress: AuctionType[] = [];
-            let drafts: AuctionType[] = [];
-            let completed: AuctionType[] = [];
-            auctions.map((auction) => {
-                if(auction.status === "In-Progress") {
-                    inProgress.push(auction);
-                }else if (auction.status === "Draft" || auction.status === "draft") {
-                    drafts.push(auction);
-                }else{
-                    completed.push(auction);
-                }
-            })
-            setDisplayInProgress(inProgress);
-            setDisplayDraft(drafts);
-            setDisplayCompleted(completed)
+    const handleDisplayAuctions = useCallback(() => {
+        try {
+            if (auctions && Array.isArray(auctions)) {
+                let inProgress: AuctionType[] = [];
+                let drafts: AuctionType[] = [];
+                let completed: AuctionType[] = [];
+                auctions.forEach((auction) => {
+                    const status = auction?.status?.toLowerCase();
+                    if (status === 'in-progress') {
+                        inProgress.push(auction);
+                    } else if (status === 'draft') {
+                        drafts.push(auction);
+                    } else {
+                        completed.push(auction);
+                    }
+                });
+                setDisplayInProgress(inProgress);
+                setDisplayDraft(drafts);
+                setDisplayCompleted(completed);
+            }
+        } catch (err) {
+            console.error('Error displaying auctions:', err);
+            setDisplayInProgress([]);
+            setDisplayDraft([]);
+            setDisplayCompleted([]);
         }
-    }
+    }, [auctions]);
 
     useEffect(() => {
         handleDisplayAuctions();
-    }, [auctions])
+    }, [handleDisplayAuctions]);
 
-    const handleSearch = () => {
-        if (searchQuery.length > 0) {
-            let tempInProgress= auctions?.filter((auction) => auction.status==="In-Progress" && auction.requisition_number.includes(searchQuery));
-            let tempDraft = auctions?.filter((auction) => (auction.status === "Draft" || auction.status === "draft") && auction.requisition_number.includes(searchQuery));
-            let tempCompleted = auctions?.filter((auction) =>(auction.status === "Completed" || auction.status === "completed") && auction.requisition_number.includes(searchQuery));
+    const handleSearch = useCallback(() => {
+        try {
+            if (!auctions) { return; }
 
-            if (tempInProgress){
+            const query = debouncedSearchQuery.trim().toLowerCase();
+            if (query.length > 0) {
+                const filterFn = (auction: AuctionType) =>
+                    (auction?.requisition_number?.toLowerCase() || '').includes(query) ||
+                    (auction?.organization_name?.toLowerCase() || '').includes(query);
+
+                let tempInProgress = auctions.filter((auction) => auction?.status === 'In-Progress' && filterFn(auction));
+                let tempDraft = auctions.filter((auction) => (auction?.status?.toLowerCase() === 'draft') && filterFn(auction));
+                let tempCompleted = auctions.filter((auction) => (auction?.status?.toLowerCase() === 'completed') && filterFn(auction));
+
                 setDisplayInProgress(tempInProgress);
-            }
-            if (tempDraft){
                 setDisplayDraft(tempDraft);
-            }
-            if (tempCompleted) {
                 setDisplayCompleted(tempCompleted);
+            } else {
+                handleDisplayAuctions();
             }
-        }else{
+        } catch (err) {
+            console.error('Error searching auctions:', err);
             handleDisplayAuctions();
         }
-    }
+    }, [auctions, debouncedSearchQuery, handleDisplayAuctions]);
 
     useEffect(() => {
-            handleSearch();
-    }, [debouncedSearchQuery])
+        handleSearch();
+    }, [handleSearch]);
 
-    return(
-        <View style={{flex: 1, position: 'relative', backgroundColor: '#FFFFFF'}}>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.replace("BuyerDashboard")}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
-                    </TouchableOpacity>
-                    <Text style={styles.title}>RFQ History</Text>
-                </View>
-                <TabsProvider defaultIndex={0}>
-                    <Tabs mode="fixed" tabLabelStyle={{color:"#000000", fontSize: 12, fontWeight: '400'}} style={{backgroundColor: "#FFFFFF", borderBottomWidth: 1, borderBottomColor: '#0000004D', marginHorizontal: -20}} theme={{colors: {primary: '#000000CC'}}}>
-                        <TabScreen label="All">
-                            <View style={styles.container}>
-                                {(displayCompleted.length + displayDraft.length + displayInProgress.length) > 0 && <View style={styles.filterBar}>
-                                    <View style={{display: 'flex', flexDirection: 'row', gap: 4}}>
-                                        <Button mode="text" icon={"chevron-left"} disabled={pageCount==1} onPress={() => setPageCount(pageCount-1)}> </Button>
-                                        <Button mode="text" icon={"chevron-right"} disabled={((pageCount)*10) >= count} onPress={() => setPageCount(pageCount+1)}> </Button>
-                                    </View>
-                                    <Searchbar
-                                        mode="bar"
-                                        placeholder="Search"
-                                        value={searchQuery}
-                                        onChangeText={setSearchQuery}
-                                        style={styles.searchbar}
-                                        iconColor="#0000004D"
-                                        inputStyle={{color: '#000000', minHeight: 0,}}
-                                        placeholderTextColor={"#00000080"}
-                                        cursorColor={"#000000"}
-                                        textAlign="left"
-                                        selectTextOnFocus
-                                        onClearIconPress={()=>setSearchQuery("")}
-                                    />
-                                </View>}
-                                <SafeAreaView style={{flex: 1}}>
+    const renderItem = ({ item }: { item: AuctionType }) => (
+        <TouchableOpacity
+            onPress={() => item?.id && navigation.push('BuyerRfqDetails', { reqId: item.id })}
+            activeOpacity={0.7}
+        >
+            <DataCard
+                title={item?.requisition_number || '—'}
+                titleLabel="Reference Number"
+                status={item?.status === 'In-Progress' ? 'IN-PROGRESS' : item?.status?.toLowerCase() === 'draft' ? 'DRAFT' : item?.status ? 'COMPLETED' : 'UNKNOWN'}
+                footerLeftText={item?.organization_name || '—'}
+                footerRightText={item?.need_by_date ? formatDate(item.need_by_date) : '—'}
+            />
+        </TouchableOpacity>
+    );
+
+    return (
+        <ErrorBoundary name="BuyerRfqHistoryScreen">
+            <View style={styles.wrapper}>
+                <StatusBar barStyle="dark-content" backgroundColor={colors.neutral.surface.default} />
+
+                <View style={styles.container}>
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <TouchableOpacity
+                            onPress={() => navigation.replace('BuyerDashboard')}
+                            style={styles.backButton}
+                            activeOpacity={0.7}
+                        >
+                            <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
+                        </TouchableOpacity>
+                        <View>
+                            <Text style={styles.headerLabel}>Manage</Text>
+                            <Text style={styles.title}>RFQ History</Text>
+                        </View>
+                    </View>
+
+                    {/* Search Bar */}
+                    <View style={styles.filterBar}>
+                        <Searchbar
+                            mode="bar"
+                            placeholder="Search RFQs..."
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            style={styles.searchbar}
+                            iconColor={colors.neutral.text.secondary}
+                            inputStyle={styles.searchInput}
+                            placeholderTextColor={colors.neutral.text.tertiary}
+                            cursorColor={colors.primary[500]}
+                            onClearIconPress={() => setSearchQuery('')}
+                            elevation={0}
+                        />
+                    </View>
+
+                    <TabsProvider defaultIndex={0}>
+                        <Tabs
+                            mode="fixed"
+                            tabLabelStyle={styles.tabLabel}
+                            style={styles.tabs}
+                            disableSwipe
+                        >
+                            <TabScreen label="All">
+                                <View style={styles.tabContent}>
+                                    {(displayCompleted.length + displayDraft.length + displayInProgress.length) > 0 && (
+                                        <View style={styles.paginationBar}>
+                                            <View style={styles.pagination}>
+                                                <TouchableOpacity
+                                                    disabled={pageCount === 1}
+                                                    onPress={() => setPageCount(pageCount - 1)}
+                                                    style={[styles.paginationButton, pageCount === 1 && styles.paginationDisabled]}
+                                                >
+                                                    <Icon source="chevron-left" size={20} color={pageCount === 1 ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
+                                                </TouchableOpacity>
+                                                <Text style={styles.paginationText}>Page {pageCount || 1}</Text>
+                                                <TouchableOpacity
+                                                    disabled={(pageCount * 10) >= count}
+                                                    onPress={() => setPageCount(pageCount + 1)}
+                                                    style={[styles.paginationButton, (pageCount * 10) >= count && styles.paginationDisabled]}
+                                                >
+                                                    <Icon source="chevron-right" size={20} color={(pageCount * 10) >= count ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    )}
                                     <FlatList
                                         data={[...displayInProgress, ...displayDraft, ...displayCompleted]}
-                                        renderItem={({item}) => <TouchableOpacity onPress={()=> navigation.push('BuyerRfqDetails', {reqId: item.id})}><DataCard title={item.requisition_number} titleLabel="Reference Number" status={item.status === "In-Progress" ? "IN-PROGRESS" : item.status === "draft" ? "DRAFT" : "COMPLETED"} footerLeftText={item.organization_name} footerRightText={formatDate(item.need_by_date)}/></TouchableOpacity>}
-                                        keyExtractor={(item: AuctionType) => item.id}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
                                         refreshing={loading}
                                         onRefresh={() => refetch()}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
                                     />
-                                </SafeAreaView>
-                            </View>
-                        </TabScreen>
-                        <TabScreen label="In-Progress">
-                            <View style={styles.container}>
-                                {displayInProgress.length > 0 && <View style={styles.filterBar}>
-                                    <Searchbar
-                                        mode="bar"
-                                        placeholder="Search"
-                                        value={searchQuery}
-                                        onChangeText={setSearchQuery}
-                                        style={styles.searchbar}
-                                        iconColor="#0000004D"
-                                        inputStyle={{color: '#000000', minHeight: 0,}}
-                                        placeholderTextColor={"#00000080"}
-                                        cursorColor={"#000000"}
-                                        textAlign="left"
-                                        selectTextOnFocus
-                                        onClearIconPress={()=>setSearchQuery("")}
-                                    />
-                                </View>}
-                                <SafeAreaView style={{flex: 1}}>
+                                </View>
+                            </TabScreen>
+                            <TabScreen label="Active">
+                                <View style={styles.tabContent}>
                                     <FlatList
                                         data={displayInProgress}
-                                        renderItem={({item}) => <TouchableOpacity onPress={()=> navigation.push('BuyerRfqDetails', {reqId: item.id})}><DataCard title={item.requisition_number} titleLabel="Reference Number" status={"IN-PROGRESS"} footerLeftText={item.organization_name} footerRightText={formatDate(item.need_by_date)}/></TouchableOpacity>}
-                                        keyExtractor={(item: AuctionType) => item.id}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
                                         refreshing={loading}
                                         onRefresh={() => refetch()}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
                                     />
-                                </SafeAreaView>
-                            </View>
-                        </TabScreen>
-                        <TabScreen label="Draft">
-                            <View style={styles.container}>
-                                {displayDraft.length > 0 && <View style={styles.filterBar}>
-                                    <Searchbar
-                                        mode="bar"
-                                        placeholder="Search"
-                                        value={searchQuery}
-                                        onChangeText={setSearchQuery}
-                                        style={styles.searchbar}
-                                        iconColor="#0000004D"
-                                        inputStyle={{color: '#000000', minHeight: 0,}}
-                                        placeholderTextColor={"#00000080"}
-                                        cursorColor={"#000000"}
-                                        textAlign="left"
-                                        selectTextOnFocus
-                                        onClearIconPress={()=>setSearchQuery("")}
-                                    />
-                                </View>}
-                                <SafeAreaView style={{flex: 1}}>
+                                </View>
+                            </TabScreen>
+                            <TabScreen label="Draft">
+                                <View style={styles.tabContent}>
                                     <FlatList
                                         data={displayDraft}
-                                        renderItem={({item}) => <TouchableOpacity onPress={()=> navigation.push('BuyerRfqDetails', {reqId: item.id})}><DataCard title={item.requisition_number} titleLabel="Reference Number" status={"DRAFT"} footerLeftText={item.organization_name} footerRightText={formatDate(item.need_by_date)}/></TouchableOpacity>}
-                                        keyExtractor={(item: AuctionType) => item.id}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
                                         refreshing={loading}
                                         onRefresh={() => refetch()}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
                                     />
-                                </SafeAreaView>
-                            </View>
-                        </TabScreen>
-                        <TabScreen label="Completed">
-                            <View style={styles.container}>
-                                {displayCompleted.length > 0 && <View style={styles.filterBar}>
-                                    <Searchbar
-                                        mode="bar"
-                                        placeholder="Search"
-                                        value={searchQuery}
-                                        onChangeText={setSearchQuery}
-                                        style={styles.searchbar}
-                                        iconColor="#0000004D"
-                                        inputStyle={{color: '#000000', minHeight: 0,}}
-                                        placeholderTextColor={"#00000080"}
-                                        cursorColor={"#000000"}
-                                        textAlign="left"
-                                        selectTextOnFocus
-                                        onClearIconPress={()=>setSearchQuery("")}
-                                    />
-                                </View>}
-                                <SafeAreaView style={{flex: 1}}>
+                                </View>
+                            </TabScreen>
+                            <TabScreen label="Closed">
+                                <View style={styles.tabContent}>
                                     <FlatList
                                         data={displayCompleted}
-                                        renderItem={({item}) => <TouchableOpacity onPress={()=> navigation.push('BuyerRfqDetails', {reqId: item.id})}><DataCard title={item.requisition_number} titleLabel="Reference Number" status={"COMPLETED"} footerLeftText={item.organization_name} footerRightText={formatDate(item.need_by_date)}/></TouchableOpacity>}
-                                        keyExtractor={(item: AuctionType) => item.id}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
                                         refreshing={loading}
                                         onRefresh={() => refetch()}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
                                     />
-                                </SafeAreaView>
-                            </View>
-                        </TabScreen>
-                    </Tabs>
-                </TabsProvider>
-        </View>
-        <BottomNavbar/>
-    </View>
-    )
-}
+                                </View>
+                            </TabScreen>
+                        </Tabs>
+                    </TabsProvider>
+                </View>
+                <BottomNavbar />
+            </View>
+        </ErrorBoundary>
+    );
+};
 
 export default BuyerRfqHistoryScreen;
 
 const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+        backgroundColor: colors.neutral.surface.sunken,
+    },
     container: {
         flex: 1,
-        width: '100%',
-        padding: 20,
-        backgroundColor: '#FFFFFF',
-        marginBottom: 20
+        backgroundColor: colors.neutral.surface.sunken,
     },
     header: {
-        display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 8,
-        paddingHorizontal: 4,
-        paddingVertical: 20
+        paddingHorizontal: spacing.xl,
+        paddingTop: spacing['2xl'],
+        paddingBottom: spacing.lg,
+        backgroundColor: colors.neutral.surface.default,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.md,
+    },
+    headerLabel: {
+        ...typography.styles.caption,
+        marginBottom: 2,
     },
     title: {
-        fontSize: 20,
-        fontWeight: '500',
-        color: '#000000'
+        ...typography.styles.h2,
+        color: colors.neutral.text.primary,
     },
     filterBar: {
-        display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingBottom: 12
-    },
-    exportBtn: {
-        borderRadius: 5,
-        height: 40
+        padding: spacing.lg,
+        gap: spacing.md,
+        backgroundColor: colors.neutral.surface.default,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
     },
     searchbar: {
-        width: '50%',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral.surface.sunken,
+        borderRadius: borderRadius.base,
+        height: 48,
         borderWidth: 1,
-        borderColor: '#0000004D',
-        height: 40
-    }
+        borderColor: colors.neutral.border.default,
+    },
+    searchInput: {
+        ...typography.styles.body,
+        minHeight: 0,
+    },
+    tabs: {
+        backgroundColor: colors.neutral.surface.default,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+        elevation: 0,
+    },
+    tabLabel: {
+        ...typography.styles.label,
+        textTransform: 'none',
+        fontWeight: '600',
+    },
+    tabContent: {
+        flex: 1,
+        backgroundColor: colors.neutral.surface.sunken,
+    },
+    paginationBar: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.md,
+    },
+    pagination: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    paginationButton: {
+        width: 32,
+        height: 32,
+        borderRadius: borderRadius.base,
+        backgroundColor: colors.neutral.surface.default,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
+    },
+    paginationDisabled: {
+        opacity: 0.5,
+        backgroundColor: colors.neutral.surface.sunken,
+    },
+    paginationText: {
+        ...typography.styles.caption,
+        marginHorizontal: spacing.md,
+        fontWeight: '600',
+    },
+    listContent: {
+        paddingHorizontal: spacing.xl,
+        paddingTop: spacing.lg,
+        paddingBottom: 120,
+    },
+    emptyState: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: spacing['3xl'],
+    },
+    emptyTitle: {
+        ...typography.styles.h4,
+        marginTop: spacing.md,
+        marginBottom: spacing.xs,
+        color: colors.neutral.text.secondary,
+    },
+    emptySubtitle: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.tertiary,
+    },
+    loader: {
+        marginTop: spacing['3xl'],
+    },
 });

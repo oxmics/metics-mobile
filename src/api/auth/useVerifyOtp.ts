@@ -1,43 +1,40 @@
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { ResetPasswordOtpResponseType } from "../../types/auth";
-import { APIResponseEnum } from "../../types/common";
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { ResetPasswordOtpResponseType } from '../../types/auth';
+import { APIResponseEnum } from '../../types/common';
 
 interface Props {
-    otp: string;
-    userId: string;
-    new_password: string
+  otp: string;
+  userId: string;
+  new_password: string;
 }
 
 const useVerifyOtp = () => {
-
   const mutation = useMutation({
     mutationFn: async ({ userId, otp, new_password }: Props) => {
       try {
         const response = await axios.post(
           `${process.env.BASE_URL}/reset-password/${userId}/`,
           {
-            otp: otp,
-            new_password: new_password
+            otp,
+            new_password,
           }
         );
-        
+
         if (response.data) {
           const data: ResetPasswordOtpResponseType = response.data;
-          if (data.message == "Password reset successful"){
-            return {status: APIResponseEnum.SUCCESS, message: "Password reset successful"};
-          }else{
-            return {status: APIResponseEnum.INVALID, message: "Invalid OTP"};
+          if (data.message === 'Password reset successful') {
+            return { status: APIResponseEnum.SUCCESS, message: 'Password reset successful' };
           }
-        }else{
-          return {status: APIResponseEnum.FAILED, message: ""};
+          return { status: APIResponseEnum.INVALID, message: 'Invalid OTP' };
         }
+        return { status: APIResponseEnum.FAILED, message: '' };
       } catch (error) {
         console.error(error);
-        
-        return {status: APIResponseEnum.FAILED, message: ""};
+
+        return { status: APIResponseEnum.FAILED, message: '' };
       }
-    }
+    },
   });
 
   return mutation;

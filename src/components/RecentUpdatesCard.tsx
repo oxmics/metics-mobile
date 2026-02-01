@@ -1,89 +1,148 @@
-import { StyleSheet, Text, View } from "react-native"
-import { SupplierActivityLogsType } from "../types/dashboard"
-import { daysAgo } from "../utils/helper"
-import { Button } from "react-native-paper"
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { SupplierActivityLogsType } from '../types/dashboard';
+import { daysAgo } from '../utils/helper';
+import { colors, typography, spacing, borderRadius } from '../theme';
 
 interface props {
-    logs: SupplierActivityLogsType[],
+    logs: SupplierActivityLogsType[] | undefined | null,
     viewAll: () => void
 }
 
-export const RecentUpdatesCard = ({logs, viewAll}: props) => {
-    return(
+export const RecentUpdatesCard = ({ logs, viewAll }: props) => {
+    // Safely handle logs being undefined or not an array
+    const safeLogs = Array.isArray(logs) ? logs : [];
+
+    return (
         <View style={styles.container}>
-            <View style={styles.body}>
-                {logs.length > 0 ?logs.map((log, index) =>{ if (index < 5) {
-                    return (
-                        <View key={index} style={styles.row}>
-                            <Text style={styles.heading}>{log.activity_type}</Text>
-                            <View style={styles.descriptionRow}>
-                                <Text style={styles.description}>{log.description}</Text>
-                                <Text style={styles.date}>{daysAgo(log.updated_at)}</Text>
+            <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>ACTIVITY STREAM</Text>
+            </View>
+            {safeLogs.length > 0 ? (
+                <>
+                    {safeLogs.slice(0, 5).map((log, index) => (
+                        <View
+                            key={index}
+                            style={[
+                                styles.row,
+                                index === Math.min(safeLogs.length - 1, 4) && styles.lastRow,
+                            ]}
+                        >
+                            <View style={styles.avatarPlaceholder}>
+                                <Text style={styles.avatarText}>{log?.activity_type?.charAt(0) || '?'}</Text>
+                            </View>
+                            <View style={styles.content}>
+                                <View style={styles.headerRow}>
+                                    <Text style={styles.heading}>{log?.activity_type || 'Activity'}</Text>
+                                    <Text style={styles.date}>{log?.updated_at ? daysAgo(log.updated_at) : ''}</Text>
+                                </View>
+                                <Text style={styles.description} numberOfLines={2}>
+                                    {log?.description || ''}
+                                </Text>
                             </View>
                         </View>
-                    )
-                }}): <View><Text>No recent updates</Text></View>}
-            </View>
-            {logs.length > 0 && <View style={styles.footer}>
-                <Button onPress={viewAll} mode="text" textColor="#1BBB6B">View All</Button>
-            </View>}
+                    ))}
+                    <TouchableOpacity onPress={viewAll} style={styles.footerLink}>
+                        <Text style={styles.footerLinkText}>View all activity</Text>
+                    </TouchableOpacity>
+                </>
+            ) : (
+                <View style={styles.emptyState}>
+                    <Text style={styles.emptyText}>No recent activity</Text>
+                </View>
+            )}
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.sm,
         borderWidth: 1,
-        borderColor: '#00000033',
-        borderRadius: 10,
-        width: '100%',
-        backgroundColor: '#FFFFFF'
+        borderColor: colors.neutral.border.default,
     },
-    body: {
-        padding: 20,
-        width: '100%',
+    sectionHeader: {
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.md,
+        paddingBottom: spacing.sm,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+        backgroundColor: colors.neutral.surface.sunken,
+    },
+    sectionTitle: {
+        ...typography.styles.labelSmall,
+        color: colors.neutral.text.tertiary,
     },
     row: {
-        display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'row',
+        paddingHorizontal: spacing.lg,
+        paddingVertical: spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: '#00000033',
-        paddingVertical: 8,
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start'
+        borderBottomColor: colors.neutral.border.default,
+        alignItems: 'flex-start',
     },
-    heading: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: '#000000'
+    lastRow: {
+        borderBottomWidth: 0,
     },
-    description: {
-        width: '60%',
-        flexWrap: 'wrap',
-        color: '#00000099',
+    avatarPlaceholder: {
+        width: 32,
+        height: 32,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.neutral.surface.sunken,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.md,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
+    },
+    avatarText: {
         fontSize: 12,
-        fontWeight: '400'
+        fontWeight: '700',
+        color: colors.neutral.text.secondary,
     },
-    date: {
-        color: '#00000099',
-        fontSize: 12,
-        fontWeight: '400'
+    content: {
+        flex: 1,
     },
-    descriptionRow: {
-        width: '100%',
-        display: 'flex',
+    headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 4
+        marginBottom: 2,
     },
-    footer: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
+    heading: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.neutral.text.primary,
+    },
+    description: {
+        ...typography.styles.body,
+        fontSize: 13,
+        color: colors.neutral.text.secondary,
+    },
+    date: {
+        fontSize: 11,
+        color: colors.neutral.text.tertiary,
+    },
+    emptyState: {
+        padding: spacing['2xl'],
+        alignItems: 'center',
+    },
+    emptyText: {
+        ...typography.styles.body,
+        color: colors.neutral.text.tertiary,
+    },
+    footerLink: {
+        padding: spacing.md,
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#00000033',
-    }
-})
+        borderTopColor: colors.neutral.border.default,
+        backgroundColor: colors.neutral.surface.hover,
+        borderBottomLeftRadius: borderRadius.sm,
+        borderBottomRightRadius: borderRadius.sm,
+    },
+    footerLinkText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: colors.primary[600],
+    },
+});

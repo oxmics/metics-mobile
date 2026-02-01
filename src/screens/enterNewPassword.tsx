@@ -1,177 +1,285 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useState } from 'react';
-import GradientButton from "../components/GradientButton";
-import { Icon, TextInput } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
-import { CustomNavigationProp } from "../types/common";
-import { CustomInput } from "../components/CustomInput";
-import useChangePassword from "../api/auth/useChangePassword";
+import { Button, Icon, TextInput, Snackbar } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { CustomNavigationProp } from '../types/common';
+import { CustomInput } from '../components/CustomInput';
+import useChangePassword from '../api/auth/useChangePassword';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 const EnterNewPasswordScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
 
-    const {mutateAsync: changePassword, isPending} = useChangePassword();
+    const { mutateAsync: changePassword, isPending } = useChangePassword();
 
     const [password, setPassword] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
     const [hidePass, setHidePass] = useState(true);
+    const [hideNewPass, setHideNewPass] = useState(true);
     const [hideConfirmPass, setHideConfirmPass] = useState(true);
+    const [snackbarVisible, setSnackbarVisible] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
 
-    const handleLogin = () => {
-        changePassword({new_password: confirmNewPassword, old_password: password}).then((res) =>{
-            navigation.navigate('Login');
-        })
-    }
+    const passwordsMatch = confirmPassword === confirmNewPassword && confirmPassword.length > 0;
+    const isValid = password.length > 0 && passwordsMatch;
 
-    return(
-        <ScrollView style={styles.container} automaticallyAdjustKeyboardInsets={true}>
-           <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+    const handleChangePassword = () => {
+        changePassword({ new_password: confirmNewPassword, old_password: password })
+            .then(() => {
+                setSnackbarMessage('Password changed successfully!');
+                setSnackbarVisible(true);
+                setTimeout(() => {
+                    navigation.navigate('Login');
+                }, 1500);
+            })
+            .catch(() => {
+                setSnackbarMessage('Failed to change password. Please try again.');
+                setSnackbarVisible(true);
+            });
+    };
+
+    return (
+        <KeyboardAvoidingView
+            style={styles.keyboardView}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            <ScrollView
+                style={styles.container}
+                contentContainerStyle={styles.contentContainer}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                {/* Header */}
+                <View style={styles.header}>
+                    <TouchableOpacity
+                        onPress={() => navigation.goBack()}
+                        style={styles.backButton}
+                        activeOpacity={0.7}
+                    >
+                        <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
                     </TouchableOpacity>
-                    <Text style={styles.title}>Settings</Text>
+                    <View>
+                        <Text style={styles.headerLabel}>Account</Text>
+                        <Text style={styles.title}>Settings</Text>
+                    </View>
                 </View>
-            <View style={styles.titleContainer}>
-                <Text style={styles.otpTitle}>Enter New Password</Text>
-            </View>
-            <Text style={styles.inputLabelText}>Please enter your new password</Text>
-            <CustomInput
-                style={styles.inputFields}
-                value={password}
-                onChange={setPassword}
-                placeholder="Old Password"
-                secureTextEntry={hidePass ? true : false}
-                suffix={<TextInput.Icon icon={hidePass ? "eye" : "eye-off"} onPressIn={()=> setHidePass(!hidePass)}/>}
-            />
-            <CustomInput
-                style={styles.inputFields2}
-                value={confirmPassword}
-                onChange={setConfirmPassword}
-                placeholder="New Password"
-                secureTextEntry={hideConfirmPass ? true : false}
-                suffix={<TextInput.Icon icon={hideConfirmPass ? "eye" : "eye-off"} onPressIn={()=> setHideConfirmPass(!hideConfirmPass)}/>}
-            />
-             <CustomInput
-                style={styles.inputFields3}
-                value={confirmNewPassword}
-                onChange={setConfirmNewPassword}
-                placeholder="Confirm New Password"
-                secureTextEntry={hideConfirmPass ? true : false}
-                suffix={<TextInput.Icon icon={hideConfirmPass ? "eye" : "eye-off"} onPressIn={()=> setHideConfirmPass(!hideConfirmPass)}/>}
-            />
-            <GradientButton
-                colors={["#00B976", "#00B976"]}
-                label="Change password"
-                onPress={handleLogin}
-                disabled={confirmNewPassword !== confirmPassword || confirmPassword.length < 1 || password.length < 1|| isPending}
-                loading={isPending}
-            />
-        </ScrollView>
+
+                {/* Title Section */}
+                <View style={styles.titleSection}>
+                    <View style={styles.iconContainer}>
+                        <Icon source="lock-outline" size={32} color={colors.primary[600]} />
+                    </View>
+                    <Text style={styles.sectionTitle}>Change Password</Text>
+                    <Text style={styles.subtitle}>
+                        Enter your current password and create a new one
+                    </Text>
+                </View>
+
+                {/* Form */}
+                <View style={styles.formCard}>
+                    {/* Current Password */}
+                    <View style={styles.inputGroup}>
+                        <CustomInput
+                            label="Current Password"
+                            value={password}
+                            onChange={setPassword}
+                            placeholder="Enter current password"
+                            secureTextEntry={hidePass}
+                            suffix={
+                                <TextInput.Icon
+                                    icon={hidePass ? 'eye-off' : 'eye'}
+                                    // onPress={() => setHidePass(!hidePass)}
+                                    onPress={() => setHidePass(!hidePass)}
+                                    color={colors.neutral.text.tertiary}
+                                />
+                            }
+                        />
+                    </View>
+
+                    {/* Divider */}
+                    <View style={styles.divider}>
+                        <View style={styles.dividerLine} />
+                        <Text style={styles.dividerText}>New password</Text>
+                        <View style={styles.dividerLine} />
+                    </View>
+
+                    {/* New Password */}
+                    <View style={styles.inputGroup}>
+                        <CustomInput
+                            label="New Password"
+                            value={confirmPassword}
+                            onChange={setConfirmPassword}
+                            placeholder="Enter new password"
+                            secureTextEntry={hideNewPass}
+                            suffix={
+                                <TextInput.Icon
+                                    icon={hideNewPass ? 'eye-off' : 'eye'}
+                                    //onPress={() => setHideNewPass(!hideNewPass)}
+                                    onPress={() => setHideNewPass(!hideNewPass)}
+                                    color={colors.neutral.text.tertiary}
+                                />
+                            }
+                        />
+                    </View>
+
+                    {/* Confirm New Password */}
+                    <View style={styles.inputGroup}>
+                        <CustomInput
+                            label="Confirm New Password"
+                            style={confirmNewPassword.length > 0 && !passwordsMatch ? { borderColor: colors.semantic.error.default } : {}}
+                            value={confirmNewPassword}
+                            onChange={setConfirmNewPassword}
+                            placeholder="Confirm new password"
+                            secureTextEntry={hideConfirmPass}
+                            suffix={
+                                <TextInput.Icon
+                                    icon={hideConfirmPass ? 'eye-off' : 'eye'}
+                                    //onPress={() => setHideConfirmPass(!hideConfirmPass)}
+                                    onPress={() => setHideConfirmPass(!hideConfirmPass)}
+                                    color={colors.neutral.text.tertiary}
+                                />
+                            }
+                            error={confirmNewPassword.length > 0 && !passwordsMatch}
+                        />
+                        {confirmNewPassword.length > 0 && !passwordsMatch && (
+                            <Text style={styles.errorText}>Passwords do not match</Text>
+                        )}
+                    </View>
+
+                    <Button
+                        mode="contained"
+                        style={styles.button}
+                        labelStyle={styles.buttonLabel}
+                        onPress={handleChangePassword}
+                        disabled={!isValid || isPending}
+                        loading={isPending}
+                    >
+                        Update Password
+                    </Button>
+                </View>
+
+                <Snackbar
+                    visible={snackbarVisible}
+                    onDismiss={() => setSnackbarVisible(false)}
+                    duration={Snackbar.DURATION_SHORT}
+                    style={styles.snackbar}
+                >
+                    {snackbarMessage}
+                </Snackbar>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
-}
+};
 
 export default EnterNewPasswordScreen;
 
 const styles = StyleSheet.create({
+    keyboardView: {
+        flex: 1,
+        backgroundColor: colors.neutral.surface.sunken,
+    },
     container: {
-        display: "flex",
-        flexDirection: "column",
-        padding: 20,
-        backgroundColor: '#FFFFFF',
-        height: "100%",
-        width: "100%",
-        position: 'absolute',
+        flex: 1,
+        backgroundColor: colors.neutral.surface.sunken,
+    },
+    contentContainer: {
+        flexGrow: 1,
+        paddingHorizontal: spacing.xl,
+        paddingTop: spacing['2xl'],
+        paddingBottom: spacing['2xl'],
     },
     header: {
-        display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 8,
-        paddingHorizontal: 4,
-        paddingVertical: 20
+        marginBottom: spacing['2xl'],
     },
-    title: {
-        fontSize: 20,
-        fontWeight: '500',
-        color: '#000000'
-    },
-    titleContainer: {
-        width: "100%",
-        display:"flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        rowGap: 20,
-        marginTop: 80
-    },
-    image: {
-        height: 71,
-        width: 145,
-    },
-    titleImage: {
-        height: 50,
-        width: 50,
-        marginTop: 40
-    },
-    otpTitle: {
-        color:'#000',
-        fontSize: 22,
-        fontWeight: '600'
-    },
-    inputLabelText: {
-        color:"#000",
-        fontSize: 14,
-        fontWeight: "400",
-        marginTop: 40
-    },
-    loginText: {
-        color: "#1000C2",
-        fontWeight: '400',
-        fontSize: 14,
-    },
-    inputFields: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: "white",
-        marginTop: 16
-    },
-    inputFields2: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: "white",
-        marginTop: 16,
-    },
-    inputFields3: {
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: "white",
-        marginTop: 16,
-        marginBottom: 40
-    },
-    rememberPassContainer: {
-        display: 'flex',
-        flexDirection:'row',
-        gap:2,
+    backButton: {
+        width: 40,
+        height: 40,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 20
+        marginRight: spacing.md,
     },
-    rememberPasswordText:{
-        color: '#000'
+    headerLabel: {
+        ...typography.styles.caption,
+        marginBottom: 2,
     },
-    resendOtpContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        gap:2,
-        justifyContent: 'flex-end',
+    title: {
+        ...typography.styles.h2,
+        color: colors.neutral.text.primary,
+    },
+    titleSection: {
         alignItems: 'center',
-        marginTop: 6
+        marginBottom: spacing.xl,
     },
-    resendOtpText: {
-        color: "#000",
-        fontWeight: '400',
+    iconContainer: {
+        width: 64,
+        height: 64,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.primary[50], // Light blue
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: spacing.lg,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: colors.neutral.text.primary,
+        marginBottom: spacing.sm,
+    },
+    subtitle: {
         fontSize: 14,
+        color: colors.neutral.text.secondary,
+        textAlign: 'center',
+        paddingHorizontal: spacing.lg,
+    },
+    formCard: {
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.md,
+        padding: spacing.xl,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
+        ...shadows.sm,
+    },
+    inputGroup: {
+        marginBottom: spacing.lg,
+    },
+    errorText: {
+        fontSize: 12,
+        color: colors.semantic.error.default,
+        marginTop: 4,
+        marginLeft: 4,
+    },
+    divider: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: spacing.lg,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        backgroundColor: colors.neutral.border.default,
+    },
+    dividerText: {
+        fontSize: 12,
+        color: colors.neutral.text.tertiary,
+        marginHorizontal: spacing.md,
+        fontWeight: '600',
+    },
+    button: {
+        backgroundColor: colors.primary[600],
+        borderRadius: borderRadius.base,
+        height: 44,
+        justifyContent: 'center',
+        marginTop: spacing.md,
+    },
+    buttonLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.neutral.text.inverse,
+    },
+    snackbar: {
+        backgroundColor: colors.neutral.text.primary,
     },
 });

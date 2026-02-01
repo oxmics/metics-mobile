@@ -1,97 +1,141 @@
-import { StyleSheet, TouchableOpacity, View } from "react-native"
-import { Button, Divider, Text } from "react-native-paper"
-import { BidType } from "../types/bids"
-import { formatDate } from "../utils/helper"
-import { useNavigation } from "@react-navigation/native"
-import { CustomNavigationProp } from "../types/common"
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, Text, Icon } from 'react-native-paper';
+import { BidType } from '../types/bids';
+import { formatDate } from '../utils/helper';
+import { useNavigation } from '@react-navigation/native';
+import { CustomNavigationProp } from '../types/common';
+import { colors, typography, spacing, borderRadius } from '../theme';
 
 interface props {
-    contentData: BidType[],
+    contentData: BidType[] | undefined | null,
     buttonFn: () => void
 }
 
-export const BidsCard = ({contentData, buttonFn}: props) => {
+export const BidsCard = ({ contentData, buttonFn }: props) => {
     const navigation = useNavigation<CustomNavigationProp>();
 
-    return(
+    // Safely handle contentData
+    const safeBids = Array.isArray(contentData) ? contentData : [];
+
+    return (
         <View style={styles.container}>
-            <View style={styles.titleContainer}>
+            <View style={styles.header}>
                 <Text style={styles.title}>All Bids</Text>
-                <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => buttonFn()}>Compare</Button>
+                <Button
+                    mode="contained"
+                    style={styles.compareBtn}
+                    labelStyle={styles.compareLabel}
+                    onPress={() => buttonFn()}
+                    icon="compare-horizontal"
+                    compact
+                >
+                    Compare
+                </Button>
             </View>
-            <Divider style={{borderColor: "#00000080", backgroundColor: "#00000080", marginBottom:20, width: "100%"}}/>
-            {contentData.map((bid) => (
-                <TouchableOpacity onPress={() => navigation.navigate('BuyerBidsDetails', {bidId: bid.id, reqId: bid.auction_header.id})}>
-                    <View style={styles.card}>
-                        <Text style={styles.rowText}>Quoted By: {bid.organisation.name}:</Text>
-                        <Text style={styles.date}>Expiration Date: {formatDate(bid.bid_expiration_date)}</Text>
-                    </View>
-                </TouchableOpacity>
-            ))}
+
+            {safeBids.length > 0 ? (
+                safeBids.map((bid, index) => (
+                    <TouchableOpacity
+                        key={index}
+                        activeOpacity={0.7}
+                        onPress={() => {
+                            const auctionId = bid?.auction_header?.id;
+                            const bidId = bid?.id;
+                            if (auctionId && bidId) {
+                                navigation.navigate('BuyerBidsDetails', { bidId: bidId, reqId: auctionId });
+                            }
+                        }}
+                    >
+                        <View style={styles.card}>
+                            <View style={styles.bidInfo}>
+                                <View style={styles.supplierRow}>
+                                    <Icon source="domain" size={16} color={colors.primary[800]} />
+                                    <Text style={styles.supplierName}>{bid?.organisation?.name ?? 'Unknown supplier'}</Text>
+                                </View>
+                                <Text style={styles.expiryDate}>
+                                    Expires: {bid?.bid_expiration_date ? formatDate(bid.bid_expiration_date) : '—'}
+                                </Text>
+                            </View>
+                            <Icon source="chevron-right" size={20} color={colors.neutral.text.tertiary} />
+                        </View>
+                    </TouchableOpacity>
+                ))
+            ) : (
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>No bids found</Text>
+                </View>
+            )}
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.md,
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: spacing.md,
+        paddingBottom: spacing.sm,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
     },
     title: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#000000CC',
-        marginLeft: 12,
+        ...typography.styles.h4,
+        color: colors.primary[600],
+    },
+    compareBtn: {
+        backgroundColor: colors.primary[500],
+        borderRadius: borderRadius.base,
+    },
+    compareLabel: {
+        ...typography.styles.labelSmall,
+        color: colors.neutral.surface.default,
+        fontSize: 10,
     },
     card: {
-        width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection:'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 4,
-        marginBottom: 12
-    },
-    row: {
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap'
-    },
-    rowText: {
-        color: '#000000',
-        fontWeight: '400',
-        fontSize: 10
-    },
-    footerBtn: {
-        backgroundColor: '#157F4C',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    titleContainer: {
-        display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 16
+        padding: spacing.md,
+        backgroundColor: colors.neutral.surface.sunken,
+        borderRadius: borderRadius.sm,
+        marginBottom: spacing.sm,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
     },
-    date: {
-        fontSize: 10,
-        fontWeight: '400',
-        color: '#000000B2'
-    }
-    
-})
+    bidInfo: {
+        flex: 1,
+    },
+    supplierRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.xs,
+        marginBottom: 2,
+    },
+    supplierName: {
+        ...typography.styles.body,
+        fontWeight: '600',
+        color: colors.neutral.text.primary,
+    },
+    expiryDate: {
+        ...typography.styles.caption,
+        color: colors.neutral.text.secondary,
+        marginLeft: 20, // Align with text start of supplier row
+    },
+    emptyContainer: {
+        padding: spacing.xl,
+        alignItems: 'center',
+    },
+    emptyText: {
+        ...typography.styles.body,
+        color: colors.neutral.text.tertiary,
+    },
+});

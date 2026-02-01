@@ -1,51 +1,77 @@
-import { StyleSheet, View } from "react-native"
-import { Text } from "react-native-paper"
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
+import { colors, typography, spacing, borderRadius } from '../theme';
 
 interface props {
     title: string,
-    value: number,
-    footer?: string
+    value: number | string | undefined, // Support more types
+    footer?: string,
+    accentColor?: string,
 }
 
-export const OverviewCard = ({title, value, footer}: props) => {
-    return(
+export const OverviewCard = ({ title, value, footer, accentColor = colors.primary[500] }: props) => {
+    // Safely format the value
+    const displayValue = value !== undefined && value !== null
+        ? (typeof value === 'number' ? value.toLocaleString() : value.toString())
+        : '0';
+
+    return (
         <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.value}>{value}</Text>
-            {footer && <Text style={styles.footer}>{footer}</Text>}
+            {/* Left Accent Bar - Jira Dashboard Style */}
+            <View style={[styles.leftAccent, { backgroundColor: accentColor }]} />
+
+            <View style={styles.content}>
+                <Text style={styles.title}>{title?.toUpperCase() || '—'}</Text>
+                <Text style={styles.value}>{displayValue}</Text>
+
+                {footer && (
+                    <View style={styles.footerContainer}>
+                        <Text style={styles.footer}>{footer}</Text>
+                    </View>
+                )}
+            </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
-        maxHeight: 120, 
-        minHeight: 100,
+        width: 140, // Standardize width for dashboard grids
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.sm,
+        overflow: 'hidden',
         borderWidth: 1,
-        borderRadius: 20,
-        borderColor: '#00000033',
-        padding: 20,
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 12,
-        marginRight: 12
+        borderColor: colors.neutral.border.default,
+        marginRight: spacing.md,
+        flexDirection: 'row',
+    },
+    leftAccent: {
+        width: 4,
+        height: '100%',
+    },
+    content: {
+        flex: 1,
+        padding: spacing.md,
+        justifyContent: 'center',
     },
     title: {
-        color: '#000000A6',
-        fontSize: 12,
-        fontWeight: '400'
+        ...typography.styles.labelSmall,
+        color: colors.neutral.text.secondary,
+        letterSpacing: 0.5,
+        marginBottom: spacing.xs,
     },
     value: {
-        color: '#000000',
-        fontSize: 20,
-        fontWeight: '400'
+        fontSize: 24, // Clear, large number
+        fontWeight: '600',
+        color: colors.neutral.text.primary,
+        letterSpacing: -0.5,
+        marginBottom: 2,
+    },
+    footerContainer: {
+        marginTop: spacing.xs,
     },
     footer: {
-        color: '#000000A6',
-        fontSize: 12,
-        fontWeight: '400'
+        fontSize: 10,
+        color: colors.neutral.text.tertiary,
     },
-})
+});

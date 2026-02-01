@@ -1,106 +1,92 @@
-import { StyleSheet, View } from "react-native"
-import { Text } from "react-native-paper"
-import { BidLineType } from "../types/bids"
-import { formatDate } from "../utils/helper"
-import { AuctionLinesType } from "../types/auction"
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
+import { BidLineType } from '../types/bids';
+import { formatDate } from '../utils/helper';
+import { AuctionLinesType } from '../types/auction';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 interface props {
     auctionLines: AuctionLinesType[],
     bidLine: BidLineType[]
 }
 
-export const BidNegotaiteCard = ({auctionLines, bidLine}: props) => {
+export const BidNegotaiteCard = ({ auctionLines, bidLine }: props) => {
 
-    return(
+    return (
         <View style={styles.container}>
-                {auctionLines.map((auctionLine, index) => (
-                    <View style={styles.card}>
+            <Text style={styles.headerTitle}>Items & Pricing</Text>
+            {auctionLines.map((auctionLine, index) => (
+                <View key={index} style={styles.card}>
                     <View style={styles.row}>
                         <Text style={styles.rowText}>Product Name</Text>
-                        <Text style={styles.date}>{auctionLine.product_name}</Text>
+                        <Text style={styles.value}>{auctionLine.product_name}</Text>
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.rowText}>Quantity</Text>
-                        <Text style={styles.date}>{auctionLine.quantity}</Text>
+                        <Text style={styles.value}>{auctionLine.quantity}</Text>
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.rowText}>Brand</Text>
-                        <Text style={styles.date}>{auctionLine.brand}</Text>
+                        <Text style={styles.value}>{auctionLine.brand}</Text>
                     </View>
+                    <View style={styles.divider} />
                     <View style={styles.row}>
                         <Text style={styles.rowText}>Price Quoted</Text>
-                        <Text style={styles.date}>{bidLine[index].price}</Text>
+                        <Text style={styles.value}>{bidLine[index]?.price || 'N/A'}</Text>
                     </View>
                     <View style={styles.row}>
                         <Text style={styles.rowText}>Promised Date</Text>
-                        <Text style={styles.date}>{formatDate(bidLine[index].promised_date)}</Text>
+                        <Text style={styles.value}>{bidLine[index]?.promised_date ? formatDate(bidLine[index].promised_date) : 'N/A'}</Text>
                     </View>
                 </View>
-                ))}
+            ))}
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.lg,
+        padding: spacing.lg,
+        ...shadows.sm,
     },
-    title: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#000000CC',
-        marginLeft: 12,
+    headerTitle: {
+        ...typography.styles.h4,
+        marginBottom: spacing.md,
+        color: colors.primary[800],
     },
     card: {
         width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection:'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 4,
-        marginBottom: 12
+        padding: spacing.md,
+        borderRadius: borderRadius.md,
+        backgroundColor: colors.neutral.background,
+        marginBottom: spacing.md,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
     },
     row: {
-        width: '100%',
-        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        flexWrap: 'wrap'
+        marginBottom: 4,
     },
     rowText: {
-        color: '#000000',
-        fontWeight: '400',
-        fontSize: 10
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.secondary,
+        flex: 1,
     },
-    footerBtn: {
-        backgroundColor: '#157F4C',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
+    value: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.primary,
+        fontWeight: '500',
+        flex: 1,
+        textAlign: 'right',
     },
-    titleContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 16
+    divider: {
+        height: 1,
+        backgroundColor: colors.neutral.border.default,
+        marginVertical: spacing.sm,
     },
-    date: {
-        fontSize: 10,
-        fontWeight: '400',
-        color: '#000000B2'
-    }
-    
-})
+});

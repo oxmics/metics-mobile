@@ -1,104 +1,174 @@
-import { Button, Modal, Text } from "react-native-paper"
-import { SupplierActivityLogsType } from "../types/dashboard"
-import { ScrollView, StyleSheet, View } from "react-native"
-import { daysAgo } from "../utils/helper"
+import { Button, Modal, Text, Icon } from 'react-native-paper';
+import { SupplierActivityLogsType } from '../types/dashboard';
+import { ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { daysAgo } from '../utils/helper';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 interface props {
     show: boolean,
     hideModal: () => void,
-    logs: SupplierActivityLogsType[]
+    logs: SupplierActivityLogsType[] | undefined | null
 }
 
-export const RecentUpdatesModal = ({hideModal, logs, show}: props) => {
-    return(
-        <Modal visible={show} onDismiss={hideModal} dismissable dismissableBackButton>
-            <View style={styles.holder}>
-                <View style={styles.container}>
-                    <ScrollView style={styles.body}>
-                        {logs.map((log, index) =>(
-                            <View key={index} style={styles.row}>
-                                    <Text style={styles.heading}>{log.activity_type}</Text>
-                                    <View style={styles.descriptionRow}>
-                                        <Text style={styles.description}>{log.description}</Text>
-                                        <Text style={styles.date}>{daysAgo(log.updated_at)}</Text>
-                                    </View>
+export const RecentUpdatesModal = ({ hideModal, logs, show }: props) => {
+    const safeLogs = Array.isArray(logs) ? logs : [];
+
+    return (
+        <Modal
+            visible={show}
+            onDismiss={hideModal}
+            dismissable
+            contentContainerStyle={styles.helper}
+        >
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Activity Stream</Text>
+                    <TouchableOpacity onPress={hideModal} style={styles.closeButton}>
+                        <Icon source="close" size={20} color={colors.neutral.text.secondary} />
+                    </TouchableOpacity>
+                </View>
+
+                <ScrollView
+                    style={styles.body}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {safeLogs.length > 0 ? (
+                        safeLogs.map((log, index) => (
+                            <View key={index} style={styles.logItem}>
+                                <View style={styles.avatarPlaceholder}>
+                                    <Text style={styles.avatarText}>{log?.activity_type?.charAt(0) || '?'}</Text>
                                 </View>
-                            )
-                        )}
-                    </ScrollView>
-                    <View style={styles.footer}>
-                        <Button onPress={hideModal} mode="text" textColor="#1BBB6B">Close</Button>
-                    </View>
+                                <View style={styles.logContent}>
+                                    <View style={styles.contentHeader}>
+                                        <Text style={styles.logType}>{log?.activity_type || 'Activity'}</Text>
+                                        <Text style={styles.logTime}>{log?.updated_at ? daysAgo(log.updated_at) : ''}</Text>
+                                    </View>
+                                    <Text style={styles.logDescription}>{log?.description || ''}</Text>
+                                </View>
+                            </View>
+                        ))
+                    ) : (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>No activity logs found</Text>
+                        </View>
+                    )}
+                </ScrollView>
+
+                <View style={styles.footer}>
+                    <Button
+                        onPress={hideModal}
+                        mode="contained"
+                        style={styles.closeBtn}
+                        labelStyle={styles.closeLabel}
+                    >
+                        Close
+                    </Button>
                 </View>
             </View>
         </Modal>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
-    holder: {
-        display: 'flex',
+    helper: {
+        flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        height: '75%',
+        padding: spacing.lg,
     },
     container: {
-        borderWidth: 1,
-        borderColor: '#00000033',
-        borderRadius: 10,
-        width: '80%',
-        height: '100%',
-        backgroundColor: '#FFFFFF'
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.md,
+        maxHeight: '80%',
+        ...shadows.lg,
     },
-    body: {
-        padding: 20,
-        width: '100%',
-        marginBottom: 10,
-        marginTop: 10
-    },
-    row: {
-        display: 'flex',
-        flexDirection: 'column',
-        borderBottomWidth: 1,
-        borderBottomColor: '#00000033',
-        paddingVertical: 8,
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        paddingBottom: 16
-    },
-    heading: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: '#000000'
-    },
-    description: {
-        width: '60%',
-        flexWrap: 'wrap',
-        color: '#00000099',
-        fontSize: 12,
-        fontWeight: '400'
-    },
-    date: {
-        color: '#00000099',
-        fontSize: 12,
-        fontWeight: '400'
-    },
-    descriptionRow: {
-        width: '100%',
-        display: 'flex',
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 4
+        padding: spacing.lg,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+        backgroundColor: colors.neutral.surface.sunken,
     },
-    footer: {
-        width: '100%',
-        display: 'flex',
+    title: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: colors.neutral.text.secondary,
+        textTransform: 'uppercase',
+    },
+    closeButton: {
+        padding: spacing.xs,
+    },
+    body: {
+        padding: spacing.lg,
+    },
+    logItem: {
         flexDirection: 'row',
+        marginBottom: spacing.md,
+    },
+    avatarPlaceholder: {
+        width: 32,
+        height: 32,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.neutral.surface.sunken,
         justifyContent: 'center',
         alignItems: 'center',
+        marginRight: spacing.md,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
+    },
+    avatarText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: colors.neutral.text.secondary,
+    },
+    logContent: {
+        flex: 1,
+        paddingTop: 4,
+    },
+    contentHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 2,
+    },
+    logType: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.neutral.text.primary,
+    },
+    logDescription: {
+        fontSize: 14,
+        color: colors.neutral.text.secondary,
+        lineHeight: 20,
+    },
+    logTime: {
+        fontSize: 11,
+        color: colors.neutral.text.tertiary,
+    },
+    emptyContainer: {
+        padding: spacing.xl,
+        alignItems: 'center',
+    },
+    emptyText: {
+        ...typography.styles.body,
+        color: colors.neutral.text.tertiary,
+    },
+    footer: {
+        padding: spacing.lg,
         borderTopWidth: 1,
-        borderTopColor: '#00000033',
-    }
-})
+        borderTopColor: colors.neutral.border.default,
+        alignItems: 'flex-end',
+    },
+    closeBtn: {
+        backgroundColor: colors.neutral.surface.default,
+        borderColor: colors.neutral.border.default,
+        borderWidth: 1,
+        borderRadius: borderRadius.base,
+    },
+    closeLabel: {
+        fontSize: 14,
+        color: colors.neutral.text.primary,
+        fontWeight: '600',
+    },
+});

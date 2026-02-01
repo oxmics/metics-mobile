@@ -1,5 +1,6 @@
-import { StyleSheet, View } from "react-native"
-import { Divider, Text } from "react-native-paper"
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
+import { colors, typography, spacing, borderRadius, shadows, getStatusColor } from '../theme';
 
 interface props {
     status: string,
@@ -9,104 +10,105 @@ interface props {
     footerRightText: string
 }
 
-export const  DataCard = ({status, footerLeftText, footerRightText, title, titleLabel}: props) => {
+export const DataCard = ({ status, footerLeftText, footerRightText, title, titleLabel }: props) => {
+    const safeText = (value: unknown, fallback = '—') => {
+        if (value === null || value === undefined || value === '') {
+            return fallback;
+        }
+        return String(value);
+    };
+
+    const safeStatus = safeText(status, 'UNKNOWN');
+    const statusColors = getStatusColor(safeStatus);
+
     return (
-        <View style={styles.dataCardContainer}>
-            <View style={styles.header}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.titleLabel}>{titleLabel}</Text>
-                    <Text style={styles.title}>{title}</Text>
+        <View style={styles.card}>
+            {/* Left Status Stripe - often seen in specialized ticket systems or just a nice accent */}
+            {/* <View style={[styles.statusStripe, { backgroundColor: statusColors.border }]} /> */}
+
+            <View style={styles.content}>
+                <View style={styles.headerRow}>
+                    <Text style={styles.titleLabel}>{safeText(titleLabel, 'Label')}</Text>
+
+                    {/* Lozenge Style Badge */}
+                    <View style={[styles.statusBadge, { backgroundColor: statusColors.bg }]}>
+                        <Text style={[styles.statusText, { color: statusColors.text }]}>
+                            {safeStatus.toUpperCase()}
+                        </Text>
+                    </View>
                 </View>
-                <Text style={status === "APPROVED" ? styles.statusGreen : status === "OPEN" ? styles.statusGreen : status === "PENDING" ? styles.statusYellow: status === "AWARDED" ? styles.statusGreen: status === "CANCELLED" ? styles.statusGray: status === "WITHDRAWN" ? styles.statusBlue : status === "DISQUALIFIED" ? styles.statusDarkRed : status === "CLOSED" ?  styles.statusRed : status === "IN-PROGRESS" ? styles.statusGreen : status === "DRAFT" ? styles.statusOrange : styles.statusRed}>{status}</Text>
-            </View>
-            <Divider/>
-            <View style={styles.footerContainer}>
-                <Text style={styles.footerText}>{footerLeftText}</Text>
-                <Text style={styles.footerText}>{footerRightText}</Text>
+
+                <Text style={styles.title} numberOfLines={2}>{safeText(title)}</Text>
+
+                <View style={styles.footer}>
+                    <View style={styles.metaItem}>
+                        <Text style={styles.metaText}>{safeText(footerLeftText)}</Text>
+                    </View>
+                    <View style={styles.dotSeparator} />
+                    <View style={styles.metaItem}>
+                        <Text style={styles.metaText}>{safeText(footerRightText)}</Text>
+                    </View>
+                </View>
             </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
-    dataCardContainer: {
+    card: {
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.sm, // Atlassian cards often have small radius
+        marginBottom: spacing.md,
         borderWidth: 1,
-        borderColor: '#00000033',
-        borderRadius: 10,
-        width: "100%",
-        marginBottom: 16
+        borderColor: colors.neutral.border.default,
+        ...shadows.sm, // Subtle shadow
     },
-    header: {
-        display: 'flex',
+    content: {
+        padding: spacing.lg,
+    },
+    headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 30,
-        paddingVertical: 24,
-    },
-    titleContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 5,
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start'
+        marginBottom: spacing.xs,
     },
     titleLabel: {
-        color: '#00000099',
-        fontSize: 12,
-        fontWeight: '400'
+        ...typography.styles.caption,
+        color: colors.neutral.text.tertiary,
+        fontWeight: '600',
     },
     title: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: "#000000"
+        ...typography.styles.h4, // Stronger title
+        color: colors.neutral.text.primary, // N800
+        marginBottom: spacing.md,
+        lineHeight: 22,
     },
-    statusGreen: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#00FF00'
+    statusBadge: {
+        paddingHorizontal: spacing.sm,
+        paddingVertical: 2,
+        borderRadius: borderRadius.base,
     },
-    statusYellow: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#F7A64F'
+    statusText: {
+        ...typography.styles.labelSmall, // 11px uppercase bold
+        fontSize: 10,
     },
-    statusRed: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#FF003D'
-    },
-    statusBlue: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#B9D7FD'
-    },
-    statusGray: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#DBE1DF'
-    },
-    statusDarkRed: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#A80909'
-    },
-    statusOrange: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#F7A64F'
-    },
-    footerContainer: {
-        display: 'flex',
+    footer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 30,
-        paddingVertical: 24,
     },
-    footerText: {
-        color: '#000000B2',
-        fontSize: 12,
-        fontWeight: '400'
-    }
-})
+    metaItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    metaText: {
+        ...typography.styles.caption,
+        color: colors.neutral.text.secondary, // N500/N600
+    },
+    dotSeparator: {
+        width: 3,
+        height: 3,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.neutral.text.tertiary,
+        marginHorizontal: spacing.sm,
+    },
+});

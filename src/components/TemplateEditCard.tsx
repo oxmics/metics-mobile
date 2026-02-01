@@ -1,7 +1,8 @@
-import { StyleSheet, View } from "react-native"
-import { Button, Text, TextInput } from "react-native-paper"
-import { TemplateType } from "../types/template"
-import { useEffect, useState } from "react"
+import { StyleSheet, View } from 'react-native';
+import { Button, Text, TextInput } from 'react-native-paper';
+import { TemplateType } from '../types/template';
+import { useEffect, useState } from 'react';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 interface props {
     title: string,
@@ -11,85 +12,99 @@ interface props {
     saving: boolean
 }
 
-export const TemplateEditCard = ({closeFn, saveFn, saving, contentData, title}: props) => {
-    const [description, setDescription] = useState<string>("");
+export const TemplateEditCard = ({ closeFn, saveFn, saving, contentData, title }: props) => {
+    const [description, setDescription] = useState<string>('');
 
     useEffect(() => {
-        setDescription(contentData.display_description)
-    }, [contentData])
+        setDescription(contentData.display_description);
+    }, [contentData]);
 
     const handleSave = () => {
         saveFn(contentData.id, description);
-    } 
+    };
 
-    return(
+    return (
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>
-            <TextInput style={styles.inputBox} mode="outlined" underlineStyle={{display: 'none'}} outlineColor="#00000033" activeOutlineColor="#000000AB" value={description} onChangeText={setDescription} placeholder="Description here..." placeholderTextColor={"#00000080"} multiline/>
+            <TextInput
+                style={styles.inputBox}
+                mode="outlined"
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Description here..."
+                placeholderTextColor={colors.neutral.text.tertiary}
+                multiline
+                numberOfLines={4}
+                textColor={colors.neutral.text.primary}
+                outlineColor={colors.neutral.border.default}
+                activeOutlineColor={colors.primary[800]}
+                selectionColor={colors.primary[800]}
+                contentStyle={styles.inputContent}
+            />
             <View style={styles.footer}>
                 <View style={styles.btnContainer}>
-                    <Button mode="text" labelStyle={{color: '#000000', fontSize: 11, fontWeight: '600'}} onPress={() => closeFn()}>Close</Button>
-                    <Button loading={saving} style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => handleSave()}>Save</Button>
+                    <Button
+                        mode="outlined"
+                        onPress={() => closeFn()}
+                        textColor={colors.neutral.text.secondary}
+                        style={styles.closeBtn}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        loading={saving}
+                        style={styles.saveBtn}
+                        labelStyle={styles.saveLabel}
+                        onPress={() => handleSave()}
+                        mode="contained"
+                    >
+                        Save Changes
+                    </Button>
                 </View>
             </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.lg,
+        padding: spacing.lg,
+        ...shadows.sm,
     },
     title: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#000000CC',
-        marginLeft: 12,
-        marginBottom: 16
+        ...typography.styles.h4,
+        marginBottom: spacing.md,
+        color: colors.primary[800],
     },
     inputBox: {
-        borderRadius: 10,
-        borderColor: '#00000033',
-        height: 120,
-        backgroundColor: '#FFFFFF'
+        backgroundColor: colors.neutral.background,
+        fontSize: typography.size.body,
     },
-    row: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        gap: 5,
-        flexWrap: 'wrap'
-    },
-    rowText: {
-        color: '#00000099',
-        fontWeight: '400',
-        fontSize: 12
+    inputContent: {
+        textAlignVertical: 'top',
     },
     footer: {
-        marginTop: 16,
-        display: 'flex',
+        marginTop: spacing.lg,
         flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center'
+        justifyContent: 'flex-end',
     },
     btnContainer: {
-        display: 'flex',
         flexDirection: 'row',
-        borderWidth: 1,
-        borderColor: '#00000033',
-        borderRadius: 10
+        gap: spacing.md,
     },
-    footerBtn: {
-        backgroundColor: '#00B976',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
-})
+    closeBtn: {
+        borderColor: colors.neutral.border.default,
+        borderRadius: borderRadius.base,
+    },
+    saveBtn: {
+        backgroundColor: colors.primary[700],
+        borderRadius: borderRadius.base,
+    },
+    saveLabel: {
+        ...typography.styles.label,
+        color: colors.neutral.white,
+    },
+});

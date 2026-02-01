@@ -1,181 +1,157 @@
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Icon, Portal, Text } from "react-native-paper";
-import { CustomNavigationProp } from "../../types/common";
-import { useMemo, useState } from "react";
-import { CommentCard } from "../../components/CommentCard";
-import useBid from "../../api/bids/useBid";
-import useBidComments from "../../api/bids/useBidComments";
-import useBidLines from "../../api/bids/useBidLines";
-import useCreateBidComment from "../../api/bids/useCreateBidComment";
-import { formatDate } from "../../utils/helper";
-import useAuctionLines from "../../api/auctions/useAuctionLineHeader";
-import { TemplatesCard } from "../../components/TemplatesCard";
-import { BidNegotaiteCard } from "../../components/BidNegotiateCard";
-import { BidDetailsCard } from "../../components/BidDetailsCard";
-import { BottomNavbar } from "../../components/BottomNavbar";
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { ScrollView, StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
+import { ActivityIndicator, Icon, Text } from 'react-native-paper';
+import { CustomNavigationProp } from '../../types/common';
+import { CommentCard } from '../../components/CommentCard';
+import useBid from '../../api/bids/useBid';
+import useBidComments from '../../api/bids/useBidComments';
+import useBidLines from '../../api/bids/useBidLines';
+import useCreateBidComment from '../../api/bids/useCreateBidComment';
+import useAuctionLines from '../../api/auctions/useAuctionLineHeader';
+import { BidNegotaiteCard } from '../../components/BidNegotiateCard';
+import { BidDetailsCard } from '../../components/BidDetailsCard';
+import { BottomNavbar } from '../../components/BottomNavbar';
+import { colors, typography, spacing, borderRadius, shadows } from '../../theme';
 
 type RootStackParamList = {
     BuyerBidsDetailsScreen: {
-      bidId: string;
-      reqId: string;
+        bidId: string;
+        reqId: string;
     };
 };
 
 const BuyerBidsDetailsScreen = () => {
     const route = useRoute<RouteProp<RootStackParamList, 'BuyerBidsDetailsScreen'>>();
-    const {bidId, reqId} = route.params;
-    
+    const { bidId, reqId } = route.params;
+
     const navigation = useNavigation<CustomNavigationProp>();
 
-    const [showModal, setShowModal] = useState<boolean>(false);
-
-    const {data: bid, isPending: loading, refetch} = useBid({id: bidId});
-    const {data: auctionLines, isPending: auctionLineLoading, refetch: refetchAuctionLines} = useAuctionLines({id: reqId});
-    const {data: bidLines, isPending: linesLoading, refetch: refetchLines} = useBidLines({id: bidId});
-    const {data: comments, isPending: commentsLoading, refetch: refetchComments} = useBidComments({id: bidId});
-    const {mutateAsync: createComment, isPending: sendingComments} = useCreateBidComment();
-
-    const handleShowModal= () => {
-        setShowModal(true)
-    };
-
-    const handleHideModal = () => {
-        setShowModal(false)
-    }
+    const { data: bid, isPending: loading } = useBid({ id: bidId });
+    const { data: auctionLines } = useAuctionLines({ id: reqId });
+    const { data: bidLines } = useBidLines({ id: bidId });
+    const { data: comments, isPending: commentsLoading, refetch: refetchComments } = useBidComments({ id: bidId });
+    const { mutateAsync: createComment, isPending: sendingComments } = useCreateBidComment();
 
     const handleComment = (value: string) => {
-        createComment({id: bidId, message: value}).then((res) => {
+        createComment({ id: bidId, message: value }).then(() => {
             refetchComments();
-        })
+        });
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary[800]} />
+            </View>
+        );
     }
 
-    return(
-        <View style={{position: 'relative', flex: 1, backgroundColor: '#FFFFFF'}}>
+    return (
+        <View style={styles.wrapper}>
+            <StatusBar barStyle="dark-content" backgroundColor={colors.neutral.background} />
+
             <View style={styles.container}>
+                {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.replace("BuyerRfqDetails", {reqId: reqId})}>
-                        <Icon size={20} source={"arrow-left"} color="#000000"/>
+                    <TouchableOpacity
+                        onPress={() => navigation.goBack()}
+                        style={styles.backButton}
+                        activeOpacity={0.7}
+                    >
+                        <Icon size={24} source="arrow-left" color={colors.neutral.text.primary} />
                     </TouchableOpacity>
-                    <Text style={styles.title}>Details</Text>
-                </View>
-                {(!loading && bid) ? <ScrollView>
-                    <View style={styles.cardContainer}>
-                        <BidDetailsCard name={bid.organisation.name} address={bid.organisation.address_line1} contact={bid.organisation.contact}/>
-                        <BidDetailsCard title="Bid Details" bid_no={bid.bidders_bid_number} expiry_date={bid.bid_expiration_date} status={bid.bid_status}/>
-                        <CommentCard comments={comments} buttonFn={handleComment} loading={sendingComments}/>
-                        {bidLines && auctionLines && auctionLines.length > 0 && <BidNegotaiteCard auctionLines={auctionLines} bidLine={bidLines}/>}
+                    <View>
+                        <Text style={styles.headerLabel}>Bid Information</Text>
+                        <Text style={styles.title}>Details</Text>
                     </View>
-                </ScrollView>: <View style={styles.loadingContainer}><ActivityIndicator animating={true} size={"large"} color="#000000"/></View>}
-                {/* <Portal>
-                    {auctionLines && auction && <RfqDetailedModal auctionLines={auctionLines} auction={auction} closeModal={handleHideModal} show={showModal}/>}
-                </Portal> */}
+                </View>
+
+                {bid && (
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.scrollContent}
+                    >
+                        <BidDetailsCard
+                            name={bid.organisation?.name}
+                            address={bid.organisation?.address_line1}
+                            contact={bid.organisation?.contact}
+                        />
+
+                        <View style={styles.sectionSpacer} />
+
+                        <BidDetailsCard
+                            title="Bid Specification"
+                            bid_no={bid.bidders_bid_number}
+                            expiry_date={bid.bid_expiration_date}
+                            status={bid.bid_status}
+                        />
+
+                        <View style={styles.sectionSpacer} />
+
+                        {bidLines && auctionLines && auctionLines.length > 0 && (
+                            <BidNegotaiteCard auctionLines={auctionLines} bidLine={bidLines} />
+                        )}
+
+                        <View style={styles.sectionSpacer} />
+
+                        <CommentCard
+                            comments={comments}
+                            buttonFn={handleComment}
+                            loading={sendingComments || commentsLoading}
+                        />
+                    </ScrollView>
+                )}
             </View>
-            <BottomNavbar/>
+            <BottomNavbar />
         </View>
-    )
-}
+    );
+};
 
 export default BuyerBidsDetailsScreen;
 
 const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+        backgroundColor: colors.neutral.background,
+    },
     container: {
         flex: 1,
-        width: '100%',
-        padding: 20,
-        backgroundColor: '#FFFFFF',
-        marginBottom: 80
+        backgroundColor: colors.neutral.background,
+        paddingHorizontal: spacing.xl,
     },
     header: {
-        display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 8,
-        paddingHorizontal: 4,
-        paddingVertical: 20
+        paddingTop: spacing['2xl'],
+        paddingBottom: spacing.lg,
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        borderRadius: borderRadius.base,
+        backgroundColor: colors.neutral.surface.default,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.md,
+        ...shadows.sm,
+    },
+    headerLabel: {
+        ...typography.styles.caption,
+        marginBottom: 2,
     },
     title: {
-        fontSize: 20,
-        fontWeight: '500',
-        color: '#000000'
+        ...typography.styles.h2,
     },
-    cardContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        gap: 24,
-        paddingTop: 16,
-        marginBottom: 16,
+    scrollContent: {
+        paddingBottom: 100,
     },
-    statusContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    orderStatusLabel: {
-        fontSize: 20,
-        fontWeight: '400',
-        color: '#000000E5',
-        marginLeft: 12
-    },
-    statusValueContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 10
-    },
-    pendingStatus: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#F7A64F'
-    },
-    rejectedStatus: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#FC555B'
-    },
-    acceptedStatus: {
-        fontSize: 12,
-        fontWeight: '400',
-        color: '#00B528'
-    },
-    statusBtnContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        width: '100%',
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingTop: 12
-    },
-    approveBtn: {
-        backgroundColor: '#00B528',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    rejectBtn: {
-        backgroundColor: '#D92121',
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    statusBtnText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: '#FFFFFF'
+    sectionSpacer: {
+        height: spacing.xl,
     },
     loadingContainer: {
-        width: '100%',
-        height: '100%',
-        display: 'flex',
+        flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
-    }
-})
+        alignItems: 'center',
+        backgroundColor: colors.neutral.background,
+    },
+});

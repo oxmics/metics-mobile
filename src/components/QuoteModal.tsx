@@ -1,23 +1,23 @@
-import { useState } from "react";
-import { StyleSheet, View } from "react-native"
-import { Button, Modal, PaperProvider, Text, TextInput } from "react-native-paper"
-import { DatePickerInput} from "react-native-paper-dates";
-import { CalendarDate } from "react-native-paper-dates/lib/typescript/Date/Calendar";
-import { MD3LightTheme as DefaultTheme} from "react-native-paper";
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Button, Modal, PaperProvider, Text, TextInput, IconButton } from 'react-native-paper';
+import { DatePickerInput } from 'react-native-paper-dates';
+import { CalendarDate } from 'react-native-paper-dates/lib/typescript/Date/Calendar';
+import { MD3LightTheme as DefaultTheme } from 'react-native-paper';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 const customTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "#00B976",
-    onPrimary: "#FFFFFF",
-    onSurface: "#000000",
-    surface: "#FFFFFF",
-    onSurfaceVariant: "#000000",
-    secondary: "#000000",
-  },
+    ...DefaultTheme,
+    colors: {
+        ...DefaultTheme.colors,
+        primary: colors.primary[800],
+        onPrimary: colors.neutral.white,
+        onSurface: colors.neutral.text.primary,
+        surface: colors.neutral.surface.default,
+        onSurfaceVariant: colors.neutral.text.primary,
+        secondary: colors.neutral.text.secondary,
+    },
 };
-
 
 interface props {
     show: boolean,
@@ -27,38 +27,55 @@ interface props {
     setPrice: React.Dispatch<React.SetStateAction<string>>,
     setDate: React.Dispatch<React.SetStateAction<CalendarDate>>
 }
-export const QuoteModal = ({closeModal,date, price, setDate, setPrice, show}: props) => {
-    const [inputDate, setInputDate] = useState<Date|undefined>(undefined);
-    const [inputPrice, setInputPrice] = useState<string>("");
+
+export const QuoteModal = ({ closeModal, date, price, setDate, setPrice, show }: props) => {
+    const [inputDate, setInputDate] = useState<CalendarDate>(date);
+    const [inputPrice, setInputPrice] = useState<string>(price);
 
     const handleAdd = () => {
         setDate(inputDate);
         setPrice(inputPrice);
         closeModal();
-    }
-    return(
-        <Modal visible={show} onDismiss={closeModal} dismissable>
-                <View style={styles.container}>
-                    <Text style={styles.title}>Quote</Text>
-                    <Text>Promised Price</Text>
-                    <View style={{height: 50, width: '100%'}}>
-                        <TextInput 
-                            placeholder="Price" 
-                            mode="outlined" 
-                            value={inputPrice} 
-                            onChangeText={setInputPrice} 
-                            keyboardType="numeric" 
-                            textColor="#000000" 
-                            outlineColor="#00000033" 
-                            underlineStyle={{display: 'none'}} 
-                            style={styles.inputBox} 
-                            activeOutlineColor="#000000AB"
-                            placeholderTextColor={"#00000033"}
-                        />
-                    </View>
-                    <Text>Promised Date</Text>
-                    <View style={{height: 50}}>
-                        <PaperProvider theme={customTheme}>
+    };
+
+    return (
+        <Modal
+            visible={show}
+            onDismiss={closeModal}
+            dismissable
+            contentContainerStyle={styles.modalContent}
+        >
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Update Quote</Text>
+                    <IconButton
+                        icon="close"
+                        size={20}
+                        onPress={closeModal}
+                        iconColor={colors.neutral.text.tertiary}
+                    />
+                </View>
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Promised Price</Text>
+                    <TextInput
+                        placeholder="0.00"
+                        mode="outlined"
+                        value={inputPrice}
+                        onChangeText={setInputPrice}
+                        keyboardType="numeric"
+                        textColor={colors.neutral.text.primary}
+                        outlineColor={colors.neutral.border.default}
+                        activeOutlineColor={colors.primary[800]}
+                        style={styles.inputBox}
+                        placeholderTextColor={colors.neutral.text.tertiary}
+                        left={<TextInput.Icon icon="currency-usd" color={colors.neutral.text.tertiary} />}
+                    />
+                </View>
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Promised Date</Text>
+                    <PaperProvider theme={customTheme}>
                         <DatePickerInput
                             withDateFormatInLabel={false}
                             mode="outlined"
@@ -66,75 +83,72 @@ export const QuoteModal = ({closeModal,date, price, setDate, setPrice, show}: pr
                             value={inputDate}
                             onChange={(d) => setInputDate(d)}
                             inputMode="start"
-                            textColor="#000000"
-                            outlineColor="#00000033"
-                            underlineStyle={{display: 'none'}}
+                            textColor={colors.neutral.text.primary}
+                            outlineColor={colors.neutral.border.default}
+                            activeOutlineColor={colors.primary[800]}
                             style={styles.inputBox}
-                            activeOutlineColor="#000000AB"
-                            placeholder="10/11/24"
-                            placeholderTextColor={"#00000033"}
                         />
-                        </PaperProvider>
-                    </View>
-                    <Button style={styles.closeBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={handleAdd}>Add</Button>
+                    </PaperProvider>
                 </View>
+
+                <View style={styles.footer}>
+                    <Button
+                        mode="contained"
+                        style={styles.submitBtn}
+                        labelStyle={styles.btnLabel}
+                        onPress={handleAdd}
+                    >
+                        Save Quote
+                    </Button>
+                </View>
+            </View>
         </Modal>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
+    modalContent: {
+        padding: spacing.lg,
+    },
     container: {
-        backgroundColor: '#FFFFFF',
-        paddingVertical: 20, 
-        paddingHorizontal: 16,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 16,
-        marginHorizontal: 16,
-        borderRadius: 10
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.lg,
+        padding: spacing.lg,
+        ...shadows.lg,
     },
-    card: {
-        width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection:'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 4,
-    },
-    row: {
-        display: 'flex',
+    header: {
         flexDirection: 'row',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 5,
-        flexWrap: 'wrap'
-    },
-    rowText: {
-        color: '#00000099',
-        fontWeight: '400',
-        fontSize: 12
+        marginBottom: spacing.lg,
     },
     title: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#000000CC'
+        ...typography.styles.h3,
+        color: colors.primary[800],
     },
-    closeBtn: {
-        backgroundColor: '#00B976',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
+    inputContainer: {
+        marginBottom: spacing.lg,
+    },
+    label: {
+        ...typography.styles.labelSmall,
+        marginBottom: spacing.xs,
+        color: colors.neutral.text.secondary,
     },
     inputBox: {
-        borderRadius: 10,
-        backgroundColor: '#FFFFFF'
+        backgroundColor: colors.neutral.background,
+        fontSize: typography.size.body,
     },
-})
+    footer: {
+        marginTop: spacing.md,
+    },
+    submitBtn: {
+        backgroundColor: colors.primary[700],
+        borderRadius: borderRadius.base,
+        height: 48,
+        justifyContent: 'center',
+    },
+    btnLabel: {
+        ...typography.styles.label,
+        color: colors.neutral.white,
+    },
+});

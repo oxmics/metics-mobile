@@ -1,5 +1,6 @@
-import { StyleSheet, View } from "react-native"
-import { Icon, Text } from "react-native-paper"
+import { StyleSheet, View } from 'react-native';
+import { Icon, Text } from 'react-native-paper';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 interface props {
     title: string,
@@ -7,56 +8,59 @@ interface props {
     icon: string
 }
 
-export const DataCountCard = ({count, icon, title}: props) => {
-    return(
+export const DataCountCard = ({ count, icon, title }: props) => {
+    return (
         <View style={styles.container}>
-            <View style={styles.textContainer}>
-                <Text style={styles.title}>{title}</Text>
-                <Text style={styles.count}>{count}</Text>
-            </View>
-            <View style={styles.logoContainer}>
-                <Icon source={icon} size={17} color="#1BBB6B"/>
+            <View style={styles.content}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>{title}</Text>
+                    <Text style={styles.count}>{count}</Text>
+                </View>
+                <View style={styles.iconContainer}>
+                    <Icon source={icon} size={24} color={colors.primary[800]} />
+                </View>
             </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        borderWidth: 0.5,
-        borderRadius: 10,
-        borderColor: '#0000004D',
-        paddingHorizontal: 32,
-        paddingVertical: 18,
-        display: 'flex',
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.md,
+        padding: spacing.md,
+        ...shadows.sm,
+        marginBottom: spacing.md,
+    },
+    content: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     textContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 14
+        flex: 1,
     },
     title: {
-        fontSize: 13,
-        fontWeight: '400',
-        color: '#000000'
+        ...typography.styles.labelSmall,
+        marginBottom: spacing.xs,
+        color: colors.neutral.text.secondary,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     count: {
-        fontSize: 13,
-        fontWeight: '400',
-        color: '#000000B2'
+        fontSize: typography.size['3xl'],
+        fontWeight: '700',
+        color: colors.neutral.text.primary,
+        letterSpacing: -1,
+        lineHeight: 36,
     },
-    logoContainer: {
-        borderRadius: 6,
-        display: 'flex',
+    iconContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.primary[50],
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#DFD9FA99',
-        padding: 6
-    }
-})
+    },
+});

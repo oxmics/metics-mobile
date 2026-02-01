@@ -1,13 +1,14 @@
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-import React, {useEffect} from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React, { useEffect, useRef } from 'react';
 import BootSplash from 'react-native-bootsplash';
 import LoginScreen from './src/screens/login';
 import ForgotPasswordScreen from './src/screens/forgotPassword';
 import OtpScreen from './src/screens/otpScreen';
-import {PaperProvider} from 'react-native-paper';
+import { PaperProvider } from 'react-native-paper';
+import { paperTheme } from './src/theme/paperTheme';
 import EnterNewPasswordScreen from './src/screens/enterNewPassword';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {NavigationContainer} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
 import BuyerDashboardScreen from './src/screens/Buyer/buyerDashboard';
 import SupplierDashboardScreen from './src/screens/Supplier/supplierDashboard';
 import SupplierPurchaseOrderScreen from './src/screens/Supplier/purchaseOrder';
@@ -20,49 +21,54 @@ import SupplierRequestDetailsScreen from './src/screens/Supplier/requestDetails'
 import BuyerRfqHistoryScreen from './src/screens/Buyer/rfqHistory';
 import BuyerRfqDetailsScreen from './src/screens/Buyer/rfqDetails';
 import BuyerBidsDetailsScreen from './src/screens/Buyer/bidDetails';
-import {LogLevel, OneSignal} from 'react-native-onesignal';
+import { LogLevel, OneSignal } from 'react-native-onesignal';
 import NetInfo from '@react-native-community/netinfo';
-import {PermissionsAndroid, Platform} from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 const queryClient = new QueryClient();
 
 function App(): React.JSX.Element {
-  if (Platform.OS === 'android' && Platform.Version >= 33) {
-    PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-    )
-      .then(result => {
-        console.log('Notification permission granted:', result);
-      })
-      .catch(err => {
-        console.error('Notification permission error:', err);
-      });
-  }
-  let oneSignalInitialized = false;
+  const isInitialized = useRef(false);
+
   useEffect(() => {
     // Hide BootSplash after app initialization
-    BootSplash.hide({fade: true});
+    console.log('App.tsx: Attempting to hide BootSplash');
+    setTimeout(() => {
+      BootSplash.hide({ fade: true })
+        .then(() => console.log('App.tsx: BootSplash hidden successfully'))
+        .catch(err => console.error('App.tsx: BootSplash hide error', err));
+    }, 500);
+
+    if (Platform.OS === 'android' && Number(Platform.Version) >= 33) {
+      PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+      )
+        .then(result => {
+          console.log('Notification permission granted:', result);
+        })
+        .catch(err => {
+          console.error('Notification permission error:', err);
+        });
+    }
 
     // Check network connectivity and initialize OneSignal
     NetInfo.fetch().then(state => {
       if (state.isConnected) {
         console.log('Device is online');
-        if (!oneSignalInitialized) {
+        if (!isInitialized.current) {
           console.log('Initializing OneSignal...');
-          // OneSignal.initialize('5802552b-795c-4ae9-94e2-5fb39eac035e');
           OneSignal.initialize('733e03ce-8e15-4bbf-bd8b-b4f9d1df8f6d');
-          // 733e03ce-8e15-4bbf-bd8b-b4f9d1df8f6d
           OneSignal.Notifications.requestPermission(true);
-          oneSignalInitialized = true; // Set flag to true after initialization
+          isInitialized.current = true;
         }
       } else {
         console.log('Device is offline. Skipping OneSignal initialization.');
       }
     });
-  }, []);
 
-  // Debugging logs
-  OneSignal.Debug.setLogLevel(LogLevel.Debug);
+    // Debugging logs
+    OneSignal.Debug.setLogLevel(LogLevel.Debug);
+  }, []);
 
   // Add event listener for notification clicks
   useEffect(() => {
@@ -79,7 +85,7 @@ function App(): React.JSX.Element {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PaperProvider>
+      <PaperProvider theme={paperTheme}>
         <NavigationContainer>
           <Stack.Navigator
             initialRouteName="Splash"

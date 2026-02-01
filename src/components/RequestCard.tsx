@@ -1,6 +1,7 @@
-import { StyleSheet, View } from "react-native"
-import { Button, Divider, Text } from "react-native-paper"
-import { formatDateString } from "../utils/helper"
+import { StyleSheet, View } from 'react-native';
+import { Button, Divider, Text } from 'react-native-paper';
+import { formatDateString } from '../utils/helper';
+import { colors, typography, spacing, borderRadius } from '../theme';
 
 interface props {
     title: string,
@@ -11,110 +12,126 @@ interface props {
     buttonFn?: () => void
 }
 
-export const RequestInfoCard = ({contentData, date, title, organization_name, buttonAvailable, buttonFn}: props) => {
+export const RequestInfoCard = ({ contentData, date, title, organization_name, buttonAvailable, buttonFn }: props) => {
 
-    return(
+    return (
         <View style={styles.container}>
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>{title}</Text>
+            <View style={styles.header}>
+                <Text style={styles.categoryLabel}>{title.toUpperCase()}</Text>
                 <Text style={styles.date}>{formatDateString(date)}</Text>
             </View>
-            <View style={styles.card}>
-                <Text style={styles.requestedLabel}>Requested By</Text>
-                <Text style={styles.requestedValue}>{organization_name}</Text>
-                <Divider style={{borderColor: "#00000080", backgroundColor: '#00000080', width: '100%'}}/>
-                {Object.entries(contentData).map(([key, value], index) => (
-                  <View key={index} style={styles.row}>
-                    <Text style={styles.rowText}>{key}:</Text>
-                    <Text style={styles.rowText}>{String(value)}</Text>
-                  </View>
-                ))}
-            </View>
-            {buttonAvailable && buttonFn &&
-                <View style={styles.footer}>
-                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => buttonFn()}>See More</Button>
+
+            <View style={styles.content}>
+                <View style={styles.section}>
+                    <Text style={styles.label}>Requested By</Text>
+                    <Text style={styles.value}>{organization_name}</Text>
                 </View>
-            }
+
+                <Divider style={styles.divider} />
+
+                {contentData && Object.entries(contentData).map(([key, value], index) => {
+                    const isLast = index === Object.entries(contentData).length - 1;
+                    return (
+                        <View key={index} style={[styles.row, !isLast && styles.rowBorder]}>
+                            <Text style={styles.rowLabel}>{String(key)}</Text>
+                            <Text style={styles.rowValue}>{value != null ? String(value) : '—'}</Text>
+                        </View>
+                    );
+                })}
+            </View>
+
+            {buttonAvailable && buttonFn && (
+                <View style={styles.footer}>
+                    <Button
+                        mode="contained"
+                        style={styles.footerBtn}
+                        contentStyle={styles.btnContent}
+                        labelStyle={styles.footerLabel}
+                        onPress={() => buttonFn()}
+                    >
+                        View Full Details
+                    </Button>
+                </View>
+            )}
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.sm,
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
     },
-    title: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#000000CC',
-        marginLeft: 12,
-    },
-    card: {
-        width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection:'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 4,
-    },
-    row: {
-        width: '100%',
-        display: 'flex',
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap'
+        alignItems: 'baseline',
+        marginBottom: spacing.md,
     },
-    rowText: {
-        color: '#00000099',
-        fontWeight: '400',
-        fontSize: 12
-    },
-    footer: {
-        paddingTop: 16,
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center'
-    },
-    footerBtn: {
-        backgroundColor: '#00B976',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    requestedLabel: {
-        color: '#000000B2',
-        fontSize: 11,
-        fontWeight: '300'
-    },
-    requestedValue: {
-        color: '#000000',
-        fontSize: 12,
-        fontWeight: '400'
-    },
-    titleContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 16
+    categoryLabel: {
+        ...typography.styles.labelSmall,
+        color: colors.neutral.text.secondary,
     },
     date: {
-        fontSize: 10,
-        fontWeight: '400',
-        color: '#000000B2'
-    }
-    
-})
+        ...typography.styles.caption,
+        color: colors.neutral.text.tertiary,
+    },
+    content: {
+        backgroundColor: colors.neutral.surface.default, // Kept flat with container
+    },
+    section: {
+        marginBottom: spacing.sm,
+    },
+    label: {
+        fontSize: 11,
+        color: colors.neutral.text.tertiary,
+        marginBottom: 2,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    value: {
+        ...typography.styles.h4, // Emphasize organization name
+        color: colors.neutral.text.primary,
+    },
+    divider: {
+        marginVertical: spacing.md,
+        backgroundColor: colors.neutral.border.default,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: spacing.sm,
+    },
+    rowBorder: {
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+    },
+    rowLabel: {
+        fontSize: 13,
+        color: colors.neutral.text.secondary,
+    },
+    rowValue: {
+        fontSize: 13,
+        color: colors.neutral.text.primary,
+        fontWeight: '500',
+    },
+    footer: {
+        marginTop: spacing.lg,
+    },
+    footerBtn: {
+        borderRadius: borderRadius.base,
+        backgroundColor: colors.primary[600],
+    },
+    btnContent: {
+        height: 36,
+    },
+    footerLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: colors.neutral.white,
+    },
+});

@@ -1,100 +1,108 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 interface ToggleButtonProps {
     active: string,
     setActive: React.Dispatch<React.SetStateAction<string>>
 }
-const ToggleButton = ({active, setActive}: ToggleButtonProps) => {
+
+const ToggleButton = ({ active, setActive }: ToggleButtonProps) => {
     const slideAnim = useRef(new Animated.Value(0)).current;
 
-    // Function to handle the toggle
     const toggleActive = (val: string) => {
         if (active !== val) {
             setActive(val);
-            // Animate the green round movement
-            Animated.timing(slideAnim, {
+            Animated.spring(slideAnim, {
                 toValue: val === 'supplier' ? 0 : 1,
-                duration: 300,
                 useNativeDriver: false,
+                tension: 50,
+                friction: 10,
             }).start();
         }
     };
 
-    // Interpolating the slide animation based on the value
     const translateX = slideAnim.interpolate({
         inputRange: [0, 1],
-        outputRange: [0, 124],  // Adjust based on the button width to move circle properly
+        outputRange: [2, 150],
     });
 
     return (
-            <View style={styles.buttonContainer}>
-                {/* Moving animated green circle */}
-                <Animated.View
-                    style={[
-                        styles.activeIndicator,
-                        { transform: [{ translateX }] },
-                    ]}
-                />
-                {/* Supplier Button */}
-                <TouchableOpacity
-                    style={[
-                        styles.button,
-                        active === 'supplier' ? styles.activeButton : styles.inactiveButton,
-                    ]}
-                    onPress={() => toggleActive('supplier')}
-                >
-                    <Text style={styles.buttonText}>Supplier</Text>
-                </TouchableOpacity>
+        <View style={styles.container}>
+            {/* Sliding indicator */}
+            <Animated.View
+                style={[
+                    styles.activeIndicator,
+                    { transform: [{ translateX }] },
+                ]}
+            />
 
-                {/* Buyer Button */}
-                <TouchableOpacity
-                    style={[
-                        styles.button,
-                        active === 'buyer' ? styles.activeButton : styles.inactiveButton,
-                    ]}
-                    onPress={() => toggleActive('buyer')}
-                >
-                    <Text style={styles.buttonText}>Buyer</Text>
-                </TouchableOpacity>
-            </View>
+            {/* Supplier Button */}
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => toggleActive('supplier')}
+                activeOpacity={0.8}
+            >
+                <Text style={[
+                    styles.buttonText,
+                    active === 'supplier' && styles.activeText,
+                ]}>
+                    Supplier
+                </Text>
+            </TouchableOpacity>
+
+            {/* Buyer Button */}
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => toggleActive('buyer')}
+                activeOpacity={0.8}
+            >
+                <Text style={[
+                    styles.buttonText,
+                    active === 'buyer' && styles.activeText,
+                ]}>
+                    Buyer
+                </Text>
+            </TouchableOpacity>
+        </View>
     );
 };
 
 export default ToggleButton;
 
 const styles = StyleSheet.create({
-    buttonContainer: {
+    container: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: 248,
-        backgroundColor: '#585656',
-        borderRadius: 25,
+        backgroundColor: colors.neutral.background,
+        borderRadius: borderRadius.base,
+        padding: 2,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
         position: 'relative',
+        width: 300,
     },
     button: {
         flex: 1,
-        paddingVertical: 15,
+        paddingVertical: spacing.md,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 25,
+        borderRadius: borderRadius.base - 2,
+        zIndex: 1,
     },
     buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
+        ...typography.styles.label,
+        color: colors.neutral.text.tertiary,
     },
-    activeButton: {
-        backgroundColor: 'transparent',
-    },
-    inactiveButton: {
-        backgroundColor: 'transparent',
+    activeText: {
+        color: colors.neutral.text.primary,
+        fontWeight: '600',
     },
     activeIndicator: {
         position: 'absolute',
-        width: 124, // Button width
+        width: 148,
         height: '100%',
-        backgroundColor: '#1BBB6B',
-        borderRadius: 25,
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.base - 2,
+        ...shadows.sm,
     },
 });

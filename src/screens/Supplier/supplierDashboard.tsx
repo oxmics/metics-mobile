@@ -1,51 +1,54 @@
-import { Modal, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Icon, Portal, Switch, Text } from "react-native-paper";
-import useSupplierDashboard from "../../api/dashboard/useSupplierDashboard";
-import useSupplierActivityLogs from "../../api/dashboard/useSupplierActivityLogs";
-import { useEffect, useState } from "react";
-import { OverviewCard } from "../../components/OverviewCard";
-import { OrdersQuickActionCard, RFQQuickActionCard } from "../../components/QuickActionCard";
-import { RecentUpdatesCard } from "../../components/RecentUpdatesCard";
-import { RecentUpdatesModal } from "../../components/RecentUpdatesModal";
-import { useNavigation } from "@react-navigation/native";
-import { CustomNavigationProp } from "../../types/common";
-import CustomDrawer from "../../components/SupplierDrawer";
-import { BottomNavbar } from "../../components/BottomNavbar";
+import { Modal, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
+import { Icon, Portal, Text, Button } from 'react-native-paper';
+import useSupplierDashboard from '../../api/dashboard/useSupplierDashboard';
+import useSupplierActivityLogs from '../../api/dashboard/useSupplierActivityLogs';
+import { useState, useCallback } from 'react';
+import { OverviewCard } from '../../components/OverviewCard';
+import { OrdersQuickActionCard, RFQQuickActionCard } from '../../components/QuickActionCard';
+import { RecentUpdatesCard } from '../../components/RecentUpdatesCard';
+import { RecentUpdatesModal } from '../../components/RecentUpdatesModal';
+import { useNavigation } from '@react-navigation/native';
+import { CustomNavigationProp } from '../../types/common';
+import CustomDrawer from '../../components/SupplierDrawer';
+import { BottomNavbar } from '../../components/BottomNavbar';
+import { colors, spacing, borderRadius, shadows, typography } from '../../theme';
+import { Skeleton } from '../../components/Skeleton';
 
 const SupplierDashboardScreen = () => {
+    console.log('SupplierDashboardScreen: Rendering');
     const navigation = useNavigation<CustomNavigationProp>();
+    navigation.setOptions({
+        headerShown: false,
+    });
 
     const [drawerVisible, setDrawerVisible] = useState(false);
-
-    const toggleDrawer = () => setDrawerVisible(!drawerVisible);
-
-    const [isSupplier, setIsSupplier] = useState<boolean>(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [showModal, setShowModal] = useState<boolean>(false);
 
-    const { data: dashboardContent, isPending: loading, refetch } = useSupplierDashboard();
-    const { data: logs, isPending: loadingLogs, refetch: refetchLogs } = useSupplierActivityLogs();
+    const { data: dashboardContent, isPending: loading, refetch, isError: dashboardError } = useSupplierDashboard();
+    const { data: logs, isPending: loadingLogs, refetch: refetchLogs, isError: logsError } = useSupplierActivityLogs();
 
-    const handleHideModal = () => {
-        setShowModal(false)
-    }
+    const toggleDrawer = () => setDrawerVisible(!drawerVisible);
+    const handleHideModal = () => setShowModal(false);
+    const handleShowModal = () => setShowModal(true);
 
-    const handleShowModal = () => {
-        setShowModal(true)
-    }
+    const onRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([refetch(), refetchLogs()]);
+        setRefreshing(false);
+    }, [refetch, refetchLogs]);
 
-    const handleRefetch = () => {
-        refetch();
-        refetchLogs();
-    }
+    const handleSwitchToBuyer = () => {
+        navigation.replace('BuyerDashboard');
+    };
 
-    useEffect(() => {
-        if (!isSupplier) {
-            navigation.replace('BuyerDashboard');
-        }
-    }, [isSupplier])
+    const isLoading = loading || loadingLogs;
+    const hasError = dashboardError || logsError;
 
     return (
-        <View style={{flex: 1, position: 'relative', backgroundColor: '#FFFFFF'}}>
+        <View style={styles.container}>
+            <StatusBar barStyle="dark-content" backgroundColor={colors.neutral.surface.sunken} />
+
             <Modal
                 transparent={true}
                 visible={drawerVisible}
@@ -59,51 +62,138 @@ const SupplierDashboardScreen = () => {
                     <TouchableOpacity
                         style={styles.overlay}
                         onPress={toggleDrawer}
+                        activeOpacity={1}
                     />
                 </View>
             </Modal>
-            {(loading || loadingLogs) ? (<View style={styles.loadingContainer}><ActivityIndicator size={"large"} color="#000000"/></View>):(<ScrollView style={styles.container} refreshControl={
-                <RefreshControl refreshing={loading || loadingLogs} onRefresh={handleRefetch} />
-            }>
-                <View style={styles.headerContainer}>
-                    <View style={styles.menuBtnContainer}>
-                        <TouchableOpacity onPress={toggleDrawer}><Icon source={"menu"} size={20}/></TouchableOpacity>
-                        <Text style={styles.title}>Dashboard</Text>
-                    </View>
-                    <Switch 
-                        value={!isSupplier} 
-                        onValueChange={() => setIsSupplier(!isSupplier)} 
-                        thumbColor={isSupplier ? "#7FAD5B" : "#D91616"} 
+
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        tintColor={colors.primary[500]}
+                        colors={[colors.primary[500]]}
                     />
-                </View>
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Overview</Text>
-                    {dashboardContent && (
-                        <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
-                            <OverviewCard title="Total Active Requests" value={dashboardContent.total_auctions_count} />
-                            <OverviewCard title="Total Clients" value={dashboardContent.clients_count} />
-                            <OverviewCard title="Purchase Orders" value={dashboardContent.supplier_purchase_orders_count} />
-                        </ScrollView>
-                    )}
+                }
+            >
+                {/* Header */}
+                <View style={styles.header}>
+                    <View style={styles.headerLeft}>
+                        <TouchableOpacity
+                            onPress={toggleDrawer}
+                            style={styles.menuButton}
+                            activeOpacity={0.7}
+                        >
+                            <Icon source="menu" size={24} color={colors.neutral.text.primary} />
+                        </TouchableOpacity>
+                        <View>
+                            <Text style={styles.welcomeLabel}>Supplier Portal</Text>
+                            <Text style={styles.title}>Dashboard</Text>
+                        </View>
+                    </View>
+                    <TouchableOpacity
+                        onPress={handleSwitchToBuyer}
+                        style={styles.switchButton}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.switchButtonText}>Switch to Buyer</Text>
+                        <Icon source="chevron-right" size={16} color={colors.semantic.success.dark} />
+                    </TouchableOpacity>
                 </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Quick action</Text>
-                    <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
-                        <RFQQuickActionCard />
-                        <OrdersQuickActionCard />
-                    </ScrollView>
-                </View>
+                {hasError && !isLoading && (
+                    <View style={styles.errorContainer}>
+                        <Icon source="alert-circle-outline" size={48} color={colors.semantic.error.default} />
+                        <Text style={styles.errorText}>Failed to load dashboard data</Text>
+                        <Button mode="outlined" onPress={onRefresh} style={styles.retryButton}>
+                            Retry
+                        </Button>
+                    </View>
+                )}
 
-                <View style={styles.lastSection}>
-                    <Text style={styles.sectionTitle}>Recent Updates</Text>
-                    {logs && <RecentUpdatesCard viewAll={handleShowModal} logs={logs}/>}
-                </View>
-                <Portal>
-                    {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal}/>}
-                </Portal>
-            </ScrollView>)}
-            <BottomNavbar isSupplier/>
+                {!hasError && (
+                    <>
+                        {/* Overview Section */}
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Overview</Text>
+                            {isLoading ? (
+                                <View style={styles.skeletonRow}>
+                                    <Skeleton width={140} height={100} style={{ marginRight: spacing.md }} />
+                                    <Skeleton width={140} height={100} style={{ marginRight: spacing.md }} />
+                                    <Skeleton width={140} height={100} />
+                                </View>
+                            ) : (
+                                dashboardContent && (
+                                    <ScrollView
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        contentContainerStyle={styles.horizontalScroll}
+                                    >
+                                        <OverviewCard
+                                            title="Requests"
+                                            value={dashboardContent?.total_auctions_count}
+                                            accentColor={colors.primary[500]}
+                                        />
+                                        <OverviewCard
+                                            title="Clients"
+                                            value={dashboardContent?.clients_count}
+                                            accentColor={colors.semantic.info.default}
+                                        />
+                                        <OverviewCard
+                                            title="Orders"
+                                            value={dashboardContent?.supplier_purchase_orders_count}
+                                            accentColor={colors.semantic.success.default}
+                                        />
+                                    </ScrollView>
+                                )
+                            )}
+                        </View>
+
+                        {/* Quick Actions Section */}
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Quick Actions</Text>
+                            {isLoading ? (
+                                <View style={styles.skeletonRow}>
+                                    <Skeleton width={150} height={64} style={{ marginRight: spacing.md }} />
+                                    <Skeleton width={150} height={64} />
+                                </View>
+                            ) : (
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={styles.horizontalScroll}
+                                >
+                                    <RFQQuickActionCard />
+                                    <OrdersQuickActionCard />
+                                </ScrollView>
+                            )}
+                        </View>
+
+                        {/* Recent Updates Section */}
+                        <View style={styles.lastSection}>
+                            {isLoading ? (
+                                <View>
+                                    <Skeleton width={120} height={20} style={{ marginBottom: spacing.md }} />
+                                    <Skeleton width="100%" height={80} style={{ marginBottom: spacing.sm }} />
+                                    <Skeleton width="100%" height={80} />
+                                </View>
+                            ) : (
+                                logs && <RecentUpdatesCard viewAll={handleShowModal} logs={logs} />
+                            )}
+                        </View>
+                    </>
+                )}
+            </ScrollView>
+
+            <Portal>
+                {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} />}
+            </Portal>
+
+            <BottomNavbar isSupplier />
         </View>
     );
 };
@@ -112,70 +202,110 @@ export default SupplierDashboardScreen;
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
         flex: 1,
-        flexDirection: 'column',
-        padding: 20,
-        marginBottom: 20
+        backgroundColor: colors.neutral.surface.sunken,
     },
-    headerContainer: {
-        width: '100%',
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingBottom: 100,
+    },
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        paddingHorizontal: spacing.xl,
+        paddingTop: spacing['2xl'],
+        paddingBottom: spacing.lg,
+        backgroundColor: colors.neutral.surface.default,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
     },
-    menuBtnContainer: {
+    headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    menuButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.md,
+    },
+    welcomeLabel: {
+        fontSize: 12,
+        color: colors.neutral.text.secondary,
+        marginBottom: 2,
     },
     title: {
-        fontSize: 22,
-        fontWeight: "600",
-        color: '#000000',
-        marginLeft: 16,
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.neutral.text.primary,
     },
-    section: {
-        marginTop: 16,
-    },
-    lastSection: {
-        marginTop: 16,
-        marginBottom: 120
-    },
-    sectionTitle: {
-        fontSize: 22,
-        fontWeight: "400",
-        color: '#000',
-        marginBottom: 8,
-        marginLeft: 16
-    },
-    scrollContainer: {
+    switchButton: {
         flexDirection: 'row',
         alignItems: 'center',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        backgroundColor: colors.semantic.success.light,
+        borderRadius: borderRadius.full,
+        borderWidth: 1,
+        borderColor: colors.semantic.success.default,
+    },
+    switchButtonText: {
+        fontSize: 12,
+        color: colors.semantic.success.dark,
+        fontWeight: '600',
+        marginRight: spacing.xs,
+    },
+    section: {
+        marginTop: spacing.lg,
+    },
+    lastSection: {
+        marginTop: spacing.lg,
+        paddingHorizontal: spacing.xl,
+    },
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.neutral.text.secondary,
+        paddingHorizontal: spacing.xl,
+        marginBottom: spacing.md,
+    },
+    horizontalScroll: {
+        paddingHorizontal: spacing.xl,
+    },
+    skeletonRow: {
+        flexDirection: 'row',
+        paddingHorizontal: spacing.xl,
     },
     modalContainer: {
         flex: 1,
         flexDirection: 'row',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(9, 30, 66, 0.54)',
     },
     overlay: {
         flex: 1,
     },
     drawerContainer: {
-        width: '80%', 
-        backgroundColor: '#ffffff',
-        shadowColor: '#000',
-        shadowOffset: { width: 2, height: 0 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 5,
+        width: '80%',
+        backgroundColor: colors.neutral.surface.default,
+        ...shadows.lg,
     },
-    loadingContainer: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
+    errorContainer: {
+        padding: spacing['3xl'],
         alignItems: 'center',
-        height: '100%',
-        width: '100%'
-    }
+        justifyContent: 'center',
+    },
+    errorText: {
+        ...typography.styles.body,
+        color: colors.neutral.text.secondary,
+        marginTop: spacing.md,
+        textAlign: 'center',
+    },
+    retryButton: {
+        marginTop: spacing.lg,
+        borderColor: colors.primary[500],
+    },
 });

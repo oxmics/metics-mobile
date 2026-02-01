@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { Checkbox } from "react-native-paper";
+import { StyleSheet, Text, View } from 'react-native';
+import { Checkbox } from 'react-native-paper';
 
 interface CaptchaCheckboxProps {
     isRobot: boolean,
@@ -12,14 +11,14 @@ const CaptchaCheckbox = ({isRobot, setIsRobot}: CaptchaCheckboxProps) => {
     return(
         <View style={styles.captchaContainer}>
             <Checkbox
-                status={isRobot? 'checked': 'unchecked'}
+                status={isRobot ? 'checked' : 'unchecked'}
                 onPress={() => setIsRobot(!isRobot)}
                 color="#00B976"
             />
             <Text style={styles.checkboxLabel}>I'm not a robot</Text>
         </View>
     );
-}
+};
 
 export default CaptchaCheckbox;
 
@@ -35,11 +34,11 @@ const styles = StyleSheet.create({
         width: '100%',
         marginTop: 12,
         marginBottom: 20,
-        padding: 16
+        padding: 16,
     },
     checkboxLabel: {
         color:'#000',
         fontWeight: '400',
         fontSize: 14,
     },
-})
+});

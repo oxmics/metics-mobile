@@ -1,6 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
-import { useApi } from "../../hooks/useApi";
-import { APIResponseEnum } from "../../types/common";
+import { useMutation } from '@tanstack/react-query';
+import { useApi } from '../../hooks/useApi';
+import { APIResponseEnum } from '../../types/common';
 
 interface Props {
   id: string;
@@ -8,28 +8,23 @@ interface Props {
 }
 
 const useUpdateTemplateDescription = () => {
-    const api = useApi();
+  const api = useApi();
 
   const mutation = useMutation({
-    mutationFn: async ({ id, display_description}: Props) => {
+    mutationFn: async ({ id, display_description }: Props) => {
       try {
-        const response = await api.patch(
-          `/templates/${id}/`,
-          {
-            display_description
-          }
-        );
+        const response = await api.patch(`/templates/${id}/`, {
+          display_description,
+        });
         if (response.data) {
-          const data = response.data;
           return APIResponseEnum.SUCCESS;
-        }else{
-          return APIResponseEnum.INVALID;
         }
+        return APIResponseEnum.INVALID;
       } catch (error) {
-        console.error("Template description update API Failed!", error);
+        console.error('Template description update API Failed!', error);
         return APIResponseEnum.FAILED;
       }
-    }
+    },
   });
 
   return mutation;

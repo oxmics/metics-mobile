@@ -1,5 +1,5 @@
-import { AuctionHeaderType, OrganizationDetailsType } from "./purchaseOrder"
-import { TemplateType } from "./template"
+import { AuctionHeaderType, OrganizationDetailsType } from './purchaseOrder';
+import { TemplateType } from './template';
 
 export type BidType = {
     id: string,
@@ -11,7 +11,7 @@ export type BidType = {
     auction_header: AuctionHeaderType,
     templates: TemplateType[],
     bidders_bid_number: number,
-    bid_status: "awarded" | "rejected" | "cancelled" | "disqualified" | "withdrawn" | "submitted" | "draft",
+    bid_status: 'awarded' | 'rejected' | 'cancelled' | 'disqualified' | 'withdrawn' | 'submitted' | 'draft',
     type_of_response: string,
     bid_expiration_date: string,
     cancellation_date: string | null,

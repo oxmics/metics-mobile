@@ -1,5 +1,6 @@
-import { StyleSheet, View } from "react-native"
-import { Button, Text } from "react-native-paper"
+import { StyleSheet, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import { colors, typography, spacing, borderRadius } from '../theme';
 
 interface props {
     title: string,
@@ -9,95 +10,138 @@ interface props {
     buttonFn?: () => void
 }
 
-export const InfoCard = ({footerButtonAvailable, buttonFn, contentData, iterative, title}: props) => {
-    return(
+export const InfoCard = ({ footerButtonAvailable, buttonFn, contentData, iterative, title }: props) => {
+    // Safely handle contentData
+    const isArray = Array.isArray(contentData);
+    const isValidObject = contentData && typeof contentData === 'object';
+
+    return (
         <View style={styles.container}>
-            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.headerTitle}>{title || 'Information'}</Text>
             {iterative ? (
-                contentData.map((item: any, index: number) => {
-                    return (<View style={styles.card} key={index}>
-                        {Object.entries(item).map(([key, value], index) => (
-                            <View key={index} style={styles.row}>
-                              <Text style={styles.rowText}>{key}:</Text>
-                              <Text style={styles.rowText}>{String(value)}</Text>
+                isArray ? (
+                    contentData.map((item: any, index: number) => {
+                        const itemEntries = item && typeof item === 'object' ? Object.entries(item) : [];
+                        return (
+                            <View key={index} style={[styles.groupContainer, index > 0 && styles.groupDivider]}>
+                                {itemEntries.map(([key, value], idx) => (
+                                    <View key={idx} style={styles.row}>
+                                        <Text style={styles.label}>{String(key)}</Text>
+                                        <Text style={styles.value}>{value !== null && value !== undefined ? String(value) : '—'}</Text>
+                                    </View>
+                                ))}
+                                {itemEntries.length === 0 && (
+                                    <Text style={styles.emptyText}>No data available</Text>
+                                )}
                             </View>
-                        ))}
-                    </View>)
-                })
-            ): (
-                <View style={styles.card}>
-                {Object.entries(contentData).map(([key, value], index) => (
-                  <View key={index} style={styles.row}>
-                    <Text style={styles.rowText}>{key}:</Text>
-                    <Text style={styles.rowText}>{String(value)}</Text>
-                  </View>
-                ))}
-              </View>              
-            )}
-            {footerButtonAvailable && buttonFn &&
-                <View style={styles.footer}>
-                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => buttonFn()}>See More</Button>
+                        );
+                    })
+                ) : (
+                    <Text style={styles.emptyText}>No data available</Text>
+                )
+            ) : (
+                <View style={styles.groupContainer}>
+                    {isValidObject ? (
+                        Object.entries(contentData).map(([key, value], index) => (
+                            <View key={index} style={styles.row}>
+                                <Text style={styles.label}>{String(key)}</Text>
+                                <Text style={styles.value}>{value !== null && value !== undefined ? String(value) : '—'}</Text>
+                            </View>
+                        ))
+                    ) : (
+                        <Text style={styles.emptyText}>No data available</Text>
+                    )}
                 </View>
-            }
+            )}
+
+            {footerButtonAvailable && buttonFn && (
+                <View style={styles.footer}>
+                    <Button
+                        mode="text"
+                        style={styles.footerBtn}
+                        textColor={colors.primary[500]}
+                        labelStyle={styles.footerLabel}
+                        onPress={() => buttonFn()}
+                        contentStyle={styles.footerContent}
+                    >
+                        See More Details
+                    </Button>
+                </View>
+            )}
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.sm,
+        padding: spacing.lg,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
+        marginBottom: spacing.md,
     },
-    title: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#000000CC',
-        marginLeft: 12,
-        marginBottom: 16
+    headerTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: colors.neutral.text.secondary,
+        marginBottom: spacing.md,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
-    card: {
-        width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection:'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 4,
+    groupContainer: {
+        marginBottom: spacing.sm,
+    },
+    groupDivider: {
+        marginTop: spacing.md,
+        paddingTop: spacing.md,
+        borderTopWidth: 1,
+        borderTopColor: colors.neutral.border.default,
     },
     row: {
-        width: '100%',
-        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 5,
-        flexWrap: 'wrap',
+        paddingVertical: spacing.xs,
+        minHeight: 32,
     },
-    rowText: {
-        color: '#00000099',
-        fontWeight: '400',
-        fontSize: 12
+    label: {
+        fontSize: 14,
+        color: colors.neutral.text.secondary,
+        flex: 1,
+        marginRight: spacing.md,
+    },
+    value: {
+        fontSize: 14,
+        color: colors.neutral.text.primary,
+        fontWeight: '500',
+        flex: 1,
+        textAlign: 'right',
+    },
+    emptyText: {
+        ...typography.styles.caption,
+        color: colors.neutral.text.tertiary,
+        textAlign: 'center',
+        paddingVertical: spacing.md,
     },
     footer: {
-        paddingTop: 16,
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center'
+        marginTop: spacing.sm,
+        borderTopWidth: 1,
+        borderTopColor: colors.neutral.border.default,
+        paddingTop: spacing.xs,
+        marginHorizontal: -spacing.lg, // extend to edges
+        paddingHorizontal: spacing.sm,
     },
     footerBtn: {
-        backgroundColor: '#00B976',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
-})
+        borderRadius: borderRadius.base,
+        alignSelf: 'flex-start',
+    },
+    footerContent: {
+        justifyContent: 'flex-start',
+    },
+    footerLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+});

@@ -1,5 +1,6 @@
-import { StyleSheet, View } from "react-native"
-import { Button, Text } from "react-native-paper"
+import { StyleSheet, View } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 interface props {
     contentData: any,
@@ -7,71 +8,88 @@ interface props {
     buttonFn?: () => void,
 }
 
-export const QuoteContainer = ({footerButtonAvailable, buttonFn, contentData,}: props) => {
+export const QuoteContainer = ({ footerButtonAvailable, buttonFn, contentData }: props) => {
 
-    return(
+    return (
         <View style={styles.container}>
-            {Object.entries(contentData).map(([key, value], index) => (
-                <View key={index} style={styles.row}>
-                <Text style={styles.rowText}>{key}:</Text>
-                <Text style={styles.rowText}>{String(value)}</Text>
-                </View>
-            ))}
-            {footerButtonAvailable && buttonFn &&
+            <View style={styles.header}>
+                <Text style={styles.title}>Quote Details</Text>
+            </View>
+
+            <View style={styles.content}>
+                {Object.entries(contentData).map(([key, value], index) => (
+                    <View key={index} style={styles.row}>
+                        <Text style={styles.label}>{key}</Text>
+                        <Text style={styles.value}>{String(value)}</Text>
+                    </View>
+                ))}
+            </View>
+
+            {footerButtonAvailable && buttonFn && (
                 <View style={styles.footer}>
-                    <Button style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: 600}} onPress={() => buttonFn()}>Quote</Button>
+                    <Button
+                        mode="contained"
+                        style={styles.quoteBtn}
+                        labelStyle={styles.btnLabel}
+                        onPress={() => buttonFn()}
+                        icon="file-document-edit-outline"
+                    >
+                        Update Quote
+                    </Button>
                 </View>
-            }
+            )}
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        padding: 28,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.lg,
+        padding: spacing.lg,
+        ...shadows.sm,
     },
-    card: {
-        width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection:'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
+    header: {
+        marginBottom: spacing.md,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+        paddingBottom: spacing.sm,
+    },
+    title: {
+        ...typography.styles.h4,
+        color: colors.primary[800],
+    },
+    content: {
+        gap: spacing.sm,
     },
     row: {
-        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        flexWrap: 'wrap',
-        marginBottom: 12
     },
-    rowText: {
-        color: '#00000099',
-        fontWeight: '400',
-        fontSize: 12
+    label: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.secondary,
+        flex: 1,
+    },
+    value: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.primary,
+        fontWeight: '500',
+        flex: 1,
+        textAlign: 'right',
     },
     footer: {
-        paddingTop: 16,
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center'
+        marginTop: spacing.lg,
+        alignItems: 'flex-end',
     },
-    footerBtn: {
-        backgroundColor: '#00B976',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
-})
+    quoteBtn: {
+        borderRadius: borderRadius.base,
+        backgroundColor: colors.primary[700],
+    },
+    btnLabel: {
+        ...typography.styles.label,
+        color: colors.neutral.white,
+    },
+});

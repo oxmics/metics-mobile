@@ -1,4 +1,4 @@
-import { TemplateType } from "./template"
+import { TemplateType } from './template';
 
 export type PurchaseOrderType = {
     id: string,
@@ -42,7 +42,7 @@ export type OrganizationDetailsType = {
     additional_attributes: {id: string, name: string, value: string}[];
     address_line1: string;
     address_line2: string;
-    authorised_sellers: string[]; 
+    authorised_sellers: string[];
     city: string;
     code: string;
     contact: string;
@@ -55,7 +55,7 @@ export type OrganizationDetailsType = {
     name: string;
     number_of_employees: number;
     postal_code: string;
-    selling_categories: string[]; 
+    selling_categories: string[];
     state: string;
     total_turnover: number;
 }

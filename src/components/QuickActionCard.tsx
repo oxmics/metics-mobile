@@ -1,57 +1,93 @@
-import { useNavigation } from "@react-navigation/native"
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { CustomNavigationProp } from "../types/common";
+import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-paper';
+import { CustomNavigationProp } from '../types/common';
+import { colors, spacing, borderRadius } from '../theme';
 
 interface props {
     isBuyer?: boolean
 }
-export const RFQQuickActionCard = ({isBuyer}: props) => {
-    const navigation = useNavigation<CustomNavigationProp>();
-    return(
-        <TouchableOpacity onPress={() => isBuyer ? navigation.navigate('BuyerRfqHistory'): navigation.navigate('SupplierRequestHistory')}>
-            <View style={styles.container}>
-                <Image source={require("../../assets/images/rfq.png")} resizeMode="contain" style={styles.image}/>
-                <Text style={styles.title}>View Request</Text>
-            </View>
-        </TouchableOpacity>
-    )
-}
 
-export const OrdersQuickActionCard = ({isBuyer}: props) => {
+export const RFQQuickActionCard = ({ isBuyer }: props) => {
     const navigation = useNavigation<CustomNavigationProp>();
-    return(
-        <TouchableOpacity onPress={() => isBuyer ? navigation.navigate('BuyerPurchaseOrder'): navigation.navigate('SupplierPurchaseOrder')}>
+    return (
+        <TouchableOpacity
+            onPress={() => isBuyer ? navigation.navigate('BuyerRfqHistory') : navigation.navigate('SupplierRequestHistory')}
+            activeOpacity={0.7}
+        >
             <View style={styles.container}>
-                <Image source={require("../../assets/images/orders.png")} resizeMode="contain" style={styles.image}/>
-                <Text style={styles.title}>View Purchase Orders</Text>
+                <View style={[styles.iconContainer, styles.iconContainerRfq]}>
+                    <Icon source="file-document-outline" size={20} color={colors.primary[600]} />
+                </View>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>All Requests</Text>
+                    <Text style={styles.subtitle}>View RFQs</Text>
+                </View>
+                {/* Arrow removed for a cleaner 'tile' look, or kept subtle */}
             </View>
         </TouchableOpacity>
-    )
-}
+    );
+};
+
+export const OrdersQuickActionCard = ({ isBuyer }: props) => {
+    const navigation = useNavigation<CustomNavigationProp>();
+    return (
+        <TouchableOpacity
+            onPress={() => isBuyer ? navigation.navigate('BuyerPurchaseOrder') : navigation.navigate('SupplierPurchaseOrder')}
+            activeOpacity={0.7}
+        >
+            <View style={styles.container}>
+                <View style={[styles.iconContainer, styles.iconContainerOrders]}>
+                    <Icon source="package-variant" size={20} color={colors.semantic.success.dark} />
+                </View>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>Orders</Text>
+                    <Text style={styles.subtitle}>Track status</Text>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
-        display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
-        padding: 16,
+        padding: spacing.md,
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.sm,
+        marginRight: spacing.md,
+        width: 150, // Fixed width tiles
+        height: 64,
         borderWidth: 1,
-        borderColor: '#00000033',
-        borderRadius: 10,
-        backgroundColor: '#FFFFFF',
-        height: 56,
-        marginRight: 8  
+        borderColor: colors.neutral.border.default,
+        // No shadow, flat style
+    },
+    iconContainer: {
+        width: 32,
+        height: 32,
+        borderRadius: borderRadius.sm, // Slightly squarer
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.sm,
+    },
+    iconContainerRfq: {
+        backgroundColor: colors.primary[50],
+    },
+    iconContainerOrders: {
+        backgroundColor: colors.semantic.success.light,
+    },
+    textContainer: {
+        flex: 1,
     },
     title: {
-        color: '#000000CC',
         fontSize: 13,
-        fontWeight: "400",
-        flexWrap: 'wrap',
-        marginLeft: 12
+        fontWeight: '600',
+        color: colors.neutral.text.primary,
+        marginBottom: 0,
     },
-    image: {
-        height: 20,
-        width: 20
-    }
-})
+    subtitle: {
+        fontSize: 11,
+        color: colors.neutral.text.tertiary,
+    },
+});

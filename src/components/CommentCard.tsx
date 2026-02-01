@@ -1,154 +1,188 @@
-import { StyleSheet, View } from "react-native"
-import { Button, Text, TextInput } from "react-native-paper"
-import { BidCommentType, CommentType } from "../types/auction"
-import { useEffect, useState } from "react"
-import Timeline, { Data } from "react-native-timeline-flatlist"
-import { formatDateVerbose } from "../utils/helper"
+import { StyleSheet, View } from 'react-native';
+import { Button, Text, TextInput } from 'react-native-paper';
+import { BidCommentType, CommentType } from '../types/auction';
+import { useEffect, useState } from 'react';
+import Timeline from 'react-native-timeline-flatlist';
+import { formatDateVerbose } from '../utils/helper';
+import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 
 interface props {
-    comments: CommentType[]| BidCommentType[] |undefined,
+    comments: CommentType[] | BidCommentType[] | undefined,
     buttonFn?: (value: string) => void,
     loading: boolean
 }
 
-export const CommentCard = ({buttonFn, comments, loading}: props) => {
+export const CommentCard = ({ buttonFn, comments, loading }: props) => {
     const [data, setData] = useState<any[]>([]);
-    const [comment, setComment] = useState<string>("");
+    const [comment, setComment] = useState<string>('');
 
     useEffect(() => {
         if (comments) {
-            let tempData: any[] = [];
-            comments.map((comment) => {
-                tempData.push({
-                    title: comment.author,
-                    time: formatDateVerbose(comment.created_at),
-                    description: comment.message,
-                })
-            })
-            setData([...tempData]);
+            const tempData = comments.map((commentItem) => ({
+                title: commentItem.author,
+                time: formatDateVerbose(commentItem.created_at),
+                description: commentItem.message,
+            }));
+            setData(tempData);
+        } else {
+            setData([]);
         }
     }, [comments]);
 
-    return(
+    return (
         <View style={styles.container}>
-            <Text style={styles.title}>Comments</Text>
-            {comments && data.length > 0 && (
-                <Timeline data={data} circleColor="#D9D9D9" lineColor="#D9D9D9" timeContainerStyle={{minWidth: 150}} descriptionStyle={{flexWrap: 'wrap', color: "#000000"}} titleStyle={{flexWrap: 'wrap', color: "#000000"}}/>
+            <Text style={styles.headerTitle}>Comments</Text>
+
+            {data.length > 0 ? (
+                <View style={styles.timelineContainer}>
+                    <Timeline
+                        data={data}
+                        circleColor={colors.neutral.border.default}
+                        lineColor={colors.neutral.border.default}
+                        timeContainerStyle={styles.timeContainer}
+                        timeStyle={styles.timeStyle}
+                        descriptionStyle={styles.descriptionStyle}
+                        titleStyle={styles.titleStyle}
+                        innerCircle={'icon'}
+                        iconStyle={styles.iconStyle}
+                        options={{
+                            scrollEnabled: false, // Disable internal scrolling when inside a ScrollView
+                            removeClippedSubviews: false,
+                        }}
+                    />
+                </View>
+            ) : (
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>No comments yet</Text>
+                </View>
             )}
+
             <View style={styles.noteContainer}>
                 <Text style={styles.noteBold}>Note:</Text>
-                <Text style={styles.noteDescription}>Avoid disclosing private information here</Text>
+                <Text style={styles.noteDescription}>Avoid disclosing sensitive personal or financial information here.</Text>
             </View>
-            { buttonFn &&
+
+            {buttonFn &&
                 <View style={styles.footer}>
-                        <TextInput value={comment} onChangeText={setComment} style={styles.commentInput} mode="outlined" placeholder="Comment here..." textColor="#000000" placeholderTextColor={"#00000099"} cursorColor="#000" outlineColor="#0000004D" selectionColor="#0000004D" activeOutlineColor="#0000004D"/>
-                        <Button loading={loading} disabled={comment.length < 1} style={styles.footerBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={() => {buttonFn(comment); setComment("")}}>Comment</Button>
+                    <TextInput
+                        value={comment}
+                        onChangeText={setComment}
+                        style={styles.commentInput}
+                        mode="outlined"
+                        placeholder="Type your comment..."
+                        textColor={colors.neutral.text.primary}
+                        placeholderTextColor={colors.neutral.text.tertiary}
+                        cursorColor={colors.primary[800]}
+                        outlineColor={colors.neutral.border.default}
+                        activeOutlineColor={colors.primary[800]}
+                        dense
+                    />
+                    <Button
+                        loading={loading}
+                        disabled={comment.length < 1}
+                        style={[styles.footerBtn, comment.length < 1 && styles.disabledBtn]}
+                        labelStyle={styles.footerLabel}
+                        onPress={() => { buttonFn(comment); setComment(''); }}
+                        icon="send-outline"
+                        mode="contained"
+                    >
+                        Send
+                    </Button>
                 </View>
             }
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.lg,
+        padding: spacing.lg,
+        ...shadows.sm,
     },
-    title: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#000000CC',
-        marginLeft: 12,
-        marginBottom: 16
+    headerTitle: {
+        ...typography.styles.h4,
+        marginBottom: spacing.lg,
+        color: colors.primary[800],
     },
-    card: {
-        width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection:'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 4,
+    timelineContainer: {
+        marginBottom: spacing.md,
     },
-    row: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
+    timeContainer: {
+        minWidth: 70,
+    },
+    timeStyle: {
+        ...typography.styles.caption,
+        color: colors.neutral.text.tertiary,
+        textAlign: 'center',
+        paddingTop: 2,
+    },
+    titleStyle: {
+        ...typography.styles.body,
+        fontWeight: '600',
+        color: colors.neutral.text.primary,
+        marginBottom: 2,
+    },
+    descriptionStyle: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.secondary,
+        marginTop: 0,
+        marginBottom: spacing.md,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    emptyContainer: {
+        paddingVertical: spacing.lg,
         alignItems: 'center',
-        gap: 5,
-        flexWrap: 'wrap'
     },
-    rowText: {
-        color: '#00000099',
-        fontWeight: '400',
-        fontSize: 12
+    emptyText: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.tertiary,
+        fontStyle: 'italic',
     },
     noteContainer: {
-        paddingHorizontal:16,
-        paddingVertical: 12,
-        display: 'flex',
         flexDirection: 'row',
-        gap: 8,
-        backgroundColor: '#ECECEC',
-        borderRadius: 5,
+        gap: spacing.xs,
+        backgroundColor: colors.primary[50],
+        borderRadius: borderRadius.sm,
+        padding: spacing.sm,
+        marginBottom: spacing.lg,
     },
     noteBold: {
+        ...typography.styles.caption,
         fontWeight: '700',
-        fontSize: 10,
-        color: '#000',
+        color: colors.primary[800],
     },
     noteDescription: {
-        fontWeight: '500',
-        fontSize: 10,
-        color: '#00000099'
+        ...typography.styles.caption,
+        color: colors.primary[800],
+        flex: 1,
     },
     footer: {
-        width: '100%',
-        paddingTop: 16,
-        display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    footerBtn: {
-        width: '25%',
-        backgroundColor: '#00B976',
-        borderTopLeftRadius: 0,
-        borderBottomLeftRadius: 0,
-        borderTopRightRadius: 7,
-        borderBottomRightRadius: 7,
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
         alignItems: 'center',
-        marginLeft: -4,
-        height: 40
+        gap: spacing.sm,
     },
     commentInput: {
-        width: '75%',
-        display: 'flex',
-        borderTopRightRadius: 0,
-        borderBottomRightRadius: 0,
-        borderTopLeftRadius: 7,
-        borderBottomLeftRadius: 7,
-        borderEndColor: '#00B976',
-        height: 40,
-        backgroundColor: "#FFFFFF"
+        flex: 1,
+        backgroundColor: colors.neutral.background,
+        fontSize: typography.size.sm,
     },
-    descriptionContainer:{
-        flexDirection: 'row',
-        paddingRight: 50
+    footerBtn: {
+        height: 48,
+        justifyContent: 'center',
+        borderRadius: borderRadius.base,
+        backgroundColor: colors.primary[700],
     },
-    textDescription: {
-        marginLeft: 10,
-        color: '#000000'
-    }
-})
+    disabledBtn: {
+        backgroundColor: colors.neutral.border.default,
+    },
+    footerLabel: {
+        ...typography.styles.label,
+        color: colors.neutral.white,
+    },
+});

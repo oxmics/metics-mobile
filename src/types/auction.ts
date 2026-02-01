@@ -1,4 +1,4 @@
-import { AttachmentType, FocalPointsType } from "./purchaseOrder"
+import { AttachmentType, FocalPointsType } from './purchaseOrder';
 
 export type AuctionType = {
     id: string,

@@ -1,9 +1,10 @@
-import { StyleSheet, View } from "react-native"
-import { Button, Divider, Modal, Text } from "react-native-paper"
-import { AuctionLinesType, AuctionType } from "../types/auction"
-import { formatDateString } from "../utils/helper"
-import { InfoCard } from "./InfoCard"
-import { useMemo } from "react"
+import { ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Button, Divider, Modal, Text, Icon } from 'react-native-paper';
+import { AuctionLinesType, AuctionType } from '../types/auction';
+import { formatDateString } from '../utils/helper';
+import { InfoCard } from './InfoCard';
+import { useMemo } from 'react';
+import { colors, typography, spacing, borderRadius } from '../theme';
 
 interface props {
     show: boolean,
@@ -11,10 +12,10 @@ interface props {
     auction: AuctionType,
     auctionLines: AuctionLinesType[]
 }
-export const RfqDetailedModal = ({closeModal, auction, auctionLines, show}: props) => {
-    
+export const RfqDetailedModal = ({ closeModal, auction, auctionLines, show }: props) => {
+
     const itemsDetails = useMemo(() => {
-        if (auctionLines){
+        if (auctionLines) {
             let items: any[] = [];
             auctionLines.map((item) => {
                 items.push({
@@ -22,127 +23,155 @@ export const RfqDetailedModal = ({closeModal, auction, auctionLines, show}: prop
                     Quantity: item.quantity,
                     Brand: item.brand,
                     Price: item.target_price,
-                })
-            })
-            return items
-        }else{
-            return []
+                });
+            });
+            return items;
+        } else {
+            return [];
         }
     }, [auctionLines]);
-    
-    return(
-        <Modal visible={show} onDismiss={closeModal}>
+
+    return (
+        <Modal visible={show} onDismiss={closeModal} dismissable contentContainerStyle={styles.modalContent}>
             <View style={styles.container}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.title}>{auction.title}</Text>
-                    <Text style={styles.date}>{formatDateString(auction.created_at)}</Text>
+                <View style={styles.header}>
+                    <Text style={styles.headerTitle}>Request Details</Text>
+                    <TouchableOpacity onPress={closeModal} style={styles.closeIcon}>
+                        <Icon source="close" size={20} color={colors.neutral.text.secondary} />
+                    </TouchableOpacity>
                 </View>
-                <View style={styles.card}>
-                    <Text style={styles.requestedLabel}>Requested By</Text>
-                    <Text style={styles.requestedValue}>{auction.organization_name}</Text>
-                    <Divider style={{borderColor: "#00000080", backgroundColor: '#00000080', width: '100%'}}/>
-                    <View style={styles.row}>
-                        <Text style={styles.rowText}>RFQ Title:</Text>
-                        <Text style={styles.rowText}>{auction.title}</Text>
+
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={styles.metaRow}>
+                        <View style={styles.metaCol}>
+                            <Text style={styles.metaLabel}>Date</Text>
+                            <Text style={styles.metaValue}>{formatDateString(auction.created_at)}</Text>
+                        </View>
+                        <View style={styles.metaCol}>
+                            <Text style={styles.metaLabel}>Requested By</Text>
+                            <Text style={styles.metaValue}>{auction.organization_name}</Text>
+                        </View>
                     </View>
-                    <View style={styles.row}>
-                        <Text style={styles.rowText}>Reference Number:</Text>
-                        <Text style={styles.rowText}>{auction.requisition_number}</Text>
+
+                    <Divider style={styles.divider} />
+
+                    <View style={styles.section}>
+                        <DetailRow label="RFQ Title" value={auction.title} />
+                        <DetailRow label="Reference Number" value={auction.requisition_number} />
+                        <DetailRow label="Product Category" value={auction.product_category} />
+                        <DetailRow label="Product Sub Category" value={auction.product_sub_category} />
+                        <DetailRow label="Contract Type" value={auction.is_open ? 'Open' : 'Closed'} />
                     </View>
-                    <View style={styles.row}>
-                        <Text style={styles.rowText}>Product Category:</Text>
-                        <Text style={styles.rowText}>{auction.product_category}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.rowText}>Product Sub Category:</Text>
-                        <Text style={styles.rowText}>{auction.product_sub_category}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.rowText}>Contract Type:</Text>
-                        <Text style={styles.rowText}>{auction.is_open ? "Open" : "Closed"}</Text>
-                    </View>
-                    <InfoCard title="Lines" footerButtonAvailable={false} iterative={true} contentData={itemsDetails}/>
+
+                    <InfoCard title="Line Items" footerButtonAvailable={false} iterative={true} contentData={itemsDetails} />
+                </ScrollView>
+
+                <View style={styles.footer}>
+                    <Button
+                        mode="contained"
+                        onPress={closeModal}
+                        style={styles.closeBtn}
+                        labelStyle={styles.btnLabel}
+                    >
+                        Close
+                    </Button>
                 </View>
-                <Button style={styles.closeBtn} labelStyle={{color: '#FFFFFF', fontSize: 11, fontWeight: '600'}} onPress={closeModal}>Close</Button>
             </View>
         </Modal>
-    )
-}
+    );
+};
+
+const DetailRow = ({ label, value }: { label: string, value: string }) => (
+    <View style={styles.row}>
+        <Text style={styles.rowLabel}>{label}</Text>
+        <Text style={styles.rowValue}>{value || ''}</Text>
+    </View>
+);
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#FFFFFF',
-        paddingVertical: 20, 
-        paddingHorizontal: 16,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        gap: 16,
-        marginHorizontal: 16,
-        borderRadius: 10
+    modalContent: {
+        padding: spacing.lg,
+        maxHeight: '90%',
     },
-    card: {
-        width: '100%',
-        padding: 16,
-        borderRadius: 10,
-        borderWidth: 0.5,
-        borderColor: '#0000004D',
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection:'column',
+    container: {
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.lg,
+        padding: spacing.lg,
+        overflow: 'hidden',
+    },
+    header: {
+        flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        gap: 4,
+        alignItems: 'center',
+        marginBottom: spacing.lg,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+        paddingBottom: spacing.sm,
+    },
+    headerTitle: {
+        ...typography.styles.h3,
+        color: colors.primary[800],
+    },
+    closeIcon: {
+        padding: 4,
+    },
+    metaRow: {
+        flexDirection: 'row',
+        marginBottom: spacing.md,
+    },
+    metaCol: {
+        flex: 1,
+    },
+    metaLabel: {
+        ...typography.styles.caption,
+        color: colors.neutral.text.tertiary,
+        marginBottom: 2,
+    },
+    metaValue: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.primary,
+        fontWeight: '500',
+    },
+    divider: {
+        backgroundColor: colors.neutral.border.default,
+        marginBottom: spacing.md,
+    },
+    section: {
+        marginBottom: spacing.lg,
     },
     row: {
-        width: '100%',
-        display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 5,
-        flexWrap: 'wrap',
-        marginBottom: 12
+        marginBottom: spacing.sm,
     },
-    rowText: {
-        color: '#00000099',
-        fontWeight: '400',
-        fontSize: 12
+    rowLabel: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.secondary,
+        flex: 1,
     },
-    title: {
-        fontSize: 15,
+    rowValue: {
+        ...typography.styles.bodySmall,
+        color: colors.neutral.text.primary,
         fontWeight: '500',
-        color: '#000000CC'
+        flex: 1,
+        textAlign: 'right',
+    },
+    footer: {
+        marginTop: spacing.lg,
+        paddingTop: spacing.md,
+        borderTopWidth: 1,
+        borderTopColor: colors.neutral.border.default,
+        alignItems: 'center',
     },
     closeBtn: {
-        backgroundColor: '#00B976',
-        borderRadius: 5,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    titleContainer: {
+        backgroundColor: colors.neutral.surface.default,
+        borderColor: colors.neutral.border.default,
+        borderWidth: 1,
+        borderRadius: borderRadius.base,
         width: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 16
     },
-    date: {
-        fontSize: 10,
-        fontWeight: '400',
-        color: '#000000B2'
+    btnLabel: {
+        ...typography.styles.label,
+        color: colors.neutral.text.primary,
     },
-    requestedLabel: {
-        color: '#000000B2',
-        fontSize: 11,
-        fontWeight: '300'
-    },
-    requestedValue: {
-        color: '#000000',
-        fontSize: 12,
-        fontWeight: '400'
-    },
-})
+});

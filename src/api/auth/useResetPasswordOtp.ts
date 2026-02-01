@@ -1,7 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { ResetPasswordOtpResponseType } from "../../types/auth";
-import { APIResponseEnum } from "../../types/common";
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { ResetPasswordOtpResponseType } from '../../types/auth';
+import { APIResponseEnum } from '../../types/common';
 
 interface Props {
   email: string;
@@ -18,7 +18,7 @@ const useResetPasswordOtp = () => {
             email: email,
           }
         );
-        
+
         if (response.data) {
           const data: ResetPasswordOtpResponseType = response.data;
           if (data.user_id){
@@ -31,10 +31,10 @@ const useResetPasswordOtp = () => {
         }
       } catch (error) {
         console.error(error);
-        
+
         return {status: APIResponseEnum.FAILED, user_id: ''};
       }
-    }
+    },
   });
 
   return mutation;

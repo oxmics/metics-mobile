@@ -1,9 +1,37 @@
 import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Drawer, Text } from 'react-native-paper';
+import { View, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
+import { Text, Icon } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { CustomNavigationProp, RootStackParamList } from '../types/common';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import { colors, spacing, borderRadius } from '../theme';
+
+interface NavItemProps {
+    icon: string;
+    label: string;
+    onPress: () => void;
+    isDestructive?: boolean;
+}
+
+const NavItem = ({ icon, label, onPress, isDestructive }: NavItemProps) => (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        <View style={[styles.itemRow, isDestructive && styles.destructiveRow]}>
+            <View style={[styles.iconWrapper, isDestructive && styles.destructiveIcon]}>
+                <Icon
+                    source={icon}
+                    size={20}
+                    color={isDestructive ? colors.semantic.error.default : colors.neutral.text.secondary}
+                />
+            </View>
+            <Text style={[styles.itemText, isDestructive && styles.destructiveText]}>
+                {label}
+            </Text>
+            {!isDestructive && (
+                <Icon source="chevron-right" size={18} color={colors.neutral.text.tertiary} />
+            )}
+        </View>
+    </TouchableOpacity>
+);
 
 const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
     const navigation = useNavigation<CustomNavigationProp>();
@@ -22,79 +50,199 @@ const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
     };
 
     return (
-        <View style={styles.drawerContainer}>
+        <SafeAreaView style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
-                <Image style={styles.image} source={require('../../assets/images/Metics-blue.png')}/>
+                <Image
+                    style={styles.logo}
+                    source={require('../../assets/images/Metics-blue.png')}
+                    resizeMode="contain"
+                />
+                <TouchableOpacity
+                    onPress={closeDrawer}
+                    style={styles.closeButton}
+                    activeOpacity={0.7}
+                >
+                    <Icon source="close" size={24} color={colors.neutral.text.secondary} />
+                </TouchableOpacity>
             </View>
-            <Drawer.Section style={styles.drawerSection} showDivider={false}>
-                <TouchableOpacity onPress={() => handleNavigation('SupplierDashboard')}>
-                    <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/home.png')} resizeMode='contain'/>
-                        <Text>Dashboard</Text>
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleNavigation('SupplierRequestHistory')}>
-                    <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/rfq-w.png')} resizeMode='contain'/>
-                        <Text>Requests</Text>
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleNavigation('SupplierPurchaseOrder')}>
-                    <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/orders-w.png')} resizeMode='contain'/>
-                        <Text>Purchase Orders</Text>
-                    </View>
-                </TouchableOpacity>
-            </Drawer.Section>
 
-            <Drawer.Section showDivider={false} style={styles.logoutSection}>
-                <TouchableOpacity onPress={() => handleNavigation('EnterNewPassword')}>
-                    <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/settings.png')} resizeMode='contain'/>
-                        <Text>Settings</Text>
-                    </View>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleLogout('Login')}>
-                    <View style={styles.itemRow}>
-                        <Image source={require('../../assets/images/logout.png')} resizeMode='contain'/>
-                        <Text style={{color: '#FF0000'}}>Logout</Text>
-                    </View>
-                </TouchableOpacity>
-            </Drawer.Section>
-        </View>
+            {/* User Info */}
+            <View style={styles.userSection}>
+                <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>S</Text>
+                </View>
+                <View>
+                    <Text style={styles.userName}>Supplier Portal</Text>
+                    <Text style={styles.userRole}>Vendor Partner</Text>
+                </View>
+            </View>
+
+            {/* Navigation */}
+            <View style={styles.navSection}>
+                <Text style={styles.sectionLabel}>NAVIGATION</Text>
+                <NavItem
+                    icon="view-dashboard-outline"
+                    label="Dashboard"
+                    onPress={() => handleNavigation('SupplierDashboard')}
+                />
+                <NavItem
+                    icon="file-document-outline"
+                    label="Requests"
+                    onPress={() => handleNavigation('SupplierRequestHistory')}
+                />
+                <NavItem
+                    icon="package-variant-closed"
+                    label="Purchase Orders"
+                    onPress={() => handleNavigation('SupplierPurchaseOrder')}
+                />
+            </View>
+
+            {/* Settings */}
+            <View style={styles.settingsSection}>
+                <Text style={styles.sectionLabel}>SETTINGS</Text>
+                <NavItem
+                    icon="cog-outline"
+                    label="Account Settings"
+                    onPress={() => handleNavigation('EnterNewPassword')}
+                />
+            </View>
+
+            {/* Logout */}
+            <View style={styles.logoutSection}>
+                <NavItem
+                    icon="logout"
+                    label="Sign Out"
+                    onPress={() => handleLogout('Login')}
+                    isDestructive
+                />
+            </View>
+
+            {/* Footer */}
+            <View style={styles.footer}>
+                <Text style={styles.footerText}>Metics v1.0.0</Text>
+            </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    drawerContainer: {
-        position: 'relative',
+    container: {
         flex: 1,
-        paddingTop: 45,
-        backgroundColor: '#ffffff',
+        backgroundColor: colors.neutral.surface.default,
     },
     header: {
-        paddingLeft: 28,
-        paddingBottom: 40
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: spacing.xl,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.lg,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+    },
+    logo: {
+        height: 32,
+        width: 100,
+    },
+    closeButton: {
+        width: 40,
+        height: 40,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.neutral.surface.sunken,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    userSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.xl,
+        backgroundColor: colors.neutral.surface.sunken,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.neutral.border.default,
+    },
+    avatar: {
+        width: 48,
+        height: 48,
+        borderRadius: borderRadius.full,
+        backgroundColor: colors.semantic.success.default, // Green for supplier
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.sm,
+    },
+    avatarText: {
+        color: colors.neutral.text.inverse,
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    userName: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: colors.neutral.text.primary,
+        marginBottom: 2,
+    },
+    userRole: {
+        fontSize: 12,
+        color: colors.neutral.text.secondary,
+    },
+    navSection: {
+        paddingTop: spacing.xl,
+    },
+    settingsSection: {
+        paddingTop: spacing.lg,
+    },
+    sectionLabel: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: colors.neutral.text.tertiary,
+        paddingHorizontal: spacing.xl,
+        marginBottom: spacing.md,
+        letterSpacing: 0.5,
     },
     itemRow: {
-        display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'flex-start',
         alignItems: 'center',
-        gap: 24,
-        paddingHorizontal: 28,
-        paddingVertical: 14
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.md,
     },
-    drawerSection: {
+    destructiveRow: {
+        borderRadius: borderRadius.base,
+    },
+    iconWrapper: {
+        width: 32,
+        height: 32,
+        borderRadius: borderRadius.base,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: spacing.md,
+    },
+    destructiveIcon: {
+        backgroundColor: 'transparent',
+    },
+    itemText: {
         flex: 1,
+        fontSize: 14,
+        color: colors.neutral.text.primary,
+        fontWeight: '500',
+    },
+    destructiveText: {
+        color: colors.semantic.error.default,
+        fontWeight: '600',
     },
     logoutSection: {
-        marginBottom: 20,
+        marginTop: 'auto',
+        paddingVertical: spacing.xl,
     },
-    image: {
-        height: 42,
-        width: 134
-    }
+    footer: {
+        paddingHorizontal: spacing.xl,
+        paddingBottom: spacing.xl,
+    },
+    footerText: {
+        fontSize: 11,
+        color: colors.neutral.text.tertiary,
+        textAlign: 'center',
+    },
 });
 
 export default CustomDrawer;
