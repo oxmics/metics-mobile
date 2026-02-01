@@ -137,8 +137,8 @@ const BuyerRfqHistoryScreen = () => {
 
                 <View style={styles.contentContainer}>
                     <View style={styles.container}>
-                    {/* Header */}
-                    <View style={styles.header}>
+                        {/* Header */}
+                        <View style={styles.header}>
                         <TouchableOpacity
                             onPress={() => navigation.replace('BuyerDashboard')}
                             style={styles.backButton}

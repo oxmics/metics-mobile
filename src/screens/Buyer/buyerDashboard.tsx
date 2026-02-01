@@ -81,8 +81,8 @@ const BuyerDashboardScreen = () => {
                         />
                     }
                 >
-                {/* Header */}
-                <View style={styles.header}>
+                    {/* Header */}
+                    <View style={styles.header}>
                     <View style={styles.headerLeft}>
                         <TouchableOpacity
                             onPress={toggleDrawer}

@@ -88,8 +88,8 @@ const SupplierRequestHistory = () => {
 
                 <View style={styles.contentContainer}>
                     <View style={styles.container}>
-                    {/* Header */}
-                    <View style={styles.header}>
+                        {/* Header */}
+                        <View style={styles.header}>
                         <TouchableOpacity
                             onPress={() => navigation.replace('SupplierDashboard')}
                             style={styles.backButton}
