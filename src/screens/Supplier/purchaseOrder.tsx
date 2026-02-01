@@ -59,7 +59,8 @@ const SupplierPurchaseOrderScreen = () => {
         <View style={styles.wrapper}>
             <StatusBar barStyle="dark-content" backgroundColor={colors.neutral.surface.default} />
 
-            <View style={styles.container}>
+            <View style={styles.contentContainer}>
+                <View style={styles.container}>
                 {/* Header */}
                 <View style={styles.header}>
                     <TouchableOpacity
@@ -127,8 +128,9 @@ const SupplierPurchaseOrderScreen = () => {
                         showsVerticalScrollIndicator={false}
                     />
                 </View>
+                </View>
+                <BottomNavbar isSupplier />
             </View>
-            <BottomNavbar isSupplier />
         </View>
     );
 };
@@ -139,6 +141,10 @@ const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: colors.neutral.surface.sunken,
+    },
+    contentContainer: {
+        flex: 1,
+        flexDirection: 'column',
     },
     container: {
         flex: 1,
@@ -209,7 +215,7 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: spacing.xl,
         paddingTop: spacing.lg,
-        paddingBottom: 100,
+        paddingBottom: spacing.xl,
     },
     emptyState: {
         flex: 1,
