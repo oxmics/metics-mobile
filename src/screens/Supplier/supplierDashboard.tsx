@@ -67,19 +67,20 @@ const SupplierDashboardScreen = () => {
                 </View>
             </Modal>
 
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        tintColor={colors.primary[500]}
-                        colors={[colors.primary[500]]}
-                    />
-                }
-            >
+            <View style={styles.contentContainer}>
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={colors.primary[500]}
+                            colors={[colors.primary[500]]}
+                        />
+                    }
+                >
                 {/* Header */}
                 <View style={styles.header}>
                     <View style={styles.headerLeft}>
@@ -187,13 +188,14 @@ const SupplierDashboardScreen = () => {
                         </View>
                     </>
                 )}
-            </ScrollView>
+                </ScrollView>
 
-            <Portal>
-                {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} />}
-            </Portal>
+                <Portal>
+                    {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} />}
+                </Portal>
 
-            <BottomNavbar isSupplier />
+                <BottomNavbar isSupplier />
+            </View>
         </View>
     );
 };
@@ -205,11 +207,15 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.neutral.surface.sunken,
     },
+    contentContainer: {
+        flex: 1,
+        flexDirection: 'column',
+    },
     scrollView: {
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: 100,
+        paddingBottom: spacing.xl,
     },
     header: {
         flexDirection: 'row',

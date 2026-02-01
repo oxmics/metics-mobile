@@ -185,12 +185,13 @@ const SupplierPurchaseorderDetailsScreen = () => {
                 </View>
             </View>
 
-            <View style={styles.container}>
-                {purchaseOrder && (
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollContent}
-                    >
+            <View style={styles.contentContainer}>
+                <View style={styles.scrollContainer}>
+                    {purchaseOrder && (
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={styles.scrollContent}
+                        >
                         {/* Status Card */}
                         <View style={styles.statusCard}>
                             <View style={styles.statusHeader}>
@@ -248,8 +249,9 @@ const SupplierPurchaseorderDetailsScreen = () => {
                 <Portal>
                     <BidModal closeModal={handleHideModal} show={showModal} contentData={bidAdditionalDetails} />
                 </Portal>
+                </View>
+                <BottomNavbar isSupplier={true} />
             </View>
-            <BottomNavbar isSupplier={true} />
         </View>
     );
 };
@@ -261,8 +263,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.neutral.surface.sunken,
     },
-    container: {
+    contentContainer: {
         flex: 1,
+        flexDirection: 'column',
+    },
+    scrollContainer: {
+        flex: 1,
+        paddingHorizontal: spacing.xl,
+    },
         paddingHorizontal: spacing.xl,
     },
     header: {
@@ -293,7 +301,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingTop: spacing.lg,
-        paddingBottom: 100,
+        paddingBottom: spacing.xl,
     },
     sectionSpacer: {
         height: spacing.xl,

@@ -171,12 +171,13 @@ const SupplierRequestDetailsScreen = () => {
                 </View>
             </View>
 
-            <View style={styles.container}>
-                {auction && (
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollContent}
-                    >
+            <View style={styles.contentContainer}>
+                <View style={styles.scrollContainer}>
+                    {auction && (
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={styles.scrollContent}
+                        >
                         {/* Status Actions */}
                         <View style={styles.actionCard}>
                             <View style={styles.actionHeader}>
@@ -296,7 +297,11 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.neutral.surface.sunken,
     },
-    container: {
+    contentContainer: {
+        flex: 1,
+        flexDirection: 'column',
+    },
+    scrollContainer: {
         flex: 1,
         paddingHorizontal: spacing.xl,
     },
@@ -328,7 +333,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingTop: spacing.lg,
-        paddingBottom: 100,
+        paddingBottom: spacing.xl,
     },
     sectionSpacer: {
         height: spacing.xl,
