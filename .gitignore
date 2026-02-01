@@ -1,3 +1,7 @@
+# Sensitive files - DO NOT COMMIT
+my-release-key.jks
+android/app/google-services.json
+
 # OSX
 #
 .DS_Store
