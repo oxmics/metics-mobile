@@ -118,51 +118,53 @@ const BuyerRfqDetailsScreen = () => {
                 </View>
             </View>
 
-            <View style={styles.container}>
-                {auction && (
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollContent}
-                    >
-                        <RequestInfoCard
-                            title={auction.title}
-                            contentData={requestedByDetails}
-                            organization_name={auction.organization_name}
-                            date={auction.created_at}
-                            buttonAvailable={true}
-                            buttonFn={handleShowModal}
-                        />
+            <View style={styles.contentContainer}>
+                <View style={styles.scrollContainer}>
+                    {auction && (
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={styles.scrollContent}
+                        >
+                            <RequestInfoCard
+                                title={auction.title}
+                                contentData={requestedByDetails}
+                                organization_name={auction.organization_name}
+                                date={auction.created_at}
+                                buttonAvailable={true}
+                                buttonFn={handleShowModal}
+                            />
 
-                        <View style={styles.sectionSpacer} />
+                            <View style={styles.sectionSpacer} />
 
-                        <CommentCard
-                            comments={comments}
-                            buttonFn={handleComment}
-                            loading={sendingComments}
-                        />
+                            <CommentCard
+                                comments={comments}
+                                buttonFn={handleComment}
+                                loading={sendingComments}
+                            />
 
-                        <View style={styles.sectionSpacer} />
+                            <View style={styles.sectionSpacer} />
 
-                        {bidsLoading ? (
-                            <ActivityIndicator size="small" color={colors.primary[500]} />
-                        ) : bids ? (
-                            <BidsCard buttonFn={() => { }} contentData={bids} />
-                        ) : null}
-                    </ScrollView>
-                )}
-
-                <Portal>
-                    {auctionLines && auction && (
-                        <RfqDetailedModal
-                            auctionLines={auctionLines}
-                            auction={auction}
-                            closeModal={handleHideModal}
-                            show={showModal}
-                        />
+                            {bidsLoading ? (
+                                <ActivityIndicator size="small" color={colors.primary[500]} />
+                            ) : bids ? (
+                                <BidsCard buttonFn={() => { }} contentData={bids} />
+                            ) : null}
+                        </ScrollView>
                     )}
-                </Portal>
+
+                    <Portal>
+                        {auctionLines && auction && (
+                            <RfqDetailedModal
+                                auctionLines={auctionLines}
+                                auction={auction}
+                                closeModal={handleHideModal}
+                                show={showModal}
+                            />
+                        )}
+                    </Portal>
+                </View>
+                <BottomNavbar />
             </View>
-            <BottomNavbar />
         </View>
     );
 };
@@ -174,7 +176,11 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.neutral.surface.sunken, // Light gray for content background
     },
-    container: {
+    contentContainer: {
+        flex: 1,
+        flexDirection: 'column',
+    },
+    scrollContainer: {
         flex: 1,
         paddingHorizontal: spacing.xl,
     },
@@ -206,7 +212,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingTop: spacing.lg,
-        paddingBottom: 100,
+        paddingBottom: spacing.xl,
     },
     sectionSpacer: {
         height: spacing.xl,
