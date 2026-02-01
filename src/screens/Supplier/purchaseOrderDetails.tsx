@@ -271,8 +271,6 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: spacing.xl,
     },
-        paddingHorizontal: spacing.xl,
-    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
