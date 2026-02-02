@@ -1,14 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
 import { CustomNavigationProp } from '../../types/common';
-import { Icon, Searchbar, Text, ActivityIndicator } from 'react-native-paper';
+import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons } from 'react-native-paper';
 import { useEffect, useState, useCallback } from 'react';
 import useAuctionHeaders from '../../api/auctions/useAuctionHeaders';
 import { AuctionType } from '../../types/auction';
 import useDebounce from '../../hooks/useDebounce';
 import { DataCard } from '../../components/DataCard';
 import { formatDate } from '../../utils/helper';
-import { Tabs, TabScreen, TabsProvider } from 'react-native-paper-tabs';
+
 import { BottomNavbar } from '../../components/BottomNavbar';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
@@ -23,6 +23,7 @@ const EmptyState = () => (
 
 const SupplierRequestHistory = () => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const [activeTab, setActiveTab] = useState('all');
 
     const { data: auctions, isPending: loading, refetch } = useAuctionHeaders();
 
@@ -44,7 +45,7 @@ const SupplierRequestHistory = () => {
     }, [handleDisplayAuctions]);
 
     const handleSearch = useCallback(() => {
-        if (!auctions) {return;}
+        if (!auctions) { return; }
 
         const query = debouncedSearchQuery.trim().toLowerCase();
         if (query.length > 0) {
@@ -86,90 +87,97 @@ const SupplierRequestHistory = () => {
             <View style={styles.wrapper}>
                 <StatusBar barStyle="dark-content" backgroundColor={colors.neutral.surface.default} />
 
-                <View style={styles.container}>
-                    {/* Header */}
-                    <View style={styles.header}>
-                        <TouchableOpacity
-                            onPress={() => navigation.replace('SupplierDashboard')}
-                            style={styles.backButton}
-                            activeOpacity={0.7}
-                        >
-                            <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
-                        </TouchableOpacity>
-                        <View>
-                            <Text style={styles.headerLabel}>Manage</Text>
-                            <Text style={styles.title}>Request History</Text>
+                <View style={styles.contentContainer}>
+                    <View style={styles.container}>
+                        {/* Header */}
+                        <View style={styles.header}>
+                            <TouchableOpacity
+                                onPress={() => navigation.replace('SupplierDashboard')}
+                                style={styles.backButton}
+                                activeOpacity={0.7}
+                            >
+                                <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
+                            </TouchableOpacity>
+                            <View>
+                                <Text style={styles.headerLabel}>Manage</Text>
+                                <Text style={styles.title}>Request History</Text>
+                            </View>
                         </View>
-                    </View>
 
-                    {/* Search Bar */}
-                    <View style={styles.filterBar}>
-                        <Searchbar
-                            mode="bar"
-                            placeholder="Search requests..."
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                            style={styles.searchbar}
-                            iconColor={colors.neutral.text.secondary}
-                            inputStyle={styles.searchInput}
-                            placeholderTextColor={colors.neutral.text.tertiary}
-                            cursorColor={colors.primary[500]}
-                            onClearIconPress={() => setSearchQuery('')}
-                            elevation={0}
-                        />
-                    </View>
+                        {/* Search Bar */}
+                        <View style={styles.filterBar}>
+                            <Searchbar
+                                mode="bar"
+                                placeholder="Search requests..."
+                                value={searchQuery}
+                                onChangeText={setSearchQuery}
+                                style={styles.searchbar}
+                                iconColor={colors.neutral.text.secondary}
+                                inputStyle={styles.searchInput}
+                                placeholderTextColor={colors.neutral.text.tertiary}
+                                cursorColor={colors.primary[500]}
+                                onClearIconPress={() => setSearchQuery('')}
+                                elevation={0}
+                            />
+                        </View>
 
-                    <TabsProvider defaultIndex={0}>
-                        <Tabs
-                            mode="fixed"
-                            tabLabelStyle={styles.tabLabel}
-                            style={styles.tabs}
-                            disableSwipe
-                        >
-                            <TabScreen label="All">
-                                <View style={styles.tabContent}>
-                                    <FlatList
-                                        data={[...displayOpenAuctions, ...displayClosedAuctions]}
-                                        renderItem={renderItem}
-                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
-                                        refreshing={loading}
-                                        onRefresh={() => refetch()}
-                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                        contentContainerStyle={styles.listContent}
-                                        showsVerticalScrollIndicator={false}
-                                    />
-                                </View>
-                            </TabScreen>
-                            <TabScreen label="Open">
-                                <View style={styles.tabContent}>
-                                    <FlatList
-                                        data={displayOpenAuctions}
-                                        renderItem={renderItem}
-                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
-                                        refreshing={loading}
-                                        onRefresh={() => refetch()}
-                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                        contentContainerStyle={styles.listContent}
-                                        showsVerticalScrollIndicator={false}
-                                    />
-                                </View>
-                            </TabScreen>
-                            <TabScreen label="Closed">
-                                <View style={styles.tabContent}>
-                                    <FlatList
-                                        data={displayClosedAuctions}
-                                        renderItem={renderItem}
-                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
-                                        refreshing={loading}
-                                        onRefresh={() => refetch()}
-                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                        contentContainerStyle={styles.listContent}
-                                        showsVerticalScrollIndicator={false}
-                                    />
-                                </View>
-                            </TabScreen>
-                        </Tabs>
-                    </TabsProvider>
+                        <View style={{ margin: spacing.md }}>
+                            <SegmentedButtons
+                                value={activeTab}
+                                onValueChange={setActiveTab}
+                                buttons={[
+                                    { value: 'all', label: 'All' },
+                                    { value: 'open', label: 'Open' },
+                                    { value: 'closed', label: 'Closed' },
+                                ]}
+                            />
+                        </View>
+
+                        {activeTab === 'all' && (
+                            <View style={styles.tabContent}>
+                                <FlatList
+                                    data={[...displayOpenAuctions, ...displayClosedAuctions]}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                    refreshing={loading}
+                                    onRefresh={refetch}
+                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            </View>
+                        )}
+
+                        {activeTab === 'open' && (
+                            <View style={styles.tabContent}>
+                                <FlatList
+                                    data={displayOpenAuctions}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                    refreshing={loading}
+                                    onRefresh={refetch}
+                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            </View>
+                        )}
+
+                        {activeTab === 'closed' && (
+                            <View style={styles.tabContent}>
+                                <FlatList
+                                    data={displayClosedAuctions}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                    refreshing={loading}
+                                    onRefresh={refetch}
+                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            </View>
+                        )}
+                    </View>
                 </View>
                 <BottomNavbar isSupplier />
             </View>
@@ -183,6 +191,10 @@ const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: colors.neutral.surface.sunken,
+    },
+    contentContainer: {
+        flex: 1,
+        flexDirection: 'column',
     },
     container: {
         flex: 1,
@@ -251,7 +263,7 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: spacing.xl,
         paddingTop: spacing.lg,
-        paddingBottom: 120,
+        paddingBottom: spacing.xl,
     },
     emptyState: {
         flex: 1,

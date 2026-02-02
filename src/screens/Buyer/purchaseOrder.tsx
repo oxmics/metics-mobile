@@ -66,9 +66,10 @@ const BuyerPurchaseOrderScreen = () => {
         <View style={styles.wrapper}>
             <StatusBar barStyle="dark-content" backgroundColor={colors.neutral.surface.default} />
 
-            <View style={styles.container}>
-                {/* Header */}
-                <View style={styles.header}>
+            <View style={styles.contentContainer}>
+                <View style={styles.container}>
+                    {/* Header */}
+                    <View style={styles.header}>
                     <TouchableOpacity
                         onPress={() => navigation.replace('BuyerDashboard')}
                         style={styles.backButton}
@@ -148,8 +149,9 @@ const BuyerPurchaseOrderScreen = () => {
                         showsVerticalScrollIndicator={false}
                     />
                 </View>
+                </View>
+                <BottomNavbar />
             </View>
-            <BottomNavbar />
         </View>
     );
 };
@@ -160,6 +162,10 @@ const styles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: colors.neutral.surface.sunken,
+    },
+    contentContainer: {
+        flex: 1,
+        flexDirection: 'column',
     },
     container: {
         flex: 1,
@@ -268,7 +274,7 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: spacing.xl,
         paddingTop: spacing.lg,
-        paddingBottom: 100,
+        paddingBottom: spacing.xl,
     },
     emptyState: {
         flex: 1,

@@ -17,9 +17,6 @@ import { Skeleton } from '../../components/Skeleton';
 const SupplierDashboardScreen = () => {
     console.log('SupplierDashboardScreen: Rendering');
     const navigation = useNavigation<CustomNavigationProp>();
-    navigation.setOptions({
-        headerShown: false,
-    });
 
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
@@ -67,133 +64,135 @@ const SupplierDashboardScreen = () => {
                 </View>
             </Modal>
 
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        tintColor={colors.primary[500]}
-                        colors={[colors.primary[500]]}
-                    />
-                }
-            >
-                {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.headerLeft}>
+            <View style={styles.contentContainer}>
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={colors.primary[500]}
+                            colors={[colors.primary[500]]}
+                        />
+                    }
+                >
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <View style={styles.headerLeft}>
+                            <TouchableOpacity
+                                onPress={toggleDrawer}
+                                style={styles.menuButton}
+                                activeOpacity={0.7}
+                            >
+                                <Icon source="menu" size={24} color={colors.neutral.text.primary} />
+                            </TouchableOpacity>
+                            <View>
+                                <Text style={styles.welcomeLabel}>Supplier Portal</Text>
+                                <Text style={styles.title}>Dashboard</Text>
+                            </View>
+                        </View>
                         <TouchableOpacity
-                            onPress={toggleDrawer}
-                            style={styles.menuButton}
+                            onPress={handleSwitchToBuyer}
+                            style={styles.switchButton}
                             activeOpacity={0.7}
                         >
-                            <Icon source="menu" size={24} color={colors.neutral.text.primary} />
+                            <Text style={styles.switchButtonText}>Switch to Buyer</Text>
+                            <Icon source="chevron-right" size={16} color={colors.semantic.success.dark} />
                         </TouchableOpacity>
-                        <View>
-                            <Text style={styles.welcomeLabel}>Supplier Portal</Text>
-                            <Text style={styles.title}>Dashboard</Text>
+                    </View>
+
+                    {hasError && !isLoading && (
+                        <View style={styles.errorContainer}>
+                            <Icon source="alert-circle-outline" size={48} color={colors.semantic.error.default} />
+                            <Text style={styles.errorText}>Failed to load dashboard data</Text>
+                            <Button mode="outlined" onPress={onRefresh} style={styles.retryButton}>
+                                Retry
+                            </Button>
                         </View>
-                    </View>
-                    <TouchableOpacity
-                        onPress={handleSwitchToBuyer}
-                        style={styles.switchButton}
-                        activeOpacity={0.7}
-                    >
-                        <Text style={styles.switchButtonText}>Switch to Buyer</Text>
-                        <Icon source="chevron-right" size={16} color={colors.semantic.success.dark} />
-                    </TouchableOpacity>
-                </View>
+                    )}
 
-                {hasError && !isLoading && (
-                    <View style={styles.errorContainer}>
-                        <Icon source="alert-circle-outline" size={48} color={colors.semantic.error.default} />
-                        <Text style={styles.errorText}>Failed to load dashboard data</Text>
-                        <Button mode="outlined" onPress={onRefresh} style={styles.retryButton}>
-                            Retry
-                        </Button>
-                    </View>
-                )}
+                    {!hasError && (
+                        <>
+                            {/* Overview Section */}
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>Overview</Text>
+                                {isLoading ? (
+                                    <View style={styles.skeletonRow}>
+                                        <Skeleton width={140} height={100} style={{ marginRight: spacing.md }} />
+                                        <Skeleton width={140} height={100} style={{ marginRight: spacing.md }} />
+                                        <Skeleton width={140} height={100} />
+                                    </View>
+                                ) : (
+                                    dashboardContent && (
+                                        <ScrollView
+                                            horizontal
+                                            showsHorizontalScrollIndicator={false}
+                                            contentContainerStyle={styles.horizontalScroll}
+                                        >
+                                            <OverviewCard
+                                                title="Requests"
+                                                value={dashboardContent?.total_auctions_count}
+                                                accentColor={colors.primary[500]}
+                                            />
+                                            <OverviewCard
+                                                title="Clients"
+                                                value={dashboardContent?.clients_count}
+                                                accentColor={colors.semantic.info.default}
+                                            />
+                                            <OverviewCard
+                                                title="Orders"
+                                                value={dashboardContent?.supplier_purchase_orders_count}
+                                                accentColor={colors.semantic.success.default}
+                                            />
+                                        </ScrollView>
+                                    )
+                                )}
+                            </View>
 
-                {!hasError && (
-                    <>
-                        {/* Overview Section */}
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Overview</Text>
-                            {isLoading ? (
-                                <View style={styles.skeletonRow}>
-                                    <Skeleton width={140} height={100} style={{ marginRight: spacing.md }} />
-                                    <Skeleton width={140} height={100} style={{ marginRight: spacing.md }} />
-                                    <Skeleton width={140} height={100} />
-                                </View>
-                            ) : (
-                                dashboardContent && (
+                            {/* Quick Actions Section */}
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>Quick Actions</Text>
+                                {isLoading ? (
+                                    <View style={styles.skeletonRow}>
+                                        <Skeleton width={150} height={64} style={{ marginRight: spacing.md }} />
+                                        <Skeleton width={150} height={64} />
+                                    </View>
+                                ) : (
                                     <ScrollView
                                         horizontal
                                         showsHorizontalScrollIndicator={false}
                                         contentContainerStyle={styles.horizontalScroll}
                                     >
-                                        <OverviewCard
-                                            title="Requests"
-                                            value={dashboardContent?.total_auctions_count}
-                                            accentColor={colors.primary[500]}
-                                        />
-                                        <OverviewCard
-                                            title="Clients"
-                                            value={dashboardContent?.clients_count}
-                                            accentColor={colors.semantic.info.default}
-                                        />
-                                        <OverviewCard
-                                            title="Orders"
-                                            value={dashboardContent?.supplier_purchase_orders_count}
-                                            accentColor={colors.semantic.success.default}
-                                        />
+                                        <RFQQuickActionCard />
+                                        <OrdersQuickActionCard />
                                     </ScrollView>
-                                )
-                            )}
-                        </View>
+                                )}
+                            </View>
 
-                        {/* Quick Actions Section */}
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Quick Actions</Text>
-                            {isLoading ? (
-                                <View style={styles.skeletonRow}>
-                                    <Skeleton width={150} height={64} style={{ marginRight: spacing.md }} />
-                                    <Skeleton width={150} height={64} />
-                                </View>
-                            ) : (
-                                <ScrollView
-                                    horizontal
-                                    showsHorizontalScrollIndicator={false}
-                                    contentContainerStyle={styles.horizontalScroll}
-                                >
-                                    <RFQQuickActionCard />
-                                    <OrdersQuickActionCard />
-                                </ScrollView>
-                            )}
-                        </View>
+                            {/* Recent Updates Section */}
+                            <View style={styles.lastSection}>
+                                {isLoading ? (
+                                    <View>
+                                        <Skeleton width={120} height={20} style={{ marginBottom: spacing.md }} />
+                                        <Skeleton width="100%" height={80} style={{ marginBottom: spacing.sm }} />
+                                        <Skeleton width="100%" height={80} />
+                                    </View>
+                                ) : (
+                                    logs && <RecentUpdatesCard viewAll={handleShowModal} logs={logs} />
+                                )}
+                            </View>
+                        </>
+                    )}
+                </ScrollView>
 
-                        {/* Recent Updates Section */}
-                        <View style={styles.lastSection}>
-                            {isLoading ? (
-                                <View>
-                                    <Skeleton width={120} height={20} style={{ marginBottom: spacing.md }} />
-                                    <Skeleton width="100%" height={80} style={{ marginBottom: spacing.sm }} />
-                                    <Skeleton width="100%" height={80} />
-                                </View>
-                            ) : (
-                                logs && <RecentUpdatesCard viewAll={handleShowModal} logs={logs} />
-                            )}
-                        </View>
-                    </>
-                )}
-            </ScrollView>
+                <Portal>
+                    {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} />}
+                </Portal>
 
-            <Portal>
-                {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} />}
-            </Portal>
-
-            <BottomNavbar isSupplier />
+                <BottomNavbar isSupplier />
+            </View>
         </View>
     );
 };
@@ -205,11 +204,15 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.neutral.surface.sunken,
     },
+    contentContainer: {
+        flex: 1,
+        flexDirection: 'column',
+    },
     scrollView: {
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: 100,
+        paddingBottom: spacing.xl,
     },
     header: {
         flexDirection: 'row',

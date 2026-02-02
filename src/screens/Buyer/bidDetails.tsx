@@ -50,7 +50,8 @@ const BuyerBidsDetailsScreen = () => {
         <View style={styles.wrapper}>
             <StatusBar barStyle="dark-content" backgroundColor={colors.neutral.background} />
 
-            <View style={styles.container}>
+            <View style={styles.contentContainer}>
+                <View style={styles.scrollContainer}>
                 {/* Header */}
                 <View style={styles.header}>
                     <TouchableOpacity
@@ -101,8 +102,9 @@ const BuyerBidsDetailsScreen = () => {
                         />
                     </ScrollView>
                 )}
+                </View>
+                <BottomNavbar />
             </View>
-            <BottomNavbar />
         </View>
     );
 };
@@ -114,7 +116,11 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.neutral.background,
     },
-    container: {
+    contentContainer: {
+        flex: 1,
+        flexDirection: 'column',
+    },
+    scrollContainer: {
         flex: 1,
         backgroundColor: colors.neutral.background,
         paddingHorizontal: spacing.xl,
@@ -143,7 +149,7 @@ const styles = StyleSheet.create({
         ...typography.styles.h2,
     },
     scrollContent: {
-        paddingBottom: 100,
+        paddingBottom: spacing.xl,
     },
     sectionSpacer: {
         height: spacing.xl,
