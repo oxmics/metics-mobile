@@ -14,7 +14,9 @@ import { colors, spacing, shadows, borderRadius } from '../theme';
 const LoginScreen = () => {
     console.log('LoginScreen: Rendering');
     const navigation = useNavigation<CustomNavigationProp>();
-    navigation.setOptions({ headerShown: false });
+    React.useLayoutEffect(() => {
+        navigation.setOptions({ headerShown: false });
+    }, [navigation]);
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
