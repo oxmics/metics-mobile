@@ -178,112 +178,113 @@ const SupplierRequestDetailsScreen = () => {
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={styles.scrollContent}
                         >
-                        {/* Status Actions */}
-                        <View style={styles.actionCard}>
-                            <View style={styles.actionHeader}>
-                                <Text style={styles.actionTitle}>Actions</Text>
-                                <View style={styles.statusBadge}>
-                                    <Text style={styles.statusText}>{auction.is_open ? 'OPEN' : 'CLOSED'}</Text>
+                            {/* Status Actions */}
+                            <View style={styles.actionCard}>
+                                <View style={styles.actionHeader}>
+                                    <Text style={styles.actionTitle}>Actions</Text>
+                                    <View style={styles.statusBadge}>
+                                        <Text style={styles.statusText}>{auction.is_open ? 'OPEN' : 'CLOSED'}</Text>
+                                    </View>
+                                </View>
+                                <View style={styles.actionButtons}>
+                                    <Button
+                                        mode="contained"
+                                        style={styles.bidButton}
+                                        labelStyle={styles.buttonLabel}
+                                        disabled={sendingBidUpdate || !auction.is_open}
+                                        loading={statusLoading === 1}
+                                        onPress={() => handleStatusUpdate('Bid')}
+                                        icon="check-circle-outline"
+                                    >
+                                        Submit
+                                    </Button>
+                                    <Button
+                                        mode="outlined"
+                                        style={styles.ignoreButton}
+                                        labelStyle={styles.ignoreLabel}
+                                        disabled={sendingBidUpdate || !auction.is_open}
+                                        loading={statusLoading === 2}
+                                        onPress={() => handleStatusUpdate('Ignore')}
+                                        icon="close-circle-outline"
+                                    >
+                                        Ignore
+                                    </Button>
                                 </View>
                             </View>
-                            <View style={styles.actionButtons}>
-                                <Button
-                                    mode="contained"
-                                    style={styles.bidButton}
-                                    labelStyle={styles.buttonLabel}
-                                    disabled={sendingBidUpdate || !auction.is_open}
-                                    loading={statusLoading === 1}
-                                    onPress={() => handleStatusUpdate('Bid')}
-                                    icon="check-circle-outline"
-                                >
-                                    Submit
-                                </Button>
-                                <Button
-                                    mode="outlined"
-                                    style={styles.ignoreButton}
-                                    labelStyle={styles.ignoreLabel}
-                                    disabled={sendingBidUpdate || !auction.is_open}
-                                    loading={statusLoading === 2}
-                                    onPress={() => handleStatusUpdate('Ignore')}
-                                    icon="close-circle-outline"
-                                >
-                                    Ignore
-                                </Button>
-                            </View>
-                        </View>
 
-                        <View style={styles.sectionSpacer} />
+                            <View style={styles.sectionSpacer} />
 
-                        <RequestInfoCard
-                            title={auction.title}
-                            contentData={requestedByDetails}
-                            organization_name={auction.organization_name}
-                            date={auction.created_at}
-                        />
-
-                        <View style={styles.sectionSpacer} />
-
-                        {quoteDetails && quoteDetails?.length > 0 && (
-                            <QuoteContainer
-                                contentData={quoteDetails[0]}
-                                buttonFn={handleShowModal}
-                                footerButtonAvailable={auction.is_open}
+                            <RequestInfoCard
+                                title={auction.title}
+                                contentData={requestedByDetails}
+                                organization_name={auction.organization_name}
+                                date={auction.created_at}
                             />
-                        )}
 
-                        <View style={styles.sectionSpacer} />
+                            <View style={styles.sectionSpacer} />
 
-                        {attachmentsDetails.length > 0 && (
-                            <AttachmentsCard title="Attachments" contentData={attachmentsDetails} />
-                        )}
+                            {quoteDetails && quoteDetails?.length > 0 && (
+                                <QuoteContainer
+                                    contentData={quoteDetails[0]}
+                                    buttonFn={handleShowModal}
+                                    footerButtonAvailable={auction.is_open}
+                                />
+                            )}
 
-                        <View style={styles.sectionSpacer} />
+                            <View style={styles.sectionSpacer} />
 
-                        <TemplatesCard
-                            title="Payment Templates"
-                            contentData={templates}
-                            selectedTemplate={selectedTemplate}
-                            setSelectedTemplate={handleTemplateSelection}
-                        />
+                            {attachmentsDetails.length > 0 && (
+                                <AttachmentsCard title="Attachments" contentData={attachmentsDetails} />
+                            )}
 
-                        {selectedTemplate && showEditTemplate && (
-                            <TemplateEditCard
-                                title={selectedTemplate.name}
-                                contentData={selectedTemplate}
-                                closeFn={() => setShowEditTemplate(false)}
-                                saveFn={handleUpdateTemplateDescription}
-                                saving={updatingDescription}
+                            <View style={styles.sectionSpacer} />
+
+                            <TemplatesCard
+                                title="Payment Templates"
+                                contentData={templates}
+                                selectedTemplate={selectedTemplate}
+                                setSelectedTemplate={handleTemplateSelection}
                             />
-                        )}
 
-                        <View style={styles.sectionSpacer} />
+                            {selectedTemplate && showEditTemplate && (
+                                <TemplateEditCard
+                                    title={selectedTemplate.name}
+                                    contentData={selectedTemplate}
+                                    closeFn={() => setShowEditTemplate(false)}
+                                    saveFn={handleUpdateTemplateDescription}
+                                    saving={updatingDescription}
+                                />
+                            )}
 
-                        <NoteCard
-                            title="Note to Supplier"
-                            content={noteToSupplier}
-                            setContent={setNoteToSupplier}
+                            <View style={styles.sectionSpacer} />
+
+                            <NoteCard
+                                title="Note to Supplier"
+                                content={noteToSupplier}
+                                setContent={setNoteToSupplier}
+                            />
+
+                            <View style={styles.sectionSpacer} />
+
+                            <CommentCard
+                                comments={comments}
+                                buttonFn={handleComment}
+                                loading={sendingComments || commentsLoading}
+                            />
+                        </ScrollView>
+                    )}
+
+                    <Portal>
+                        <QuoteModal
+                            closeModal={handleHideModal}
+                            show={showModal}
+                            date={promisedDate!}
+                            price={promisedPrice}
+                            setDate={setPromisedDate}
+                            setPrice={setPromisedPrice}
                         />
-
-                        <View style={styles.sectionSpacer} />
-
-                        <CommentCard
-                            comments={comments}
-                            buttonFn={handleComment}
-                            loading={sendingComments || commentsLoading}
-                        />
-                    </ScrollView>
-                )}
-
-                <Portal>
-                    <QuoteModal
-                        closeModal={handleHideModal}
-                        show={showModal}
-                        date={promisedDate!}
-                        price={promisedPrice}
-                        setDate={setPromisedDate}
-                        setPrice={setPromisedPrice}
-                    />
-                </Portal>
+                    </Portal>
+                </View>
             </View>
             <BottomNavbar isSupplier />
         </View>

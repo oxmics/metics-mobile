@@ -1,13 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
 import { CustomNavigationProp } from '../../types/common';
-import { Icon, Searchbar, Text, ActivityIndicator } from 'react-native-paper';
+import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons } from 'react-native-paper';
 import { useEffect, useState, useCallback } from 'react';
 import { AuctionType } from '../../types/auction';
 import useDebounce from '../../hooks/useDebounce';
 import { DataCard } from '../../components/DataCard';
 import { formatDate } from '../../utils/helper';
-import { Tabs, TabScreen, TabsProvider } from 'react-native-paper-tabs';
+
 import useMyAuctions from '../../api/auctions/useMyAuctions';
 import { BottomNavbar } from '../../components/BottomNavbar';
 import { colors, typography, spacing, borderRadius } from '../../theme';
@@ -23,6 +23,7 @@ const EmptyState = () => (
 
 const BuyerRfqHistoryScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const [activeTab, setActiveTab] = useState('all');
 
     const [auctions, setAuctions] = useState<AuctionType[]>([]);
     const [count, setCount] = useState<number>(0);
@@ -139,125 +140,133 @@ const BuyerRfqHistoryScreen = () => {
                     <View style={styles.container}>
                         {/* Header */}
                         <View style={styles.header}>
-                        <TouchableOpacity
-                            onPress={() => navigation.replace('BuyerDashboard')}
-                            style={styles.backButton}
-                            activeOpacity={0.7}
-                        >
-                            <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
-                        </TouchableOpacity>
-                        <View>
-                            <Text style={styles.headerLabel}>Manage</Text>
-                            <Text style={styles.title}>RFQ History</Text>
+                            <TouchableOpacity
+                                onPress={() => navigation.replace('BuyerDashboard')}
+                                style={styles.backButton}
+                                activeOpacity={0.7}
+                            >
+                                <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
+                            </TouchableOpacity>
+                            <View>
+                                <Text style={styles.headerLabel}>Manage</Text>
+                                <Text style={styles.title}>RFQ History</Text>
+                            </View>
                         </View>
-                    </View>
 
-                    {/* Search Bar */}
-                    <View style={styles.filterBar}>
-                        <Searchbar
-                            mode="bar"
-                            placeholder="Search RFQs..."
-                            value={searchQuery}
-                            onChangeText={setSearchQuery}
-                            style={styles.searchbar}
-                            iconColor={colors.neutral.text.secondary}
-                            inputStyle={styles.searchInput}
-                            placeholderTextColor={colors.neutral.text.tertiary}
-                            cursorColor={colors.primary[500]}
-                            onClearIconPress={() => setSearchQuery('')}
-                            elevation={0}
-                        />
-                    </View>
+                        {/* Search Bar */}
+                        <View style={styles.filterBar}>
+                            <Searchbar
+                                mode="bar"
+                                placeholder="Search RFQs..."
+                                value={searchQuery}
+                                onChangeText={setSearchQuery}
+                                style={styles.searchbar}
+                                iconColor={colors.neutral.text.secondary}
+                                inputStyle={styles.searchInput}
+                                placeholderTextColor={colors.neutral.text.tertiary}
+                                cursorColor={colors.primary[500]}
+                                onClearIconPress={() => setSearchQuery('')}
+                                elevation={0}
+                            />
+                        </View>
 
-                    <TabsProvider defaultIndex={0}>
-                        <Tabs
-                            mode="fixed"
-                            tabLabelStyle={styles.tabLabel}
-                            style={styles.tabs}
-                            disableSwipe
-                        >
-                            <TabScreen label="All">
-                                <View style={styles.tabContent}>
-                                    {(displayCompleted.length + displayDraft.length + displayInProgress.length) > 0 && (
-                                        <View style={styles.paginationBar}>
-                                            <View style={styles.pagination}>
-                                                <TouchableOpacity
-                                                    disabled={pageCount === 1}
-                                                    onPress={() => setPageCount(pageCount - 1)}
-                                                    style={[styles.paginationButton, pageCount === 1 && styles.paginationDisabled]}
-                                                >
-                                                    <Icon source="chevron-left" size={20} color={pageCount === 1 ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
-                                                </TouchableOpacity>
-                                                <Text style={styles.paginationText}>Page {pageCount || 1}</Text>
-                                                <TouchableOpacity
-                                                    disabled={(pageCount * 10) >= count}
-                                                    onPress={() => setPageCount(pageCount + 1)}
-                                                    style={[styles.paginationButton, (pageCount * 10) >= count && styles.paginationDisabled]}
-                                                >
-                                                    <Icon source="chevron-right" size={20} color={(pageCount * 10) >= count ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
-                                                </TouchableOpacity>
-                                            </View>
+                        <View style={{ margin: spacing.md }}>
+                            <SegmentedButtons
+                                value={activeTab}
+                                onValueChange={setActiveTab}
+                                density="small"
+                                buttons={[
+                                    { value: 'all', label: 'All' },
+                                    { value: 'active', label: 'Active' },
+                                    { value: 'draft', label: 'Draft' },
+                                    { value: 'closed', label: 'Closed' },
+                                ]}
+                            />
+                        </View>
+
+                        {activeTab === 'all' && (
+                            <View style={styles.tabContent}>
+                                {(displayCompleted.length + displayDraft.length + displayInProgress.length) > 0 && (
+                                    <View style={styles.paginationBar}>
+                                        <View style={styles.pagination}>
+                                            <TouchableOpacity
+                                                disabled={pageCount === 1}
+                                                onPress={() => setPageCount(pageCount - 1)}
+                                                style={[styles.paginationButton, pageCount === 1 && styles.paginationDisabled]}
+                                            >
+                                                <Icon source="chevron-left" size={20} color={pageCount === 1 ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
+                                            </TouchableOpacity>
+                                            <Text style={styles.paginationText}>Page {pageCount || 1}</Text>
+                                            <TouchableOpacity
+                                                disabled={(pageCount * 10) >= count}
+                                                onPress={() => setPageCount(pageCount + 1)}
+                                                style={[styles.paginationButton, (pageCount * 10) >= count && styles.paginationDisabled]}
+                                            >
+                                                <Icon source="chevron-right" size={20} color={(pageCount * 10) >= count ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
+                                            </TouchableOpacity>
                                         </View>
-                                    )}
-                                    <FlatList
-                                        data={[...displayInProgress, ...displayDraft, ...displayCompleted]}
-                                        renderItem={renderItem}
-                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
-                                        refreshing={loading}
-                                        onRefresh={() => refetch()}
-                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                        contentContainerStyle={styles.listContent}
-                                        showsVerticalScrollIndicator={false}
-                                    />
-                                </View>
-                            </TabScreen>
-                            <TabScreen label="Active">
-                                <View style={styles.tabContent}>
-                                    <FlatList
-                                        data={displayInProgress}
-                                        renderItem={renderItem}
-                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
-                                        refreshing={loading}
-                                        onRefresh={() => refetch()}
-                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                        contentContainerStyle={styles.listContent}
-                                        showsVerticalScrollIndicator={false}
-                                    />
-                                </View>
-                            </TabScreen>
-                            <TabScreen label="Draft">
-                                <View style={styles.tabContent}>
-                                    <FlatList
-                                        data={displayDraft}
-                                        renderItem={renderItem}
-                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
-                                        refreshing={loading}
-                                        onRefresh={() => refetch()}
-                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                        contentContainerStyle={styles.listContent}
-                                        showsVerticalScrollIndicator={false}
-                                    />
-                                </View>
-                            </TabScreen>
-                            <TabScreen label="Closed">
-                                <View style={styles.tabContent}>
-                                    <FlatList
-                                        data={displayCompleted}
-                                        renderItem={renderItem}
-                                        keyExtractor={(item: AuctionType) => item?.id?.toString() || Math.random().toString()}
-                                        refreshing={loading}
-                                        onRefresh={() => refetch()}
-                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                        contentContainerStyle={styles.listContent}
-                                        showsVerticalScrollIndicator={false}
-                                    />
-                                </View>
-                            </TabScreen>
-                        </Tabs>
-                    </TabsProvider>
+                                    </View>
+                                )}
+                                <FlatList
+                                    data={[...displayInProgress, ...displayDraft, ...displayCompleted]}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                    refreshing={loading}
+                                    onRefresh={refetch}
+                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            </View>
+                        )}
+
+                        {activeTab === 'active' && (
+                            <View style={styles.tabContent}>
+                                <FlatList
+                                    data={displayInProgress}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                    refreshing={loading}
+                                    onRefresh={refetch}
+                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            </View>
+                        )}
+
+                        {activeTab === 'draft' && (
+                            <View style={styles.tabContent}>
+                                <FlatList
+                                    data={displayDraft}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                    refreshing={loading}
+                                    onRefresh={refetch}
+                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            </View>
+                        )}
+
+                        {activeTab === 'closed' && (
+                            <View style={styles.tabContent}>
+                                <FlatList
+                                    data={displayCompleted}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                    refreshing={loading}
+                                    onRefresh={refetch}
+                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                />
+                            </View>
+                        )}
+                    </View>
                 </View>
                 <BottomNavbar />
-                </View>
             </View>
         </ErrorBoundary>
     );

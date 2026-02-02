@@ -23,7 +23,7 @@ const NavItem = ({ icon, label, onPress, isActive }: NavItemProps) => (
     >
         <View style={styles.iconContainer}>
             <Icon
-                source={isActive ? icon : `${icon}-outline`} // Switch filled variant often better for active
+                source={icon}
                 size={24}
                 color={isActive ? colors.primary[500] : colors.neutral.text.tertiary}
             />
