@@ -92,7 +92,8 @@ function App(): React.JSX.Element {
             screenOptions={{
               headerShown: false,
               animation: 'slide_from_right',
-              animationTypeForReplace: 'pop',
+              gestureEnabled: true,
+              gestureDirection: 'horizontal',
             }}>
             <Stack.Screen name="Splash" component={SplashScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />

@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar, LayoutAnimation } from 'react-native';
 import { CustomNavigationProp } from '../../types/common';
 import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons } from 'react-native-paper';
 import { useEffect, useState, useCallback } from 'react';
@@ -24,6 +24,10 @@ const EmptyState = () => (
 const SupplierRequestHistory = () => {
     const navigation = useNavigation<CustomNavigationProp>();
     const [activeTab, setActiveTab] = useState('all');
+
+    useEffect(() => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    }, [activeTab]);
 
     const { data: auctions, isPending: loading, refetch } = useAuctionHeaders();
 
