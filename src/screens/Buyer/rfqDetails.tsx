@@ -163,7 +163,6 @@ const BuyerRfqDetailsScreen = () => {
                         )}
                     </Portal>
                 </View>
-                <BottomNavbar />
             </View>
         </View>
     );

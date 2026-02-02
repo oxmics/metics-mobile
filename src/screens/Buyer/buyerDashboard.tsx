@@ -36,7 +36,7 @@ const BuyerDashboardScreen = () => {
     }, [refetch, refetchLogs]);
 
     const handleSwitchToSupplier = () => {
-        navigation.replace('SupplierDashboard');
+        navigation.replace('SupplierTabs');
     };
 
     const isLoading = loading || loadingLogs;
@@ -194,7 +194,6 @@ const BuyerDashboardScreen = () => {
                     {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} />}
                 </Portal>
 
-                <BottomNavbar />
             </View>
         </View>
     );
@@ -222,8 +221,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: spacing.xl,
-        paddingTop: spacing['2xl'],
-        paddingBottom: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.sm,
         backgroundColor: colors.neutral.surface.default,
         borderBottomWidth: 1,
         borderBottomColor: colors.neutral.border.default,

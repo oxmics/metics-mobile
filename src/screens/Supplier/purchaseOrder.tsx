@@ -50,8 +50,8 @@ const SupplierPurchaseOrderScreen = () => {
     }, [handleSearch]);
 
     const getStatusText = (status: number) => {
-        if (status === 0) {return 'PENDING';}
-        if (status === -1) {return 'REJECTED';}
+        if (status === 0) { return 'PENDING'; }
+        if (status === -1) { return 'REJECTED'; }
         return 'APPROVED';
     };
 
@@ -63,73 +63,72 @@ const SupplierPurchaseOrderScreen = () => {
                 <View style={styles.container}>
                     {/* Header */}
                     <View style={styles.header}>
-                    <TouchableOpacity
-                        onPress={() => navigation.replace('SupplierDashboard')}
-                        style={styles.backButton}
-                        activeOpacity={0.7}
-                    >
-                        <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
-                    </TouchableOpacity>
-                    <View>
-                        <Text style={styles.headerLabel}>Manage</Text>
-                        <Text style={styles.title}>Purchase Orders</Text>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('SupplierDashboard')}
+                            style={styles.backButton}
+                            activeOpacity={0.7}
+                        >
+                            <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
+                        </TouchableOpacity>
+                        <View>
+                            <Text style={styles.headerLabel}>Manage</Text>
+                            <Text style={styles.title}>Purchase Orders</Text>
+                        </View>
+                    </View>
+
+                    {/* Filter & Search */}
+                    <View style={styles.filterBar}>
+                        <Searchbar
+                            mode="bar"
+                            placeholder="Search orders..."
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            style={styles.searchbar}
+                            iconColor={colors.neutral.text.tertiary}
+                            inputStyle={styles.searchInput}
+                            placeholderTextColor={colors.neutral.text.tertiary}
+                            cursorColor={colors.primary[500]}
+                            onClearIconPress={() => setSearchQuery('')}
+                            elevation={0}
+                        />
+                        <Button
+                            mode="outlined"
+                            onPress={() => console.log('Export CSV')}
+                            style={styles.exportBtn}
+                            textColor={colors.neutral.text.secondary}
+                            contentStyle={styles.exportContent}
+                        >
+                            <Icon source="download" size={20} color={colors.neutral.text.secondary} />
+                        </Button>
+                    </View>
+
+                    {/* List Content */}
+                    <View style={styles.listContainer}>
+                        <FlatList
+                            data={displayOrders}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    onPress={() => navigation.push('SupplierPurchaseOrderDetails', { orderId: item.id })}
+                                    activeOpacity={0.7}
+                                >
+                                    <DataCard
+                                        title={item.document_num ?? '—'}
+                                        titleLabel="Document Number"
+                                        status={getStatusText(item.int_status)}
+                                        footerLeftText={item.buyer_organisation_details?.name ?? '—'}
+                                        footerRightText={item.total_price ?? '—'}
+                                    />
+                                </TouchableOpacity>
+                            )}
+                            keyExtractor={(item: PurchaseOrderStatusType) => item.id}
+                            refreshing={loading}
+                            onRefresh={() => refetch()}
+                            ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                            contentContainerStyle={styles.listContent}
+                            showsVerticalScrollIndicator={false}
+                        />
                     </View>
                 </View>
-
-                {/* Filter & Search */}
-                <View style={styles.filterBar}>
-                    <Searchbar
-                        mode="bar"
-                        placeholder="Search orders..."
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        style={styles.searchbar}
-                        iconColor={colors.neutral.text.tertiary}
-                        inputStyle={styles.searchInput}
-                        placeholderTextColor={colors.neutral.text.tertiary}
-                        cursorColor={colors.primary[500]}
-                        onClearIconPress={() => setSearchQuery('')}
-                        elevation={0}
-                    />
-                    <Button
-                        mode="outlined"
-                        onPress={() => console.log('Export CSV')}
-                        style={styles.exportBtn}
-                        textColor={colors.neutral.text.secondary}
-                        contentStyle={styles.exportContent}
-                    >
-                        <Icon source="download" size={20} color={colors.neutral.text.secondary} />
-                    </Button>
-                </View>
-
-                {/* List Content */}
-                <View style={styles.listContainer}>
-                    <FlatList
-                        data={displayOrders}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                onPress={() => navigation.push('SupplierPurchaseOrderDetails', { orderId: item.id })}
-                                activeOpacity={0.7}
-                            >
-                                <DataCard
-                                    title={item.document_num ?? '—'}
-                                    titleLabel="Document Number"
-                                    status={getStatusText(item.int_status)}
-                                    footerLeftText={item.buyer_organisation_details?.name ?? '—'}
-                                    footerRightText={item.total_price ?? '—'}
-                                />
-                            </TouchableOpacity>
-                        )}
-                        keyExtractor={(item: PurchaseOrderStatusType) => item.id}
-                        refreshing={loading}
-                        onRefresh={() => refetch()}
-                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                        contentContainerStyle={styles.listContent}
-                        showsVerticalScrollIndicator={false}
-                    />
-                </View>
-                </View>
-                <BottomNavbar isSupplier />
             </View>
         </View>
     );
@@ -155,7 +154,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: spacing.xl,
         paddingTop: spacing['2xl'],
-        paddingBottom: spacing.lg,
+        paddingBottom: spacing.sm,
         backgroundColor: colors.neutral.surface.default,
         borderBottomWidth: 1,
         borderBottomColor: colors.neutral.border.default,

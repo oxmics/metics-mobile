@@ -1,12 +1,8 @@
-import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Icon, Text } from 'react-native-paper';
-import { CustomNavigationProp } from '../types/common';
 import { colors, spacing } from '../theme';
 
-interface props {
-    isSupplier?: boolean
-}
+
 
 interface NavItemProps {
     icon: string;
@@ -32,37 +28,65 @@ const NavItem = ({ icon, label, onPress, isActive }: NavItemProps) => (
     </TouchableOpacity>
 );
 
-export const BottomNavbar = ({ isSupplier }: props) => {
-    const navigation = useNavigation<CustomNavigationProp>();
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
-    // Simple mock active state logic just for visual proof, ideally uses route name
-    // But since this is a prop-driven or manual component in this architecture, we keep simple.
-
+export const BottomNavbar = ({ state, descriptors, navigation, isSupplier }: BottomTabBarProps & { isSupplier: boolean }) => {
     return (
         <View style={styles.container}>
             <View style={styles.borderTop} />
             <View style={styles.navbar}>
-                <NavItem
-                    icon="home"
-                    label="Home"
-                    onPress={() => isSupplier ? navigation.replace('SupplierDashboard') : navigation.replace('BuyerDashboard')}
-                    isActive={true} // Hardcoded for demo/dashboard screens usually
-                />
-                <NavItem
-                    icon="file-document"
-                    label="RFQs"
-                    onPress={() => isSupplier ? navigation.navigate('SupplierRequestHistory') : navigation.navigate('BuyerRfqHistory')}
-                />
-                <NavItem
-                    icon="package-variant-closed"
-                    label="Orders"
-                    onPress={() => isSupplier ? navigation.navigate('SupplierPurchaseOrder') : navigation.navigate('BuyerPurchaseOrder')}
-                />
-                <NavItem
-                    icon="cog"
-                    label="Settings"
-                    onPress={() => navigation.navigate('EnterNewPassword')}
-                />
+                {state.routes.map((route, index) => {
+                    const { options } = descriptors[route.key];
+                    const label =
+                        options.tabBarLabel !== undefined
+                            ? options.tabBarLabel
+                            : options.title !== undefined
+                                ? options.title
+                                : route.name;
+
+                    const isFocused = state.index === index;
+
+                    const onPress = () => {
+                        const event = navigation.emit({
+                            type: 'tabPress',
+                            target: route.key,
+                            canPreventDefault: true,
+                        });
+
+                        if (!isFocused && !event.defaultPrevented) {
+                            // The `merge: true` option makes sure that the params inside the tab screen are preserved
+                            navigation.navigate(route.name, { merge: true });
+                        }
+                    };
+
+                    let iconName = '';
+                    let labelText = '';
+
+                    // Map route names to icons/labels
+                    if (route.name === 'SupplierDashboard' || route.name === 'BuyerDashboard') {
+                        iconName = 'home';
+                        labelText = 'Home';
+                    } else if (route.name === 'SupplierRequestHistory' || route.name === 'BuyerRfqHistory') {
+                        iconName = 'file-document';
+                        labelText = 'RFQs';
+                    } else if (route.name === 'SupplierPurchaseOrder' || route.name === 'BuyerPurchaseOrder') {
+                        iconName = 'package-variant-closed';
+                        labelText = 'Orders';
+                    } else if (route.name === 'EnterNewPassword') { // Assuming settings route
+                        iconName = 'cog';
+                        labelText = 'Settings';
+                    }
+
+                    return (
+                        <NavItem
+                            key={index}
+                            icon={iconName}
+                            label={labelText}
+                            onPress={onPress}
+                            isActive={isFocused}
+                        />
+                    );
+                })}
             </View>
         </View>
     );

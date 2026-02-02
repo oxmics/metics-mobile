@@ -3,6 +3,7 @@ import ToggleButton from '../components/ToggleButton';
 import React, { useState } from 'react';
 import GradientButton from '../components/GradientButton';
 import { Snackbar, TextInput } from 'react-native-paper';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import { useNavigation } from '@react-navigation/native';
 import { CustomNavigationProp } from '../types/common';
 import { CustomInput } from '../components/CustomInput';
@@ -20,7 +21,7 @@ const LoginScreen = () => {
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [active, setActive] = useState<string>('supplier');
+    const [active, setActive] = useState<string>('buyer');
     const [hidePass, setHidePass] = useState(true);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -51,10 +52,14 @@ const LoginScreen = () => {
         setSnackbarVisible(true);
         if (loginResult === LoginResponseEnum.SUCCESS) {
             console.log('LoginScreen: Navigating to', active === 'buyer' ? 'BuyerDashboard' : 'SupplierDashboard');
+
+            // Store the selected role for persistent login
+            await EncryptedStorage.setItem('user_role', active);
+
             if (active === 'buyer') {
-                navigation.replace('BuyerDashboard');
+                navigation.replace('BuyerTabs');
             } else {
-                navigation.replace('SupplierDashboard');
+                navigation.replace('SupplierTabs');
             }
         }
     };

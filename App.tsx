@@ -23,9 +23,15 @@ import BuyerRfqDetailsScreen from './src/screens/Buyer/rfqDetails';
 import BuyerBidsDetailsScreen from './src/screens/Buyer/bidDetails';
 import { LogLevel, OneSignal } from 'react-native-onesignal';
 import NetInfo from '@react-native-community/netinfo';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { PermissionsAndroid, Platform, UIManager } from 'react-native';
+import SupplierTabs from './src/navigation/SupplierTabs';
+import BuyerTabs from './src/navigation/BuyerTabs';
 
 const queryClient = new QueryClient();
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 function App(): React.JSX.Element {
   const isInitialized = useRef(false);
@@ -106,21 +112,12 @@ function App(): React.JSX.Element {
               name="EnterNewPassword"
               component={EnterNewPasswordScreen}
             />
+            <Stack.Screen name="SupplierTabs" component={SupplierTabs} />
+            <Stack.Screen name="BuyerTabs" component={BuyerTabs} />
+
             <Stack.Screen
-              name="BuyerDashboard"
-              component={BuyerDashboardScreen}
-            />
-            <Stack.Screen
-              name="BuyerPurchaseOrder"
-              component={BuyerPurchaseOrderScreen}
-            />
-            <Stack.Screen
-              name="BuyerPurchaseOrderDetails"
-              component={BuyerPurchaseorderDetailsScreen}
-            />
-            <Stack.Screen
-              name="BuyerRfqHistory"
-              component={BuyerRfqHistoryScreen}
+              name="SupplierRequestDetails"
+              component={SupplierRequestDetailsScreen}
             />
             <Stack.Screen
               name="BuyerRfqDetails"
@@ -131,24 +128,12 @@ function App(): React.JSX.Element {
               component={BuyerBidsDetailsScreen}
             />
             <Stack.Screen
-              name="SupplierDashboard"
-              component={SupplierDashboardScreen}
-            />
-            <Stack.Screen
-              name="SupplierPurchaseOrder"
-              component={SupplierPurchaseOrderScreen}
-            />
-            <Stack.Screen
-              name="SupplierPurchaseOrderDetails"
+              name="SupplierPurchaseorderDetails"
               component={SupplierPurchaseorderDetailsScreen}
             />
             <Stack.Screen
-              name="SupplierRequestHistory"
-              component={SupplierRequestHistory}
-            />
-            <Stack.Screen
-              name="SupplierRequestDetails"
-              component={SupplierRequestDetailsScreen}
+              name="BuyerPurchaseOrderDetails"
+              component={BuyerPurchaseorderDetailsScreen}
             />
           </Stack.Navigator>
         </NavigationContainer>

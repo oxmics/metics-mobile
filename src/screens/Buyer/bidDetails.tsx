@@ -52,58 +52,57 @@ const BuyerBidsDetailsScreen = () => {
 
             <View style={styles.contentContainer}>
                 <View style={styles.scrollContainer}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity
-                        onPress={() => navigation.goBack()}
-                        style={styles.backButton}
-                        activeOpacity={0.7}
-                    >
-                        <Icon size={24} source="arrow-left" color={colors.neutral.text.primary} />
-                    </TouchableOpacity>
-                    <View>
-                        <Text style={styles.headerLabel}>Bid Information</Text>
-                        <Text style={styles.title}>Details</Text>
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <TouchableOpacity
+                            onPress={() => navigation.goBack()}
+                            style={styles.backButton}
+                            activeOpacity={0.7}
+                        >
+                            <Icon size={24} source="arrow-left" color={colors.neutral.text.primary} />
+                        </TouchableOpacity>
+                        <View>
+                            <Text style={styles.headerLabel}>Bid Information</Text>
+                            <Text style={styles.title}>Details</Text>
+                        </View>
                     </View>
+
+                    {bid && (
+                        <ScrollView
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={styles.scrollContent}
+                        >
+                            <BidDetailsCard
+                                name={bid.organisation?.name}
+                                address={bid.organisation?.address_line1}
+                                contact={bid.organisation?.contact}
+                            />
+
+                            <View style={styles.sectionSpacer} />
+
+                            <BidDetailsCard
+                                title="Bid Specification"
+                                bid_no={bid.bidders_bid_number}
+                                expiry_date={bid.bid_expiration_date}
+                                status={bid.bid_status}
+                            />
+
+                            <View style={styles.sectionSpacer} />
+
+                            {bidLines && auctionLines && auctionLines.length > 0 && (
+                                <BidNegotaiteCard auctionLines={auctionLines} bidLine={bidLines} />
+                            )}
+
+                            <View style={styles.sectionSpacer} />
+
+                            <CommentCard
+                                comments={comments}
+                                buttonFn={handleComment}
+                                loading={sendingComments || commentsLoading}
+                            />
+                        </ScrollView>
+                    )}
                 </View>
-
-                {bid && (
-                    <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={styles.scrollContent}
-                    >
-                        <BidDetailsCard
-                            name={bid.organisation?.name}
-                            address={bid.organisation?.address_line1}
-                            contact={bid.organisation?.contact}
-                        />
-
-                        <View style={styles.sectionSpacer} />
-
-                        <BidDetailsCard
-                            title="Bid Specification"
-                            bid_no={bid.bidders_bid_number}
-                            expiry_date={bid.bid_expiration_date}
-                            status={bid.bid_status}
-                        />
-
-                        <View style={styles.sectionSpacer} />
-
-                        {bidLines && auctionLines && auctionLines.length > 0 && (
-                            <BidNegotaiteCard auctionLines={auctionLines} bidLine={bidLines} />
-                        )}
-
-                        <View style={styles.sectionSpacer} />
-
-                        <CommentCard
-                            comments={comments}
-                            buttonFn={handleComment}
-                            loading={sendingComments || commentsLoading}
-                        />
-                    </ScrollView>
-                )}
-                </View>
-                <BottomNavbar />
             </View>
         </View>
     );

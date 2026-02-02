@@ -1,8 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
-import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar, LayoutAnimation } from 'react-native';
-import { CustomNavigationProp } from '../../types/common';
 import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons } from 'react-native-paper';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar, Animated } from 'react-native';
 import { AuctionType } from '../../types/auction';
 import useDebounce from '../../hooks/useDebounce';
 import { DataCard } from '../../components/DataCard';
@@ -22,12 +21,19 @@ const EmptyState = () => (
 );
 
 const BuyerRfqHistoryScreen = () => {
+
     const navigation = useNavigation<CustomNavigationProp>();
     const [activeTab, setActiveTab] = useState('all');
+    const fadeAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [activeTab]);
+        fadeAnim.setValue(0);
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    }, [activeTab, fadeAnim]);
 
     const [auctions, setAuctions] = useState<AuctionType[]>([]);
     const [count, setCount] = useState<number>(0);
@@ -145,7 +151,7 @@ const BuyerRfqHistoryScreen = () => {
                         {/* Header */}
                         <View style={styles.header}>
                             <TouchableOpacity
-                                onPress={() => navigation.replace('BuyerDashboard')}
+                                onPress={() => navigation.navigate('BuyerDashboard')}
                                 style={styles.backButton}
                                 activeOpacity={0.7}
                             >
@@ -188,89 +194,91 @@ const BuyerRfqHistoryScreen = () => {
                             />
                         </View>
 
-                        {activeTab === 'all' && (
-                            <View style={styles.tabContent}>
-                                {(displayCompleted.length + displayDraft.length + displayInProgress.length) > 0 && (
-                                    <View style={styles.paginationBar}>
-                                        <View style={styles.pagination}>
-                                            <TouchableOpacity
-                                                disabled={pageCount === 1}
-                                                onPress={() => setPageCount(pageCount - 1)}
-                                                style={[styles.paginationButton, pageCount === 1 && styles.paginationDisabled]}
-                                            >
-                                                <Icon source="chevron-left" size={20} color={pageCount === 1 ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
-                                            </TouchableOpacity>
-                                            <Text style={styles.paginationText}>Page {pageCount || 1}</Text>
-                                            <TouchableOpacity
-                                                disabled={(pageCount * 10) >= count}
-                                                onPress={() => setPageCount(pageCount + 1)}
-                                                style={[styles.paginationButton, (pageCount * 10) >= count && styles.paginationDisabled]}
-                                            >
-                                                <Icon source="chevron-right" size={20} color={(pageCount * 10) >= count ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
-                                            </TouchableOpacity>
+                        <Animated.View style={[styles.tabContent, { opacity: fadeAnim }]}>
+
+                            {activeTab === 'all' && (
+                                <View style={styles.tabContent}>
+                                    {(displayCompleted.length + displayDraft.length + displayInProgress.length) > 0 && (
+                                        <View style={styles.paginationBar}>
+                                            <View style={styles.pagination}>
+                                                <TouchableOpacity
+                                                    disabled={pageCount === 1}
+                                                    onPress={() => setPageCount(pageCount - 1)}
+                                                    style={[styles.paginationButton, pageCount === 1 && styles.paginationDisabled]}
+                                                >
+                                                    <Icon source="chevron-left" size={20} color={pageCount === 1 ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
+                                                </TouchableOpacity>
+                                                <Text style={styles.paginationText}>Page {pageCount || 1}</Text>
+                                                <TouchableOpacity
+                                                    disabled={(pageCount * 10) >= count}
+                                                    onPress={() => setPageCount(pageCount + 1)}
+                                                    style={[styles.paginationButton, (pageCount * 10) >= count && styles.paginationDisabled]}
+                                                >
+                                                    <Icon source="chevron-right" size={20} color={(pageCount * 10) >= count ? colors.neutral.text.tertiary : colors.neutral.text.primary} />
+                                                </TouchableOpacity>
+                                            </View>
                                         </View>
-                                    </View>
-                                )}
-                                <FlatList
-                                    data={[...displayInProgress, ...displayDraft, ...displayCompleted]}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-                                    refreshing={loading}
-                                    onRefresh={refetch}
-                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                    contentContainerStyle={styles.listContent}
-                                    showsVerticalScrollIndicator={false}
-                                />
-                            </View>
-                        )}
+                                    )}
+                                    <FlatList
+                                        data={[...displayInProgress, ...displayDraft, ...displayCompleted]}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                        refreshing={loading}
+                                        onRefresh={refetch}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
+                                    />
+                                </View>
+                            )}
 
-                        {activeTab === 'active' && (
-                            <View style={styles.tabContent}>
-                                <FlatList
-                                    data={displayInProgress}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-                                    refreshing={loading}
-                                    onRefresh={refetch}
-                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                    contentContainerStyle={styles.listContent}
-                                    showsVerticalScrollIndicator={false}
-                                />
-                            </View>
-                        )}
+                            {activeTab === 'active' && (
+                                <View style={styles.tabContent}>
+                                    <FlatList
+                                        data={displayInProgress}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                        refreshing={loading}
+                                        onRefresh={refetch}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
+                                    />
+                                </View>
+                            )}
 
-                        {activeTab === 'draft' && (
-                            <View style={styles.tabContent}>
-                                <FlatList
-                                    data={displayDraft}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-                                    refreshing={loading}
-                                    onRefresh={refetch}
-                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                    contentContainerStyle={styles.listContent}
-                                    showsVerticalScrollIndicator={false}
-                                />
-                            </View>
-                        )}
+                            {activeTab === 'draft' && (
+                                <View style={styles.tabContent}>
+                                    <FlatList
+                                        data={displayDraft}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                        refreshing={loading}
+                                        onRefresh={refetch}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
+                                    />
+                                </View>
+                            )}
 
-                        {activeTab === 'closed' && (
-                            <View style={styles.tabContent}>
-                                <FlatList
-                                    data={displayCompleted}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-                                    refreshing={loading}
-                                    onRefresh={refetch}
-                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                    contentContainerStyle={styles.listContent}
-                                    showsVerticalScrollIndicator={false}
-                                />
-                            </View>
-                        )}
+                            {activeTab === 'closed' && (
+                                <View style={styles.tabContent}>
+                                    <FlatList
+                                        data={displayCompleted}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                        refreshing={loading}
+                                        onRefresh={refetch}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
+                                    />
+                                </View>
+                            )}
+                        </Animated.View>
                     </View>
                 </View>
-                <BottomNavbar />
             </View>
         </ErrorBoundary>
     );
@@ -295,8 +303,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: spacing.xl,
-        paddingTop: spacing['2xl'],
-        paddingBottom: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.sm,
         backgroundColor: colors.neutral.surface.default,
         borderBottomWidth: 1,
         borderBottomColor: colors.neutral.border.default,

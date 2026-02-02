@@ -1,8 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
-import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar, LayoutAnimation } from 'react-native';
-import { CustomNavigationProp } from '../../types/common';
 import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons } from 'react-native-paper';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar, Animated } from 'react-native';
 import useAuctionHeaders from '../../api/auctions/useAuctionHeaders';
 import { AuctionType } from '../../types/auction';
 import useDebounce from '../../hooks/useDebounce';
@@ -22,12 +21,19 @@ const EmptyState = () => (
 );
 
 const SupplierRequestHistory = () => {
+
     const navigation = useNavigation<CustomNavigationProp>();
     const [activeTab, setActiveTab] = useState('all');
+    const fadeAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [activeTab]);
+        fadeAnim.setValue(0);
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    }, [activeTab, fadeAnim]);
 
     const { data: auctions, isPending: loading, refetch } = useAuctionHeaders();
 
@@ -96,7 +102,7 @@ const SupplierRequestHistory = () => {
                         {/* Header */}
                         <View style={styles.header}>
                             <TouchableOpacity
-                                onPress={() => navigation.replace('SupplierDashboard')}
+                                onPress={() => navigation.navigate('SupplierDashboard')}
                                 style={styles.backButton}
                                 activeOpacity={0.7}
                             >
@@ -137,8 +143,8 @@ const SupplierRequestHistory = () => {
                             />
                         </View>
 
-                        {activeTab === 'all' && (
-                            <View style={styles.tabContent}>
+                        <Animated.View style={[styles.tabContent, { opacity: fadeAnim }]}>
+                            {activeTab === 'all' && (
                                 <FlatList
                                     data={[...displayOpenAuctions, ...displayClosedAuctions]}
                                     renderItem={renderItem}
@@ -149,41 +155,38 @@ const SupplierRequestHistory = () => {
                                     contentContainerStyle={styles.listContent}
                                     showsVerticalScrollIndicator={false}
                                 />
-                            </View>
-                        )}
-
-                        {activeTab === 'open' && (
-                            <View style={styles.tabContent}>
-                                <FlatList
-                                    data={displayOpenAuctions}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-                                    refreshing={loading}
-                                    onRefresh={refetch}
-                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                    contentContainerStyle={styles.listContent}
-                                    showsVerticalScrollIndicator={false}
-                                />
-                            </View>
-                        )}
-
-                        {activeTab === 'closed' && (
-                            <View style={styles.tabContent}>
-                                <FlatList
-                                    data={displayClosedAuctions}
-                                    renderItem={renderItem}
-                                    keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
-                                    refreshing={loading}
-                                    onRefresh={refetch}
-                                    ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                                    contentContainerStyle={styles.listContent}
-                                    showsVerticalScrollIndicator={false}
-                                />
-                            </View>
-                        )}
+                            )}
+                            {activeTab === 'open' && (
+                                <View style={styles.tabContent}>
+                                    <FlatList
+                                        data={displayOpenAuctions}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                        refreshing={loading}
+                                        onRefresh={refetch}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
+                                    />
+                                </View>
+                            )}
+                            {activeTab === 'closed' && (
+                                <View style={styles.tabContent}>
+                                    <FlatList
+                                        data={displayClosedAuctions}
+                                        renderItem={renderItem}
+                                        keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
+                                        refreshing={loading}
+                                        onRefresh={refetch}
+                                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                                        contentContainerStyle={styles.listContent}
+                                        showsVerticalScrollIndicator={false}
+                                    />
+                                </View>
+                            )}
+                        </Animated.View>
                     </View>
                 </View>
-                <BottomNavbar isSupplier />
             </View>
         </ErrorBoundary>
     );
@@ -208,8 +211,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: spacing.xl,
-        paddingTop: spacing['2xl'],
-        paddingBottom: spacing.lg,
+        paddingTop: spacing.lg,
+        paddingBottom: spacing.sm,
         backgroundColor: colors.neutral.surface.default,
         borderBottomWidth: 1,
         borderBottomColor: colors.neutral.border.default,

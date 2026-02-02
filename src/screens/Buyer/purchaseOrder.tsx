@@ -70,49 +70,49 @@ const BuyerPurchaseOrderScreen = () => {
                 <View style={styles.container}>
                     {/* Header */}
                     <View style={styles.header}>
-                    <TouchableOpacity
-                        onPress={() => navigation.replace('BuyerDashboard')}
-                        style={styles.backButton}
-                        activeOpacity={0.7}
-                    >
-                        <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
-                    </TouchableOpacity>
-                    <View>
-                        <Text style={styles.headerLabel}>Manage</Text>
-                        <Text style={styles.title}>Purchase Orders</Text>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('BuyerDashboard')}
+                            style={styles.backButton}
+                            activeOpacity={0.7}
+                        >
+                            <Icon size={24} source="arrow-left" color={colors.neutral.text.secondary} />
+                        </TouchableOpacity>
+                        <View>
+                            <Text style={styles.headerLabel}>Manage</Text>
+                            <Text style={styles.title}>Purchase Orders</Text>
+                        </View>
                     </View>
-                </View>
 
-                {/* Filter & Search */}
-                <View style={styles.filterBar}>
-                    <Searchbar
-                        mode="bar"
-                        placeholder="Search orders..."
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        style={styles.searchbar}
-                        iconColor={colors.neutral.text.tertiary}
-                        inputStyle={styles.searchInput}
-                        placeholderTextColor={colors.neutral.text.tertiary}
-                        cursorColor={colors.primary[500]}
-                        onClearIconPress={() => setSearchQuery('')}
-                        elevation={0}
-                    />
-                    <Button
-                        mode="outlined"
-                        onPress={() => console.log('Export CSV')}
-                        style={styles.exportBtn}
-                        //labelStyle={styles.exportLabel}
-                        //icon="download-outline"
-                        textColor={colors.neutral.text.secondary}
-                        contentStyle={styles.exportContent}
-                    >
-                        <Icon source="download" size={20} color={colors.neutral.text.secondary} />
-                    </Button>
-                </View>
+                    {/* Filter & Search */}
+                    <View style={styles.filterBar}>
+                        <Searchbar
+                            mode="bar"
+                            placeholder="Search orders..."
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            style={styles.searchbar}
+                            iconColor={colors.neutral.text.tertiary}
+                            inputStyle={styles.searchInput}
+                            placeholderTextColor={colors.neutral.text.tertiary}
+                            cursorColor={colors.primary[500]}
+                            onClearIconPress={() => setSearchQuery('')}
+                            elevation={0}
+                        />
+                        <Button
+                            mode="outlined"
+                            onPress={() => console.log('Export CSV')}
+                            style={styles.exportBtn}
+                            //labelStyle={styles.exportLabel}
+                            //icon="download-outline"
+                            textColor={colors.neutral.text.secondary}
+                            contentStyle={styles.exportContent}
+                        >
+                            <Icon source="download" size={20} color={colors.neutral.text.secondary} />
+                        </Button>
+                    </View>
 
-                {/* KPI Card (Optional - keeping simplified for list view consistency) */}
-                {/*
+                    {/* KPI Card (Optional - keeping simplified for list view consistency) */}
+                    {/*
                 <View style={styles.kpiCard}>
                     <View style={styles.kpiContent}>
                         <Text style={styles.kpiLabel}>Total Orders</Text>
@@ -124,33 +124,32 @@ const BuyerPurchaseOrderScreen = () => {
                 </View>
                 */}
 
-                <View style={styles.listContainer}>
-                    <FlatList
-                        data={displayOrders}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity
-                                onPress={() => navigation.push('BuyerPurchaseOrderDetails', { orderId: item.id })}
-                                activeOpacity={0.7}
-                            >
-                                <DataCard
-                                    title={item.bid_header_details?.auction_header?.requisition_number ?? '—'}
-                                    titleLabel="Requisition Number"
-                                    status={formatStatus(item.bid_header_details?.bid_status ?? '')}
-                                    footerLeftText={item.buyer_organisation_details?.name ?? '—'}
-                                    footerRightText={item.total_price ?? '—'}
-                                />
-                            </TouchableOpacity>
-                        )}
-                        keyExtractor={(item: PurchaseOrderType) => item.id}
-                        refreshing={loading}
-                        onRefresh={() => refetch()}
-                        ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
-                        contentContainerStyle={styles.listContent}
-                        showsVerticalScrollIndicator={false}
-                    />
+                    <View style={styles.listContainer}>
+                        <FlatList
+                            data={displayOrders}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    onPress={() => navigation.push('BuyerPurchaseOrderDetails', { orderId: item.id })}
+                                    activeOpacity={0.7}
+                                >
+                                    <DataCard
+                                        title={item.bid_header_details?.auction_header?.requisition_number ?? '—'}
+                                        titleLabel="Requisition Number"
+                                        status={formatStatus(item.bid_header_details?.bid_status ?? '')}
+                                        footerLeftText={item.buyer_organisation_details?.name ?? '—'}
+                                        footerRightText={item.total_price ?? '—'}
+                                    />
+                                </TouchableOpacity>
+                            )}
+                            keyExtractor={(item: PurchaseOrderType) => item.id}
+                            refreshing={loading}
+                            onRefresh={() => refetch()}
+                            ListEmptyComponent={loading ? <ActivityIndicator style={styles.loader} color={colors.primary[500]} /> : <EmptyState />}
+                            contentContainerStyle={styles.listContent}
+                            showsVerticalScrollIndicator={false}
+                        />
+                    </View>
                 </View>
-                </View>
-                <BottomNavbar />
             </View>
         </View>
     );
@@ -176,7 +175,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: spacing.xl,
         paddingTop: spacing['2xl'],
-        paddingBottom: spacing.lg,
+        paddingBottom: spacing.sm,
         backgroundColor: colors.neutral.surface.default,
         borderBottomWidth: 1,
         borderBottomColor: colors.neutral.border.default,

@@ -12,6 +12,7 @@ const SplashScreen = () => {
 
     const [bypassLogin, setBypassLogin] = useState<boolean>(false);
     const [animationEnded, setAnimationEnded] = useState<boolean>(false);
+    const [userRole, setUserRole] = useState<string | null>(null);
 
     const logoScale = useRef(new Animated.Value(0.2)).current;
     const logoOpacity = useRef(new Animated.Value(0)).current;
@@ -21,9 +22,11 @@ const SplashScreen = () => {
     const getToken = useCallback(async () => {
         try {
             const token = await EncryptedStorage.getItem('jwt-token');
-            console.log('SplashScreen: Token fetched', !!token);
+            const role = await EncryptedStorage.getItem('user_role');
+            console.log('SplashScreen: Token fetched', !!token, 'Role:', role);
             if (token) {
                 setBypassLogin(true);
+                setUserRole(role);
             }
         } catch (e) {
             console.error('SplashScreen: Token fetch error', e);
@@ -76,14 +79,18 @@ const SplashScreen = () => {
 
     useEffect(() => {
         if (animationEnded) {
-            console.log('SplashScreen: Navigation trigger', { bypassLogin });
+            console.log('SplashScreen: Navigation trigger', { bypassLogin, userRole });
             if (bypassLogin) {
-                navigation.replace('SupplierDashboard');
+                if (userRole === 'buyer') {
+                    navigation.replace('BuyerTabs');
+                } else {
+                    navigation.replace('SupplierTabs');
+                }
             } else {
                 navigation.replace('Login');
             }
         }
-    }, [animationEnded, bypassLogin, navigation]);
+    }, [animationEnded, bypassLogin, userRole, navigation]);
 
     return (
         <Animated.View style={[styles.container, { opacity: containerOpacity }]}>

@@ -286,8 +286,7 @@ const SupplierRequestDetailsScreen = () => {
                     </Portal>
                 </View>
             </View>
-            <BottomNavbar isSupplier />
-        </View>
+        </View >
     );
 };
 

@@ -146,14 +146,14 @@ const SupplierPurchaseorderDetailsScreen = () => {
     const handleHideModal = () => setShowModal(false);
 
     const getStatusColor = (status: number) => {
-        if (status === 0) {return colors.semantic.warning.default;}
-        if (status === -1) {return colors.semantic.error.default;}
+        if (status === 0) { return colors.semantic.warning.default; }
+        if (status === -1) { return colors.semantic.error.default; }
         return colors.semantic.success.default;
     };
 
     const getStatusText = (status: number) => {
-        if (status === 0) {return 'PENDING';}
-        if (status === -1) {return 'REJECTED';}
+        if (status === 0) { return 'PENDING'; }
+        if (status === -1) { return 'REJECTED'; }
         return 'ACCEPTED';
     };
 
@@ -192,65 +192,64 @@ const SupplierPurchaseorderDetailsScreen = () => {
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={styles.scrollContent}
                         >
-                        {/* Status Card */}
-                        <View style={styles.statusCard}>
-                            <View style={styles.statusHeader}>
-                                <Text style={styles.statusTitle}>Order Status</Text>
-                                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(purchaseOrder.int_status) + '20' }]}>
-                                    <Text style={[styles.statusText, { color: getStatusColor(purchaseOrder.int_status) }]}>
-                                        {getStatusText(purchaseOrder.int_status)}
-                                    </Text>
+                            {/* Status Card */}
+                            <View style={styles.statusCard}>
+                                <View style={styles.statusHeader}>
+                                    <Text style={styles.statusTitle}>Order Status</Text>
+                                    <View style={[styles.statusBadge, { backgroundColor: getStatusColor(purchaseOrder.int_status) + '20' }]}>
+                                        <Text style={[styles.statusText, { color: getStatusColor(purchaseOrder.int_status) }]}>
+                                            {getStatusText(purchaseOrder.int_status)}
+                                        </Text>
+                                    </View>
                                 </View>
+
+                                {purchaseOrder.int_status === 0 && (
+                                    <View style={styles.actionButtons}>
+                                        <Button
+                                            mode="contained"
+                                            style={styles.approveButton}
+                                            labelStyle={styles.buttonLabel}
+                                            disabled={sendingStatusUpdate}
+                                            loading={statusLoading === 1}
+                                            onPress={() => handleStatusUpdate('Approve')}
+                                            icon="check"
+                                        >
+                                            Approve
+                                        </Button>
+                                        <Button
+                                            mode="outlined"
+                                            style={styles.rejectButton}
+                                            labelStyle={styles.rejectLabel}
+                                            disabled={sendingStatusUpdate}
+                                            loading={statusLoading === 2}
+                                            onPress={() => handleStatusUpdate('Reject')}
+                                            icon="close"
+                                        >
+                                            Reject
+                                        </Button>
+                                    </View>
+                                )}
                             </View>
 
-                            {purchaseOrder.int_status === 0 && (
-                                <View style={styles.actionButtons}>
-                                    <Button
-                                        mode="contained"
-                                        style={styles.approveButton}
-                                        labelStyle={styles.buttonLabel}
-                                        disabled={sendingStatusUpdate}
-                                        loading={statusLoading === 1}
-                                        onPress={() => handleStatusUpdate('Approve')}
-                                        icon="check"
-                                    >
-                                        Approve
-                                    </Button>
-                                    <Button
-                                        mode="outlined"
-                                        style={styles.rejectButton}
-                                        labelStyle={styles.rejectLabel}
-                                        disabled={sendingStatusUpdate}
-                                        loading={statusLoading === 2}
-                                        onPress={() => handleStatusUpdate('Reject')}
-                                        icon="close"
-                                    >
-                                        Reject
-                                    </Button>
-                                </View>
-                            )}
-                        </View>
+                            <View style={styles.sectionSpacer} />
 
-                        <View style={styles.sectionSpacer} />
+                            <InfoCard title="Buyer Details" iterative={false} contentData={buyerDetails} />
+                            <View style={styles.sectionSpacer} />
+                            <InfoCard title="Supplier Details" iterative={false} contentData={supplierDetails} />
+                            <View style={styles.sectionSpacer} />
+                            <InfoCard title="Organization Details" iterative={false} contentData={organizationDetails} />
+                            <View style={styles.sectionSpacer} />
+                            <InfoCard title="Items" iterative={true} contentData={itemsDetails} />
+                            <View style={styles.sectionSpacer} />
+                            <InfoCard title="Bid Details" iterative={false} contentData={bidDetails} footerButtonAvailable={true} buttonFn={handleShowModal} />
 
-                        <InfoCard title="Buyer Details" iterative={false} contentData={buyerDetails} />
-                        <View style={styles.sectionSpacer} />
-                        <InfoCard title="Supplier Details" iterative={false} contentData={supplierDetails} />
-                        <View style={styles.sectionSpacer} />
-                        <InfoCard title="Organization Details" iterative={false} contentData={organizationDetails} />
-                        <View style={styles.sectionSpacer} />
-                        <InfoCard title="Items" iterative={true} contentData={itemsDetails} />
-                        <View style={styles.sectionSpacer} />
-                        <InfoCard title="Bid Details" iterative={false} contentData={bidDetails} footerButtonAvailable={true} buttonFn={handleShowModal} />
+                        </ScrollView>
+                    )}
 
-                    </ScrollView>
-                )}
-
-                <Portal>
-                    <BidModal closeModal={handleHideModal} show={showModal} contentData={bidAdditionalDetails} />
-                </Portal>
+                    <Portal>
+                        <BidModal closeModal={handleHideModal} show={showModal} contentData={bidAdditionalDetails} />
+                    </Portal>
                 </View>
-                <BottomNavbar isSupplier={true} />
             </View>
         </View>
     );

@@ -21,7 +21,9 @@ export type RootStackParamList = {
     BuyerPurchaseOrderDetails: any;
     BuyerRfqHistory: any;
     BuyerRfqDetails: any
-    BuyerBidsDetails: any
+    BuyerBidsDetails: any;
+    SupplierTabs: any;
+    BuyerTabs: any;
 };
 export type CustomNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
