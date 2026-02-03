@@ -1,5 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import SupplierDashboardScreen from '../screens/Supplier/supplierDashboard';
+import SupplierProductsScreen from '../screens/Supplier/products';
 import SupplierRequestHistory from '../screens/Supplier/requestHistory';
 import SupplierPurchaseOrderScreen from '../screens/Supplier/purchaseOrder';
 import EnterNewPasswordScreen from '../screens/enterNewPassword'; // Assuming Settings leads here or handled similarly?
@@ -22,6 +23,7 @@ const SupplierTabs = () => {
             tabBar={(props) => <BottomNavbar {...props} isSupplier={true} />}
         >
             <Tab.Screen name="SupplierDashboard" component={SupplierDashboardScreen} />
+            <Tab.Screen name="SupplierProducts" component={SupplierProductsScreen} options={{ tabBarLabel: 'Products' }} />
             <Tab.Screen name="SupplierRequestHistory" component={SupplierRequestHistory} />
             <Tab.Screen name="SupplierPurchaseOrder" component={SupplierPurchaseOrderScreen} />
             <Tab.Screen name="EnterNewPassword" component={EnterNewPasswordScreen} options={{ tabBarLabel: 'Settings' }} />

@@ -21,6 +21,11 @@ import SupplierRequestDetailsScreen from './src/screens/Supplier/requestDetails'
 import BuyerRfqHistoryScreen from './src/screens/Buyer/rfqHistory';
 import BuyerRfqDetailsScreen from './src/screens/Buyer/rfqDetails';
 import BuyerBidsDetailsScreen from './src/screens/Buyer/bidDetails';
+import SupplierProductEnquiriesScreen from './src/screens/Supplier/productEnquiries';
+import SupplierProductDetailsScreen from './src/screens/Supplier/productDetails';
+import SupplierProductEditScreen from './src/screens/Supplier/productEdit';
+import SupplierProductCreateScreen from './src/screens/Supplier/productCreate';
+import SupplierProductEnquiryDetailsScreen from './src/screens/Supplier/productEnquiryDetails';
 import { LogLevel, OneSignal } from 'react-native-onesignal';
 import NetInfo from '@react-native-community/netinfo';
 import { PermissionsAndroid, Platform, UIManager } from 'react-native';
@@ -37,14 +42,8 @@ function App(): React.JSX.Element {
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    // Hide BootSplash after app initialization
-    console.log('App.tsx: Attempting to hide BootSplash');
-    setTimeout(() => {
-      BootSplash.hide({ fade: true })
-        .then(() => console.log('App.tsx: BootSplash hidden successfully'))
-        .catch(err => console.error('App.tsx: BootSplash hide error', err));
-    }, 500);
-
+    // BootSplash is now handled in the Splash screen to ensure seamless transition
+    // Check network connectivity and initialize OneSignal
     if (Platform.OS === 'android' && Number(Platform.Version) >= 33) {
       PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
@@ -134,6 +133,26 @@ function App(): React.JSX.Element {
             <Stack.Screen
               name="BuyerPurchaseOrderDetails"
               component={BuyerPurchaseorderDetailsScreen}
+            />
+            <Stack.Screen
+              name="SupplierProductEnquiries"
+              component={SupplierProductEnquiriesScreen}
+            />
+            <Stack.Screen
+              name="SupplierProductDetails"
+              component={SupplierProductDetailsScreen}
+            />
+            <Stack.Screen
+              name="SupplierProductEdit"
+              component={SupplierProductEditScreen}
+            />
+            <Stack.Screen
+              name="SupplierProductCreate"
+              component={SupplierProductCreateScreen}
+            />
+            <Stack.Screen
+              name="SupplierProductEnquiryDetails"
+              component={SupplierProductEnquiryDetailsScreen}
             />
           </Stack.Navigator>
         </NavigationContainer>

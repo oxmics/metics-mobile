@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Text, Icon } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -11,9 +11,16 @@ interface NavItemProps {
     label: string;
     onPress: () => void;
     isDestructive?: boolean;
+    hasSubmenu?: boolean;
+    isExpanded?: boolean;
 }
 
-const NavItem = ({ icon, label, onPress, isDestructive }: NavItemProps) => (
+interface SubNavItemProps {
+    label: string;
+    onPress: () => void;
+}
+
+const NavItem = ({ icon, label, onPress, isDestructive, hasSubmenu, isExpanded }: NavItemProps) => (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
         <View style={[styles.itemRow, isDestructive && styles.destructiveRow]}>
             <View style={[styles.iconWrapper, isDestructive && styles.destructiveIcon]}>
@@ -26,19 +33,40 @@ const NavItem = ({ icon, label, onPress, isDestructive }: NavItemProps) => (
             <Text style={[styles.itemText, isDestructive && styles.destructiveText]}>
                 {label}
             </Text>
-            {!isDestructive && (
+            {hasSubmenu ? (
+                <Icon
+                    source={isExpanded ? "chevron-up" : "chevron-down"}
+                    size={18}
+                    color={colors.neutral.text.tertiary}
+                />
+            ) : !isDestructive && (
                 <Icon source="chevron-right" size={18} color={colors.neutral.text.tertiary} />
             )}
         </View>
     </TouchableOpacity>
 );
 
+const SubNavItem = ({ label, onPress }: SubNavItemProps) => (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        <View style={styles.subItemRow}>
+            <View style={styles.subItemDot} />
+            <Text style={styles.subItemText}>{label}</Text>
+            <Icon source="chevron-right" size={16} color={colors.neutral.text.tertiary} />
+        </View>
+    </TouchableOpacity>
+);
+
 const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const [isProductsExpanded, setIsProductsExpanded] = useState(false);
 
     const handleNavigation = (screen: string) => {
         navigation.navigate(screen as never);
         closeDrawer();
+    };
+
+    const toggleProducts = () => {
+        setIsProductsExpanded(!isProductsExpanded);
     };
 
     const handleLogout = async (screen: keyof RootStackParamList) => {
@@ -96,6 +124,25 @@ const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
                     label="Purchase Orders"
                     onPress={() => handleNavigation('SupplierPurchaseOrder')}
                 />
+                <NavItem
+                    icon="package-variant"
+                    label="Products"
+                    onPress={toggleProducts}
+                    hasSubmenu
+                    isExpanded={isProductsExpanded}
+                />
+                {isProductsExpanded && (
+                    <>
+                        <SubNavItem
+                            label="Product List"
+                            onPress={() => handleNavigation('SupplierProducts')}
+                        />
+                        <SubNavItem
+                            label="Enquiries"
+                            onPress={() => handleNavigation('SupplierProductEnquiries')}
+                        />
+                    </>
+                )}
             </View>
 
             {/* Settings */}
@@ -242,6 +289,26 @@ const styles = StyleSheet.create({
         fontSize: 11,
         color: colors.neutral.text.tertiary,
         textAlign: 'center',
+    },
+    subItemRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: spacing.xl,
+        paddingVertical: spacing.sm,
+        paddingLeft: spacing.xl + 44, // Indent for submenu
+    },
+    subItemDot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: colors.neutral.text.tertiary,
+        marginRight: spacing.md,
+    },
+    subItemText: {
+        flex: 1,
+        fontSize: 13,
+        color: colors.neutral.text.secondary,
+        fontWeight: '400',
     },
 });
 

@@ -69,6 +69,9 @@ export const BottomNavbar = ({ state, descriptors, navigation, isSupplier }: Bot
                     } else if (route.name === 'SupplierRequestHistory' || route.name === 'BuyerRfqHistory') {
                         iconName = 'file-document';
                         labelText = 'RFQs';
+                    } else if (route.name === 'SupplierProducts') {
+                        iconName = 'package-variant';
+                        labelText = 'Products';
                     } else if (route.name === 'SupplierPurchaseOrder' || route.name === 'BuyerPurchaseOrder') {
                         iconName = 'package-variant-closed';
                         labelText = 'Orders';

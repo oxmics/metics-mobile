@@ -2,7 +2,8 @@ import { Modal, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View, 
 import { Icon, Portal, Text, Button } from 'react-native-paper';
 import useSupplierDashboard from '../../api/dashboard/useSupplierDashboard';
 import useSupplierActivityLogs from '../../api/dashboard/useSupplierActivityLogs';
-import { useState, useCallback } from 'react';
+import useProductEnquiries from '../../api/products/useProductEnquiries';
+import { useState, useCallback, useMemo } from 'react';
 import { OverviewCard } from '../../components/OverviewCard';
 import { OrdersQuickActionCard, RFQQuickActionCard } from '../../components/QuickActionCard';
 import { RecentUpdatesCard } from '../../components/RecentUpdatesCard';
@@ -13,6 +14,7 @@ import CustomDrawer from '../../components/SupplierDrawer';
 import { BottomNavbar } from '../../components/BottomNavbar';
 import { colors, spacing, borderRadius, shadows, typography } from '../../theme';
 import { Skeleton } from '../../components/Skeleton';
+import { SupplierActivityLogsType } from '../../types/dashboard';
 
 const SupplierDashboardScreen = () => {
     console.log('SupplierDashboardScreen: Rendering');
@@ -24,6 +26,24 @@ const SupplierDashboardScreen = () => {
 
     const { data: dashboardContent, isPending: loading, refetch, isError: dashboardError } = useSupplierDashboard();
     const { data: logs, isPending: loadingLogs, refetch: refetchLogs, isError: logsError } = useSupplierActivityLogs();
+    const { data: enquiries, isPending: loadingEnquiries, refetch: refetchEnquiries } = useProductEnquiries();
+
+    // Merge enquiries into activity logs
+    const mergedLogs = useMemo(() => {
+        const activityLogs = logs || [];
+        const enquiryLogs: SupplierActivityLogsType[] = (enquiries || []).map(enquiry => ({
+            id: `enquiry-${enquiry.id}`,
+            activity_type: 'Product Enquiry',
+            description: `New enquiry from ${enquiry.organisation_name} for ${enquiry.items?.length || 0} product(s)`,
+            created_at: enquiry.created_at || new Date().toISOString(),
+            updated_at: enquiry.created_at || new Date().toISOString(),
+        }));
+
+        // Combine and sort by updated_at
+        return [...activityLogs, ...enquiryLogs].sort((a, b) =>
+            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+    }, [logs, enquiries]);
 
     const toggleDrawer = () => setDrawerVisible(!drawerVisible);
     const handleHideModal = () => setShowModal(false);
@@ -31,15 +51,15 @@ const SupplierDashboardScreen = () => {
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
-        await Promise.all([refetch(), refetchLogs()]);
+        await Promise.all([refetch(), refetchLogs(), refetchEnquiries()]);
         setRefreshing(false);
-    }, [refetch, refetchLogs]);
+    }, [refetch, refetchLogs, refetchEnquiries]);
 
     const handleSwitchToBuyer = () => {
         navigation.replace('BuyerTabs');
     };
 
-    const isLoading = loading || loadingLogs;
+    const isLoading = loading || loadingLogs || loadingEnquiries;
     const hasError = dashboardError || logsError;
 
     return (
@@ -180,7 +200,7 @@ const SupplierDashboardScreen = () => {
                                         <Skeleton width="100%" height={80} />
                                     </View>
                                 ) : (
-                                    logs && <RecentUpdatesCard viewAll={handleShowModal} logs={logs} />
+                                    <RecentUpdatesCard viewAll={handleShowModal} logs={mergedLogs} />
                                 )}
                             </View>
                         </>
@@ -188,7 +208,7 @@ const SupplierDashboardScreen = () => {
                 </ScrollView>
 
                 <Portal>
-                    {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} />}
+                    <RecentUpdatesModal hideModal={handleHideModal} logs={mergedLogs} show={showModal} />
                 </Portal>
 
             </View>
