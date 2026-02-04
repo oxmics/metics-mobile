@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { CustomNavigationProp, RootStackParamList } from '../types/common';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { colors, spacing, borderRadius } from '../theme';
+import { ContactUsModal } from './ContactUsModal';
 
 interface NavItemProps {
     icon: string;
@@ -59,6 +60,7 @@ const SubNavItem = ({ label, onPress }: SubNavItemProps) => (
 const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
     const navigation = useNavigation<CustomNavigationProp>();
     const [isProductsExpanded, setIsProductsExpanded] = useState(false);
+    const [showContactModal, setShowContactModal] = useState(false);
 
     const handleNavigation = (screen: string) => {
         navigation.navigate(screen as never);
@@ -120,6 +122,11 @@ const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
                     onPress={() => handleNavigation('SupplierRequestHistory')}
                 />
                 <NavItem
+                    icon="format-list-bulleted"
+                    label="My Bids"
+                    onPress={() => handleNavigation('SupplierBids')}
+                />
+                <NavItem
                     icon="package-variant-closed"
                     label="Purchase Orders"
                     onPress={() => handleNavigation('SupplierPurchaseOrder')}
@@ -153,6 +160,11 @@ const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
                     label="Account Settings"
                     onPress={() => handleNavigation('EnterNewPassword')}
                 />
+                <NavItem
+                    icon="lifebuoy"
+                    label="Contact Us"
+                    onPress={() => setShowContactModal(true)}
+                />
             </View>
 
             {/* Logout */}
@@ -169,6 +181,12 @@ const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
             <View style={styles.footer}>
                 <Text style={styles.footerText}>Metics v1.0.0</Text>
             </View>
+
+            {/* Modals */}
+            <ContactUsModal
+                visible={showContactModal}
+                onDismiss={() => setShowContactModal(false)}
+            />
         </SafeAreaView>
     );
 };

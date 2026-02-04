@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { CustomNavigationProp, RootStackParamList } from '../types/common';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { colors, spacing, borderRadius } from '../theme';
+import { ContactUsModal } from './ContactUsModal';
 
 interface NavItemProps {
     icon: string;
@@ -35,6 +36,7 @@ const NavItem = ({ icon, label, onPress, isDestructive }: NavItemProps) => (
 
 const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
     const navigation = useNavigation<CustomNavigationProp>();
+    const [showContactModal, setShowContactModal] = React.useState(false);
 
     const handleNavigation = (screen: string) => {
         navigation.navigate(screen as never);
@@ -87,6 +89,16 @@ const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
                     onPress={() => handleNavigation('BuyerDashboard')}
                 />
                 <NavItem
+                    icon="check-circle-outline"
+                    label="Approvals"
+                    onPress={() => handleNavigation('BuyerApprovals')}
+                />
+                <NavItem
+                    icon="store-outline"
+                    label="Suppliers"
+                    onPress={() => handleNavigation('BuyerSuppliers')}
+                />
+                <NavItem
                     icon="file-document-outline"
                     label="RFQ Management"
                     onPress={() => handleNavigation('BuyerRfqHistory')}
@@ -106,6 +118,11 @@ const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
                     label="Account Settings"
                     onPress={() => handleNavigation('EnterNewPassword')}
                 />
+                <NavItem
+                    icon="lifebuoy"
+                    label="Contact Us"
+                    onPress={() => setShowContactModal(true)}
+                />
             </View>
 
             {/* Logout */}
@@ -122,6 +139,11 @@ const BuyerDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
             <View style={styles.footer}>
                 <Text style={styles.footerText}>Metics v1.0.0</Text>
             </View>
+
+            <ContactUsModal
+                visible={showContactModal}
+                onDismiss={() => setShowContactModal(false)}
+            />
         </SafeAreaView>
     );
 };

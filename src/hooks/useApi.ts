@@ -13,9 +13,17 @@ export function useApi() {
         });
 
         instance.interceptors.request.use(async (config) => {
-            const token = await EncryptedStorage.getItem('jwt-token');
-            config.headers.Authorization = `Token ${token}`;
+            console.log('API Request Interceptor: Starting');
+            try {
+                const token = await EncryptedStorage.getItem('jwt-token');
+                console.log('API Request Interceptor: Token retrieved', token ? 'Yes' : 'No');
+                config.headers.Authorization = `Token ${token}`;
 
+                console.log('API Request:', config.method?.toUpperCase(), config.url, JSON.stringify(config.data, null, 2));
+            } catch (e) {
+                console.log('API Request Log Error:', e);
+            }
+            console.log('API Request Interceptor: Returning config');
             return config;
         });
 

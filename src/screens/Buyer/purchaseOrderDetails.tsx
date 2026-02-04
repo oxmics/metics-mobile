@@ -42,106 +42,103 @@ const BuyerPurchaseorderDetailsScreen = () => {
     };
 
     const auctionDetails = useMemo(() => {
-        if (purchaseOrder) {
+        if (purchaseOrder?.auction_header) {
             return {
-                Title: purchaseOrder.bid_header_details?.auction_header?.title ?? '—',
-                'Requisition Number': purchaseOrder.bid_header_details?.auction_header?.requisition_number ?? '—',
-                'Product Category': purchaseOrder.bid_header_details?.auction_header?.product_category ?? '—',
-                'Product Sub Category': purchaseOrder.bid_header_details?.auction_header?.product_sub_category ?? '—',
-                'Need By Date': purchaseOrder.bid_header_details?.auction_header?.need_by_date
+                Title: purchaseOrder.auction_header.title ?? '—',
+                'Requisition Number': purchaseOrder.auction_header.requisition_number ?? '—',
+                'Product Category': purchaseOrder.auction_header.product_category ?? '—',
+                'Product Sub Category': purchaseOrder.auction_header.product_sub_category ?? '—',
+                'Need By Date': purchaseOrder.auction_header.need_by_date
+                    ? formatDate(purchaseOrder.auction_header.need_by_date)
+                    : '—',
+            };
+        } else if (purchaseOrder?.bid_header_details?.auction_header) {
+            return {
+                Title: purchaseOrder.bid_header_details.auction_header.title ?? '—',
+                'Requisition Number': purchaseOrder.bid_header_details.auction_header.requisition_number ?? '—',
+                'Product Category': purchaseOrder.bid_header_details.auction_header.product_category ?? '—',
+                'Product Sub Category': purchaseOrder.bid_header_details.auction_header.product_sub_category ?? '—',
+                'Need By Date': purchaseOrder.bid_header_details.auction_header.need_by_date
                     ? formatDate(purchaseOrder.bid_header_details.auction_header.need_by_date)
                     : '—',
             };
-        } else {
-            return {};
         }
+        return {};
     }, [purchaseOrder]);
 
     const supplierDetails = useMemo(() => {
-        if (purchaseOrder) {
+        const details = purchaseOrder?.supplier_organisation_details || purchaseOrder?.bid_header_details?.organisation;
+        if (details) {
             return {
-                Name: purchaseOrder.supplier_organisation_details?.name ?? '—',
-                Address: purchaseOrder.supplier_organisation_details?.address_line1 ?? '—',
-                City: purchaseOrder.supplier_organisation_details?.city ?? '—',
-                State: purchaseOrder.supplier_organisation_details?.state ?? '—',
-                Country: purchaseOrder.supplier_organisation_details?.country ?? '—',
-                'Postal Code': purchaseOrder.supplier_organisation_details?.postal_code ?? '—',
-                Email: purchaseOrder.supplier_organisation_details?.email ?? '—',
-                Contact: purchaseOrder.supplier_organisation_details?.contact ?? '—',
-                'Total Turnover': purchaseOrder.supplier_organisation_details?.total_turnover ?? '—',
-                'No of Employees': purchaseOrder.supplier_organisation_details?.number_of_employees ?? '—',
+                Name: details.name ?? '—',
+                Address: details.address_line1 ?? '—',
+                City: details.city ?? '—',
+                State: details.state ?? '—',
+                Country: details.country ?? '—',
+                'Postal Code': details.postal_code ?? '—',
+                Email: details.email ?? '—',
+                Contact: details.contact ?? '—',
+                // 'Total Turnover': details.total_turnover ?? '—', // Sometimes sensitive/missing
+                // 'No of Employees': details.number_of_employees ?? '—',
             };
-        } else {
-            return {};
         }
+        return {};
     }, [purchaseOrder]);
 
     const organizationDetails = useMemo(() => {
-        if (purchaseOrder) {
+        if (purchaseOrder?.buyer_organisation_details) {
             return {
-                Name: purchaseOrder.buyer_organisation_details?.name ?? '—',
-                Address: purchaseOrder.buyer_organisation_details?.address_line1 ?? '—',
-                City: purchaseOrder.buyer_organisation_details?.city ?? '—',
-                State: purchaseOrder.buyer_organisation_details?.state ?? '—',
-                Country: purchaseOrder.buyer_organisation_details?.country ?? '—',
-                'Postal Code': purchaseOrder.buyer_organisation_details?.postal_code ?? '—',
-                Email: purchaseOrder.buyer_organisation_details?.email ?? '—',
-                Contact: purchaseOrder.buyer_organisation_details?.contact ?? '—',
-                'Total Turnover': purchaseOrder.buyer_organisation_details?.total_turnover ?? '—',
-                'No of Employees': purchaseOrder.buyer_organisation_details?.number_of_employees ?? '—',
+                Name: purchaseOrder.buyer_organisation_details.name ?? '—',
+                Address: purchaseOrder.buyer_organisation_details.address_line1 ?? '—',
+                City: purchaseOrder.buyer_organisation_details.city ?? '—',
+                State: purchaseOrder.buyer_organisation_details.state ?? '—',
+                Country: purchaseOrder.buyer_organisation_details.country ?? '—',
+                'Postal Code': purchaseOrder.buyer_organisation_details.postal_code ?? '—',
+                Email: purchaseOrder.buyer_organisation_details.email ?? '—',
+                Contact: purchaseOrder.buyer_organisation_details.contact ?? '—',
             };
-        } else {
-            return {};
         }
+        return {};
     }, [purchaseOrder]);
 
     const bidDetails = useMemo(() => {
-        if (purchaseOrder) {
+        if (purchaseOrder?.bid_header_details) {
             return {
-                'Bidders Bid Number': purchaseOrder.bid_header_details?.bidders_bid_number ?? '—',
-                'Bid status': purchaseOrder.bid_header_details?.bid_status ?? '—',
-                Status: purchaseOrder.bid_header_details?.auction_header?.status ?? '—',
-                'Bid count': purchaseOrder.bid_header_details?.auction_header?.bid_count ?? '—',
+                'Bid Number': purchaseOrder.bid_header_details.bidders_bid_number ?? '—',
+                'Bid Status': purchaseOrder.bid_header_details.bid_status ?? '—',
+                'Auction Status': purchaseOrder.auction_header?.status ?? '—',
+                'Bid Count': purchaseOrder.auction_header?.bid_count ?? '—',
             };
-        } else {
-            return {};
         }
+        return {};
     }, [purchaseOrder]);
 
     const bidAdditionalDetails = useMemo(() => {
-        if (purchaseOrder) {
+        if (purchaseOrder?.bid_header_details) {
             return {
-                'Bidders Bid Number': purchaseOrder.bid_header_details?.bidders_bid_number ?? '—',
-                'Bid status': purchaseOrder.bid_header_details?.bid_status ?? '—',
-                'Response Type': purchaseOrder.bid_header_details?.type_of_response ?? '—',
-                'Bid Expiration Date': purchaseOrder.bid_header_details?.bid_expiration_date
+                'Bid Number': purchaseOrder.bid_header_details.bidders_bid_number ?? '—',
+                'Bid Status': purchaseOrder.bid_header_details.bid_status ?? '—',
+                'Response Type': purchaseOrder.bid_header_details.type_of_response ?? '—',
+                'Bid Expiration Date': purchaseOrder.bid_header_details.bid_expiration_date
                     ? formatDate(purchaseOrder.bid_header_details.bid_expiration_date)
                     : '—',
-                'Supplier Note': purchaseOrder.bid_header_details?.note_to_supplier ?? '',
-                Status: purchaseOrder.bid_header_details?.auction_header?.status ?? '—',
-                'Bid count': purchaseOrder.bid_header_details?.auction_header?.bid_count ?? '—',
+                'Supplier Note': purchaseOrder.bid_header_details.note_to_supplier ?? '',
             };
-        } else {
-            return {};
         }
+        return {};
     }, [purchaseOrder]);
 
     const itemsDetails = useMemo(() => {
-        if (purchaseOrder) {
-            let items: any[] = [];
-            const details = Array.isArray(purchaseOrder.details) ? purchaseOrder.details : [];
-            details.map((item, index) => {
-                items.push({
-                    'sl no': index + 1,
-                    Name: item.product_name ?? '—',
-                    Quantity: item.quantity ?? '—',
-                    Price: item.price ?? '—',
-                });
-            });
-            return items;
-        } else {
-            return [];
+        if (purchaseOrder?.details && Array.isArray(purchaseOrder.details)) {
+            return purchaseOrder.details.map((item, index) => ({
+                'Sl No': index + 1,
+                Name: item.product_name ?? '—',
+                Quantity: item.quantity ?? '—',
+                Price: item.price ?? '—',
+                Total: item.total_price ?? (Number(item.quantity) * Number(item.price)).toString() ?? '—'
+            }));
         }
+        return [];
     }, [purchaseOrder]);
 
     const handleShowModal = () => setShowModal(true);
@@ -239,7 +236,8 @@ const BuyerPurchaseorderDetailsScreen = () => {
                             <View style={styles.sectionSpacer} />
                             <InfoCard title="Supplier Details" iterative={false} contentData={supplierDetails} />
                             <View style={styles.sectionSpacer} />
-                            <InfoCard title="Organization Details" iterative={false} contentData={organizationDetails} />
+                            <View style={styles.sectionSpacer} />
+                            <InfoCard title="Organization Details (Buyer)" iterative={false} contentData={organizationDetails} />
                             <View style={styles.sectionSpacer} />
                             <InfoCard title="Items" iterative={true} contentData={itemsDetails} />
                             <View style={styles.sectionSpacer} />

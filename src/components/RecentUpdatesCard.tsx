@@ -2,15 +2,62 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { SupplierActivityLogsType } from '../types/dashboard';
 import { daysAgo } from '../utils/helper';
 import { colors, typography, spacing, borderRadius } from '../theme';
+import { useNavigation } from '@react-navigation/native';
+import { CustomNavigationProp } from '../types/common';
 
 interface props {
     logs: SupplierActivityLogsType[] | undefined | null,
-    viewAll: () => void
+    viewAll: () => void,
+    isBuyer?: boolean
 }
 
-export const RecentUpdatesCard = ({ logs, viewAll }: props) => {
-    // Safely handle logs being undefined or not an array
+// Helper function to determine navigation based on activity type
+const getNavigationForActivity = (activityType: string, description: string, isBuyer: boolean = false) => {
+    const type = activityType.toLowerCase();
+
+    // Check for RFQ/Auction related activities
+    if (type.includes('rfq') || type.includes('auction') || type.includes('request')) {
+        return isBuyer ? 'BuyerRfqHistory' : 'SupplierRequestHistory';
+    }
+
+    // Check for Order/PO related activities
+    if (type.includes('order') || type.includes('purchase')) {
+        return isBuyer ? 'BuyerPurchaseOrder' : 'SupplierPurchaseOrder';
+    }
+
+    // Check for Bid related activities
+    if (type.includes('bid')) {
+        return isBuyer ? 'BuyerRfqHistory' : 'SupplierRequestHistory';
+    }
+
+    // Check for Product/Enquiry related activities
+    if (type.includes('product') || type.includes('enquir')) {
+        return 'SupplierProductEnquiries'; // Only suppliers have this
+    }
+
+    return null;
+};
+
+export const RecentUpdatesCard = ({ logs, viewAll, isBuyer = false }: props) => {
+    let navigation: CustomNavigationProp | null = null;
+
+    try {
+        navigation = useNavigation<CustomNavigationProp>();
+    } catch (e) {
+        // Component might be rendered outside NavigationContainer
+        console.log('Navigation not available in RecentUpdatesCard');
+    }
+
     const safeLogs = Array.isArray(logs) ? logs : [];
+
+    const handleActivityPress = (log: SupplierActivityLogsType) => {
+        if (!navigation) return; // Skip if navigation is not available
+
+        const targetScreen = getNavigationForActivity(log.activity_type, log.description, isBuyer);
+        if (targetScreen) {
+            navigation.navigate(targetScreen as any);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -20,12 +67,14 @@ export const RecentUpdatesCard = ({ logs, viewAll }: props) => {
             {safeLogs.length > 0 ? (
                 <>
                     {safeLogs.slice(0, 5).map((log, index) => (
-                        <View
+                        <TouchableOpacity
                             key={index}
                             style={[
                                 styles.row,
                                 index === Math.min(safeLogs.length - 1, 4) && styles.lastRow,
                             ]}
+                            onPress={() => handleActivityPress(log)}
+                            activeOpacity={0.7}
                         >
                             <View style={styles.avatarPlaceholder}>
                                 <Text style={styles.avatarText}>{log?.activity_type?.charAt(0) || '?'}</Text>
@@ -39,7 +88,7 @@ export const RecentUpdatesCard = ({ logs, viewAll }: props) => {
                                     {log?.description || ''}
                                 </Text>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     ))}
                     <TouchableOpacity onPress={viewAll} style={styles.footerLink}>
                         <Text style={styles.footerLinkText}>View all activity</Text>

@@ -5,7 +5,7 @@ import useSupplierActivityLogs from '../../api/dashboard/useSupplierActivityLogs
 import useProductEnquiries from '../../api/products/useProductEnquiries';
 import { useState, useCallback, useMemo } from 'react';
 import { OverviewCard } from '../../components/OverviewCard';
-import { OrdersQuickActionCard, RFQQuickActionCard } from '../../components/QuickActionCard';
+import { OrdersQuickActionCard, RFQQuickActionCard, EnquiriesQuickActionCard } from '../../components/QuickActionCard';
 import { RecentUpdatesCard } from '../../components/RecentUpdatesCard';
 import { RecentUpdatesModal } from '../../components/RecentUpdatesModal';
 import { useNavigation } from '@react-navigation/native';
@@ -187,6 +187,7 @@ const SupplierDashboardScreen = () => {
                                     >
                                         <RFQQuickActionCard />
                                         <OrdersQuickActionCard />
+                                        <EnquiriesQuickActionCard />
                                     </ScrollView>
                                 )}
                             </View>

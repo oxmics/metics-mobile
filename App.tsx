@@ -26,6 +26,12 @@ import SupplierProductDetailsScreen from './src/screens/Supplier/productDetails'
 import SupplierProductEditScreen from './src/screens/Supplier/productEdit';
 import SupplierProductCreateScreen from './src/screens/Supplier/productCreate';
 import SupplierProductEnquiryDetailsScreen from './src/screens/Supplier/productEnquiryDetails';
+import BuyerApprovalsScreen from './src/screens/Buyer/approvals';
+import BuyerApprovalDetailsScreen from './src/screens/Buyer/approvalDetails';
+import BuyerSuppliersScreen from './src/screens/Buyer/suppliers';
+import BuyerSupplierDetailsScreen from './src/screens/Buyer/supplierDetails';
+import BuyerBidComparisonScreen from './src/screens/Buyer/bidComparison';
+import SupplierBidsScreen from './src/screens/Supplier/bids';
 import { LogLevel, OneSignal } from 'react-native-onesignal';
 import NetInfo from '@react-native-community/netinfo';
 import { PermissionsAndroid, Platform, UIManager } from 'react-native';
@@ -127,7 +133,7 @@ function App(): React.JSX.Element {
               component={BuyerBidsDetailsScreen}
             />
             <Stack.Screen
-              name="SupplierPurchaseorderDetails"
+              name="SupplierPurchaseOrderDetails"
               component={SupplierPurchaseorderDetailsScreen}
             />
             <Stack.Screen
@@ -153,6 +159,30 @@ function App(): React.JSX.Element {
             <Stack.Screen
               name="SupplierProductEnquiryDetails"
               component={SupplierProductEnquiryDetailsScreen}
+            />
+            <Stack.Screen
+              name="BuyerApprovals"
+              component={BuyerApprovalsScreen}
+            />
+            <Stack.Screen
+              name="BuyerApprovalDetails"
+              component={BuyerApprovalDetailsScreen}
+            />
+            <Stack.Screen
+              name="BuyerSuppliers"
+              component={BuyerSuppliersScreen}
+            />
+            <Stack.Screen
+              name="BuyerSupplierDetails"
+              component={BuyerSupplierDetailsScreen}
+            />
+            <Stack.Screen
+              name="BuyerBidComparison"
+              component={BuyerBidComparisonScreen}
+            />
+            <Stack.Screen
+              name="SupplierBids"
+              component={SupplierBidsScreen}
             />
           </Stack.Navigator>
         </NavigationContainer>

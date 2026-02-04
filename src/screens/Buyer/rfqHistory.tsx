@@ -1,12 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
-import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons } from 'react-native-paper';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons, Menu, Button } from 'react-native-paper';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar, Animated } from 'react-native';
 import { AuctionType } from '../../types/auction';
+import { CustomNavigationProp } from '../../types/common';
 import useDebounce from '../../hooks/useDebounce';
 import { DataCard } from '../../components/DataCard';
 import { formatDate } from '../../utils/helper';
 
+import usePurchaseOrders from '../../api/purchase order/usePurchaseOrders';
 import useMyAuctions from '../../api/auctions/useMyAuctions';
 import { BottomNavbar } from '../../components/BottomNavbar';
 import { colors, typography, spacing, borderRadius } from '../../theme';
@@ -39,7 +41,19 @@ const BuyerRfqHistoryScreen = () => {
     const [count, setCount] = useState<number>(0);
     const [pageCount, setPageCount] = useState<number>(1);
 
-    const { data, isPending: loading, refetch } = useMyAuctions({ page: pageCount });
+    const [sortBy, setSortBy] = useState<string>('created_at'); // Earliest First
+    const [showSortMenu, setShowSortMenu] = useState(false);
+
+    const { data, isPending: loading, refetch } = useMyAuctions({ page: pageCount, ordering: sortBy });
+    const { data: purchaseOrders } = usePurchaseOrders();
+
+    const completedAuctionIds = useMemo(() => {
+        if (!purchaseOrders) return new Set<string>();
+        // Check both root auction_header and nested bid_header_details
+        return new Set(purchaseOrders.map(po => {
+            return po.auction_header?.id || po.bid_header_details?.auction_header?.id;
+        }).filter(Boolean));
+    }, [purchaseOrders]);
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [displayInProgress, setDisplayInProgress] = useState<AuctionType[]>([]);
@@ -70,7 +84,14 @@ const BuyerRfqHistoryScreen = () => {
                 let inProgress: AuctionType[] = [];
                 let drafts: AuctionType[] = [];
                 let completed: AuctionType[] = [];
+
                 auctions.forEach((auction) => {
+                    // If a PO exists, treat as COMPLETED regardless of strict status
+                    if (completedAuctionIds.has(auction.id)) {
+                        completed.push(auction);
+                        return;
+                    }
+
                     const status = auction?.status?.toLowerCase();
                     if (status === 'in-progress') {
                         inProgress.push(auction);
@@ -90,11 +111,13 @@ const BuyerRfqHistoryScreen = () => {
             setDisplayDraft([]);
             setDisplayCompleted([]);
         }
-    }, [auctions]);
+    }, [auctions, completedAuctionIds]);
 
     useEffect(() => {
         handleDisplayAuctions();
     }, [handleDisplayAuctions]);
+
+
 
     const handleSearch = useCallback(() => {
         try {
@@ -106,9 +129,25 @@ const BuyerRfqHistoryScreen = () => {
                     (auction?.requisition_number?.toLowerCase() || '').includes(query) ||
                     (auction?.organization_name?.toLowerCase() || '').includes(query);
 
-                let tempInProgress = auctions.filter((auction) => auction?.status === 'In-Progress' && filterFn(auction));
-                let tempDraft = auctions.filter((auction) => (auction?.status?.toLowerCase() === 'draft') && filterFn(auction));
-                let tempCompleted = auctions.filter((auction) => (auction?.status?.toLowerCase() === 'completed') && filterFn(auction));
+                // Check PO existence first
+                const isCompleted = (auction: AuctionType) =>
+                    completedAuctionIds.has(auction.id) ||
+                    auction?.status?.toLowerCase() === 'completed';
+
+                let tempInProgress = auctions.filter((auction) =>
+                    !isCompleted(auction) &&
+                    auction?.status === 'In-Progress' &&
+                    filterFn(auction)
+                );
+                let tempDraft = auctions.filter((auction) =>
+                    !isCompleted(auction) &&
+                    auction?.status?.toLowerCase() === 'draft' &&
+                    filterFn(auction)
+                );
+                let tempCompleted = auctions.filter((auction) =>
+                    isCompleted(auction) &&
+                    filterFn(auction)
+                );
 
                 setDisplayInProgress(tempInProgress);
                 setDisplayDraft(tempDraft);
@@ -120,26 +159,34 @@ const BuyerRfqHistoryScreen = () => {
             console.error('Error searching auctions:', err);
             handleDisplayAuctions();
         }
-    }, [auctions, debouncedSearchQuery, handleDisplayAuctions]);
+    }, [auctions, debouncedSearchQuery, handleDisplayAuctions, completedAuctionIds]);
 
     useEffect(() => {
         handleSearch();
     }, [handleSearch]);
 
-    const renderItem = ({ item }: { item: AuctionType }) => (
-        <TouchableOpacity
-            onPress={() => item?.id && navigation.push('BuyerRfqDetails', { reqId: item.id })}
-            activeOpacity={0.7}
-        >
-            <DataCard
-                title={item?.requisition_number || '—'}
-                titleLabel="Reference Number"
-                status={item?.status === 'In-Progress' ? 'IN-PROGRESS' : item?.status?.toLowerCase() === 'draft' ? 'DRAFT' : item?.status ? 'COMPLETED' : 'UNKNOWN'}
-                footerLeftText={item?.organization_name || '—'}
-                footerRightText={item?.need_by_date ? formatDate(item.need_by_date) : '—'}
-            />
-        </TouchableOpacity>
-    );
+    const renderItem = ({ item }: { item: AuctionType }) => {
+        const hasPO = completedAuctionIds.has(item.id);
+        const displayStatus = hasPO ? 'COMPLETED' :
+            item?.status === 'In-Progress' ? 'IN-PROGRESS' :
+                item?.status?.toLowerCase() === 'draft' ? 'DRAFT' :
+                    item?.status ? 'COMPLETED' : 'UNKNOWN';
+
+        return (
+            <TouchableOpacity
+                onPress={() => item?.id && navigation.push('BuyerRfqDetails', { reqId: item.id })}
+                activeOpacity={0.7}
+            >
+                <DataCard
+                    title={item?.requisition_number || '—'}
+                    titleLabel="Reference Number"
+                    status={displayStatus}
+                    footerLeftText={item?.organization_name || '—'}
+                    footerRightText={item?.need_by_date ? formatDate(item.need_by_date) : '—'}
+                />
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <ErrorBoundary name="BuyerRfqHistoryScreen">
@@ -163,7 +210,7 @@ const BuyerRfqHistoryScreen = () => {
                             </View>
                         </View>
 
-                        {/* Search Bar */}
+                        {/* Search Bar & Sort */}
                         <View style={styles.filterBar}>
                             <Searchbar
                                 mode="bar"
@@ -178,6 +225,39 @@ const BuyerRfqHistoryScreen = () => {
                                 onClearIconPress={() => setSearchQuery('')}
                                 elevation={0}
                             />
+                            <Menu
+                                visible={showSortMenu}
+                                onDismiss={() => setShowSortMenu(false)}
+                                anchor={
+                                    <TouchableOpacity
+                                        style={styles.sortButton}
+                                        onPress={() => setShowSortMenu(true)}
+                                    >
+                                        <Icon source="sort" size={24} color={colors.neutral.text.secondary} />
+                                    </TouchableOpacity>
+                                }
+                            >
+                                <Menu.Item
+                                    onPress={() => { setSortBy('created_at'); setShowSortMenu(false); }}
+                                    title="Earliest First"
+                                    leadingIcon={sortBy === 'created_at' ? 'check' : undefined}
+                                />
+                                <Menu.Item
+                                    onPress={() => { setSortBy('-created_at'); setShowSortMenu(false); }}
+                                    title="Latest First"
+                                    leadingIcon={sortBy === '-created_at' ? 'check' : undefined}
+                                />
+                                <Menu.Item
+                                    onPress={() => { setSortBy('-bid_count'); setShowSortMenu(false); }}
+                                    title="Most Bids"
+                                    leadingIcon={sortBy === '-bid_count' ? 'check' : undefined}
+                                />
+                                <Menu.Item
+                                    onPress={() => { setSortBy('bid_count'); setShowSortMenu(false); }}
+                                    title="Fewest Bids"
+                                    leadingIcon={sortBy === 'bid_count' ? 'check' : undefined}
+                                />
+                            </Menu>
                         </View>
 
                         <View style={{ margin: spacing.md }}>
@@ -334,9 +414,20 @@ const styles = StyleSheet.create({
         borderBottomColor: colors.neutral.border.default,
     },
     searchbar: {
+        flex: 1, // Take available space
         backgroundColor: colors.neutral.surface.sunken,
         borderRadius: borderRadius.base,
         height: 48,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
+    },
+    sortButton: {
+        width: 48,
+        height: 48,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.neutral.surface.sunken,
+        borderRadius: borderRadius.base,
         borderWidth: 1,
         borderColor: colors.neutral.border.default,
     },

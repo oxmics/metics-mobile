@@ -1,7 +1,7 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { ScrollView, StyleSheet, TouchableOpacity, View, StatusBar } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View, StatusBar, Alert } from 'react-native';
 import { ActivityIndicator, Button, Icon, Portal, Text } from 'react-native-paper';
-import { CustomNavigationProp } from '../../types/common';
+import { APIResponseEnum, CustomNavigationProp } from '../../types/common';
 import { useMemo, useState } from 'react';
 import { formatDate, formatDateReverse } from '../../utils/helper';
 import useAuctionDetails from '../../api/auctions/useAuction';
@@ -10,14 +10,13 @@ import useComments from '../../api/auctions/useComments';
 import useCreateComment from '../../api/auctions/useCreateComment';
 import { RequestInfoCard } from '../../components/RequestCard';
 import { CommentCard } from '../../components/CommentCard';
-import { QuoteContainer } from '../../components/QuoteContainer';
+import { BidLinesInput } from '../../components/BidLinesInput';
 import useTemplates from '../../api/templates/useTemplates';
 import { TemplateType } from '../../types/template';
 import { TemplatesCard } from '../../components/TemplatesCard';
 import { TemplateEditCard } from '../../components/TemplateEditCard';
 import useUpdateTemplateDescription from '../../api/templates/useUpdateTemplateDescription';
 import { NoteCard } from '../../components/NoteCard';
-import { QuoteModal } from '../../components/QuoteModal';
 import { CalendarDate } from 'react-native-paper-dates/lib/typescript/Date/Calendar';
 import { AttachmentsCard } from '../../components/AttachmentsCard';
 import { AttachmentType } from '../../types/purchaseOrder';
@@ -39,13 +38,13 @@ const SupplierRequestDetailsScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
 
     const [statusLoading, setStatusLoading] = useState<0 | 1 | 2>(0);
-    const [showModal, setShowModal] = useState<boolean>(false);
     const [showEditTemplate, setShowEditTemplate] = useState<boolean>(false);
 
     const [noteToSupplier, setNoteToSupplier] = useState<string>('');
     const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>();
-    const [promisedDate, setPromisedDate] = useState<CalendarDate>();
-    const [promisedPrice, setPromisedPrice] = useState<string>('');
+
+    // Per-line quote management
+    const [lineQuotes, setLineQuotes] = useState<Record<number, { price: string; date: Date | undefined; quantity?: string }>>({});
 
     const { data: auction, isPending: loading } = useAuctionDetails({ id: reqId });
     const { data: auctionLines } = useAuctionLines({ id: reqId });
@@ -59,20 +58,69 @@ const SupplierRequestDetailsScreen = () => {
     const handleStatusUpdate = (status: string) => {
         if (status === 'Bid') {
             setStatusLoading(1);
-            let tempBidLine: any = auctionLines && auctionLines[0];
-            if (auctionLines && auctionLines[0] && tempBidLine) {
-                tempBidLine.price = promisedPrice;
-                tempBidLine.promised_date = promisedDate ? formatDateReverse(promisedDate?.toISOString()) : '';
-            }
-            bid({
-                id: reqId,
-                lst_bid_line: JSON.stringify(tempBidLine ? tempBidLine : []),
-                note_to_supplier: noteToSupplier,
-                template_data: JSON.stringify(selectedTemplate),
-            }).then(() => {
+
+            try {
+                // Build bid lines array from all auction lines (match web payload shape)
+                let bidLines: any[] = [];
+                if (auctionLines && auctionLines.length > 0) {
+                    auctionLines.forEach((line, index) => {
+                        const quote = lineQuotes[index];
+                        const rawQuantity = quote?.quantity ?? line.quantity;
+                        const bidQuantity =
+                            typeof rawQuantity === 'string' && rawQuantity.trim() !== ''
+                                ? Number(rawQuantity)
+                                : rawQuantity;
+
+                        bidLines.push({
+                            auction_line: line.id,
+                            bid_quantity: bidQuantity,
+                            quantity: bidQuantity,
+                            price: quote?.price || 0,
+                            promised_date: quote?.date ? formatDateReverse(quote.date.toISOString()) : null,
+                        });
+                    });
+                }
+
+                // Timeout promise
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timed out')), 10000)
+                );
+
+                Promise.race([
+                    bid({
+                        id: reqId,
+                        lst_bid_line: JSON.stringify(bidLines) as any, // Trying stringified clean payload
+                        note_to_supplier: noteToSupplier,
+                        template_data: selectedTemplate
+                            ? JSON.stringify({
+                                id: selectedTemplate.id,
+                                name: selectedTemplate.name,
+                                display_description: selectedTemplate.display_description,
+                            })
+                            : undefined,
+                    }),
+                    timeoutPromise
+                ])
+                    .then((res: any) => {
+                        setStatusLoading(0);
+                        if (res !== APIResponseEnum.SUCCESS) {
+                            console.error('Bid submission failed with status:', res);
+                            Alert.alert('Error', 'Bid submission failed. Please try again.');
+                        } else {
+                            navigation.navigate('SupplierRequestHistory');
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Bid submission error:', err);
+                        setStatusLoading(0);
+                        const msg = err instanceof Error ? err.message : 'Unknown error';
+                        Alert.alert('Submission Error', msg);
+                    });
+            } catch (e: any) {
+                console.error('Sync Error:', e);
                 setStatusLoading(0);
-                navigation.navigate('SupplierRequestHistory');
-            });
+                Alert.alert('App Error', e.message || 'Error preparing bid');
+            }
         } else {
             setStatusLoading(2);
             ignore({ id: reqId }).then(() => {
@@ -104,28 +152,15 @@ const SupplierRequestDetailsScreen = () => {
         }
     }, [auctionLines]);
 
-    const quoteDetails = useMemo(() => {
-        if (auctionLines) {
-            let lines: any[] = [];
-            auctionLines.map((item) => {
-                lines.push({
-                    Name: item.product_name,
-                    Quantity: item.quantity,
-                    Brand: item.brand,
-                    'Target Price': item.target_price,
-                    'Created At': formatDate(item.created_at),
-                    'Promised Price': promisedPrice ? promisedPrice : '',
-                    'Promised Date': promisedDate ? formatDate(promisedDate.toISOString()) : '',
-                });
-            });
-            return lines;
-        } else {
-            return [];
-        }
-    }, [auctionLines, promisedDate, promisedPrice]);
-
-    const handleShowModal = () => setShowModal(true);
-    const handleHideModal = () => setShowModal(false);
+    const handleQuoteChange = (index: number, field: 'price' | 'date' | 'quantity', value: any) => {
+        setLineQuotes(prev => ({
+            ...prev,
+            [index]: {
+                ...prev[index] || { price: '', date: undefined, quantity: '' },
+                [field]: value
+            }
+        }));
+    };
 
     const handleComment = (value: string) => {
         createComment({ id: reqId, message: value }).then(() => {
@@ -223,11 +258,15 @@ const SupplierRequestDetailsScreen = () => {
 
                             <View style={styles.sectionSpacer} />
 
-                            {quoteDetails && quoteDetails?.length > 0 && (
-                                <QuoteContainer
-                                    contentData={quoteDetails[0]}
-                                    buttonFn={handleShowModal}
-                                    footerButtonAvailable={auction.is_open}
+                            <View style={styles.sectionSpacer} />
+
+                            {auctionLines && auctionLines.length > 0 && (
+                                <BidLinesInput
+                                    items={auctionLines}
+                                    quotes={lineQuotes}
+                                    onQuoteChange={handleQuoteChange}
+                                    editable={auction.is_open}
+                                    partialQuantityAllowed={auction.partial_quantity_bidding}
                                 />
                             )}
 
@@ -274,16 +313,6 @@ const SupplierRequestDetailsScreen = () => {
                         </ScrollView>
                     )}
 
-                    <Portal>
-                        <QuoteModal
-                            closeModal={handleHideModal}
-                            show={showModal}
-                            date={promisedDate!}
-                            price={promisedPrice}
-                            setDate={setPromisedDate}
-                            setPrice={setPromisedPrice}
-                        />
-                    </Portal>
                 </View>
             </View>
         </View >

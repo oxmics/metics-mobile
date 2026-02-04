@@ -12,6 +12,7 @@ import { RequestInfoCard } from '../../components/RequestCard';
 import { CommentCard } from '../../components/CommentCard';
 import { BidsCard } from '../../components/BidsCard';
 import { RfqDetailedModal } from '../../components/RfqDetailedModal';
+import { CustomDialog } from '../../components/CustomDialog';
 import { BottomNavbar } from '../../components/BottomNavbar';
 import { colors, typography, spacing, borderRadius } from '../../theme';
 
@@ -28,6 +29,7 @@ const BuyerRfqDetailsScreen = () => {
     const navigation = useNavigation<CustomNavigationProp>();
 
     const [showModal, setShowModal] = useState<boolean>(false);
+    const [showWarningDialog, setShowWarningDialog] = useState<boolean>(false);
 
     const { data: auction, isPending: loading, isError: auctionError } = useAuctionDetails({ id: reqId });
     const { data: auctionLines } = useAuctionLines({ id: reqId });
@@ -53,6 +55,17 @@ const BuyerRfqDetailsScreen = () => {
         createComment({ id: reqId, message: value }).then(() => {
             refetchComments();
         });
+    };
+
+    const handleComparePress = () => {
+        if (bids && bids.length > 1) { // User requested "at least 2 bids"
+            navigation.navigate('BuyerBidComparison', {
+                auctionId: reqId,
+                auctionTitle: auction?.title || 'RFQ'
+            });
+        } else {
+            setShowWarningDialog(true);
+        }
     };
 
     if (loading) {
@@ -146,9 +159,12 @@ const BuyerRfqDetailsScreen = () => {
 
                             {bidsLoading ? (
                                 <ActivityIndicator size="small" color={colors.primary[500]} />
-                            ) : bids ? (
-                                <BidsCard buttonFn={() => { }} contentData={bids} />
-                            ) : null}
+                            ) : (
+                                <BidsCard
+                                    buttonFn={handleComparePress}
+                                    contentData={bids || []}
+                                />
+                            )}
                         </ScrollView>
                     )}
 
@@ -161,6 +177,14 @@ const BuyerRfqDetailsScreen = () => {
                                 show={showModal}
                             />
                         )}
+                        <CustomDialog
+                            visible={showWarningDialog}
+                            title="Insufficient Bids"
+                            message="You need at least 2 bids to use the comparison feature."
+                            onDismiss={() => setShowWarningDialog(false)}
+                            confirmText="OK"
+                            onConfirm={() => setShowWarningDialog(false)}
+                        />
                     </Portal>
                 </View>
             </View>

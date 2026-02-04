@@ -49,6 +49,26 @@ export const OrdersQuickActionCard = ({ isBuyer }: props) => {
     );
 };
 
+export const EnquiriesQuickActionCard = ({ isBuyer }: props) => {
+    const navigation = useNavigation<CustomNavigationProp>();
+    return (
+        <TouchableOpacity
+            onPress={() => navigation.navigate('SupplierProductEnquiries')}
+            activeOpacity={0.7}
+        >
+            <View style={styles.container}>
+                <View style={[styles.iconContainer, styles.iconContainerEnquiries]}>
+                    <Icon source="email-outline" size={20} color={colors.semantic.info.default} />
+                </View>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>Enquiries</Text>
+                    <Text style={styles.subtitle}>View messages</Text>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+};
+
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
@@ -76,6 +96,9 @@ const styles = StyleSheet.create({
     },
     iconContainerOrders: {
         backgroundColor: colors.semantic.success.light,
+    },
+    iconContainerEnquiries: {
+        backgroundColor: colors.semantic.info.light,
     },
     textContainer: {
         flex: 1,

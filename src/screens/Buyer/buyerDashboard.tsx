@@ -142,6 +142,7 @@ const BuyerDashboardScreen = () => {
                                                 value={dashboardContent?.total_suppliers_count}
                                                 footer={`${dashboardContent?.recently_added_suppliers_count || 0} Added`}
                                                 accentColor={colors.semantic.success.default}
+                                                onPress={() => navigation.navigate('BuyerSuppliers')}
                                             />
                                             <OverviewCard
                                                 title="Orders"
@@ -183,7 +184,7 @@ const BuyerDashboardScreen = () => {
                                         <Skeleton width="100%" height={80} />
                                     </View>
                                 ) : (
-                                    logs && <RecentUpdatesCard viewAll={handleShowModal} logs={logs} />
+                                    logs && <RecentUpdatesCard viewAll={handleShowModal} logs={logs} isBuyer={true} />
                                 )}
                             </View>
                         </>
@@ -191,7 +192,7 @@ const BuyerDashboardScreen = () => {
                 </ScrollView>
 
                 <Portal>
-                    {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} />}
+                    {logs && <RecentUpdatesModal hideModal={handleHideModal} logs={logs} show={showModal} isBuyer={true} />}
                 </Portal>
 
             </View>

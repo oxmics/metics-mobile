@@ -30,6 +30,11 @@ export type RootStackParamList = {
     SupplierProductCreate: any;
     SupplierProductEnquiries: any;
     SupplierProductEnquiryDetails: { id: string };
+    BuyerApprovals: any;
+    BuyerApprovalDetails: { taskId: string };
+    BuyerSuppliers: any;
+    BuyerSupplierDetails: { supplierId: string };
+    BuyerBidComparison: { auctionId: string; auctionTitle: string };
 };
 export type CustomNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 

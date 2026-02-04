@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 import { colors, typography, spacing, borderRadius } from '../theme';
 
@@ -7,15 +7,16 @@ interface props {
     value: number | string | undefined, // Support more types
     footer?: string,
     accentColor?: string,
+    onPress?: () => void,
 }
 
-export const OverviewCard = ({ title, value, footer, accentColor = colors.primary[500] }: props) => {
+export const OverviewCard = ({ title, value, footer, accentColor = colors.primary[500], onPress }: props) => {
     // Safely format the value
     const displayValue = value !== undefined && value !== null
         ? (typeof value === 'number' ? value.toLocaleString() : value.toString())
         : '0';
 
-    return (
+    const CardContent = () => (
         <View style={styles.container}>
             {/* Left Accent Bar - Jira Dashboard Style */}
             <View style={[styles.leftAccent, { backgroundColor: accentColor }]} />
@@ -32,6 +33,16 @@ export const OverviewCard = ({ title, value, footer, accentColor = colors.primar
             </View>
         </View>
     );
+
+    if (onPress) {
+        return (
+            <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+                <CardContent />
+            </TouchableOpacity>
+        );
+    }
+
+    return <CardContent />;
 };
 
 const styles = StyleSheet.create({

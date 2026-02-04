@@ -56,7 +56,7 @@ const SupplierProductDetailsScreen = () => {
                     {/* Images */}
                     {product.images && product.images.length > 0 ? (
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
-                            {product.images.map((img, index) => (
+                            {product.images.filter(img => img?.image).map((img, index) => (
                                 <Image
                                     key={index}
                                     source={{ uri: img.image }}

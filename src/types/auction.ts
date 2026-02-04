@@ -15,14 +15,14 @@ export type AuctionType = {
     is_open: boolean,
     is_editable: boolean,
     need_by_date: string,
-    additional_attributes: {id: string, name: string, value: string}[],
+    additional_attributes: { id: string, name: string, value: string }[],
     attachments: AttachmentType[],
     focal_points: FocalPointsType[],
     auhtorized_sellers: any[],
     status: string,
     bid_count: number,
     partial_bidding: boolean,
-    parital_quantity_bidding: boolean,
+    partial_quantity_bidding: boolean,
     can_compare: boolean,
     incoterms: any,
     bln_incoterms: boolean
@@ -43,7 +43,7 @@ export type AuctionLinesType = {
     target_price: string,
     product_id: string,
     best_bid: string,
-    additional_attributes: {id: string, name: string, value: string}[],
+    additional_attributes: { id: string, name: string, value: string }[],
     attachments: AttachmentType[]
 }
 
