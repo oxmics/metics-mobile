@@ -2,7 +2,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { ScrollView, StyleSheet, TouchableOpacity, View, StatusBar, Alert } from 'react-native';
 import { ActivityIndicator, Button, Icon, Portal, Text } from 'react-native-paper';
 import { APIResponseEnum, CustomNavigationProp } from '../../types/common';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { formatDate, formatDateReverse } from '../../utils/helper';
 import useAuctionDetails from '../../api/auctions/useAuction';
 import useAuctionLines from '../../api/auctions/useAuctionLineHeader';
@@ -66,18 +66,18 @@ const SupplierRequestDetailsScreen = () => {
             setNoteToSupplier(existingBid.note_to_supplier || '');
 
             // Map existing bid lines to form state
-            if (existingBid.bid_lines && Array.isArray(existingBid.bid_lines)) {
+            if (existingBid.bid_lines && Array.isArray(existingBid.bid_lines) && existingBid.bid_lines.length > 0) {
                 const newQuotes: Record<number, { price: string; date: Date | undefined; quantity?: string }> = {};
 
                 auctionLines.forEach((line, index) => {
                     // Find corresponding bid line
-                    const bidLine = existingBid.bid_lines.find((bl: any) => bl.auction_line === line.id || bl.auction_line_id === line.id);
+                    const bidLine = existingBid.bid_lines?.find((bl: any) => bl.auction_line === line.id || bl.auction_line_id === line.id);
 
                     if (bidLine) {
                         newQuotes[index] = {
                             price: String(bidLine.price || 0),
                             date: bidLine.promised_date ? new Date(bidLine.promised_date) : undefined,
-                            quantity: String(bidLine.quantity || line.quantity)
+                            quantity: String(bidLine.bid_quantity || bidLine.quantity || line.quantity)
                         };
                     }
                 });
