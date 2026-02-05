@@ -5,10 +5,11 @@ import { colors, typography, spacing, borderRadius, shadows } from '../theme';
 interface props {
     title: string,
     content: string,
-    setContent: React.Dispatch<React.SetStateAction<string>>
+    setContent: React.Dispatch<React.SetStateAction<string>>,
+    editable?: boolean
 }
 
-export const NoteCard = ({ content, setContent, title }: props) => {
+export const NoteCard = ({ content, setContent, title, editable = true }: props) => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>{title}</Text>
@@ -16,6 +17,7 @@ export const NoteCard = ({ content, setContent, title }: props) => {
                 style={styles.inputBox}
                 mode="outlined"
                 value={content}
+                editable={editable}
                 onChangeText={setContent}
                 placeholder="Type your note here..."
                 placeholderTextColor={colors.neutral.text.tertiary}

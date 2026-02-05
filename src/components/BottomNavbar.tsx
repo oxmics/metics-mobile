@@ -75,6 +75,9 @@ export const BottomNavbar = ({ state, descriptors, navigation, isSupplier }: Bot
                     } else if (route.name === 'SupplierPurchaseOrder' || route.name === 'BuyerPurchaseOrder') {
                         iconName = 'package-variant-closed';
                         labelText = 'Orders';
+                    } else if (route.name === 'SupplierClients') {
+                        iconName = 'account-group';
+                        labelText = 'Clients';
                     } else if (route.name === 'EnterNewPassword') { // Assuming settings route
                         iconName = 'cog';
                         labelText = 'Settings';

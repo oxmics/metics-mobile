@@ -32,6 +32,7 @@ import BuyerSuppliersScreen from './src/screens/Buyer/suppliers';
 import BuyerSupplierDetailsScreen from './src/screens/Buyer/supplierDetails';
 import BuyerBidComparisonScreen from './src/screens/Buyer/bidComparison';
 import SupplierBidsScreen from './src/screens/Supplier/bids';
+import SupplierClientDetailsScreen from './src/screens/Supplier/clientDetails';
 import { LogLevel, OneSignal } from 'react-native-onesignal';
 import NetInfo from '@react-native-community/netinfo';
 import { PermissionsAndroid, Platform, UIManager } from 'react-native';
@@ -183,6 +184,10 @@ function App(): React.JSX.Element {
             <Stack.Screen
               name="SupplierBids"
               component={SupplierBidsScreen}
+            />
+            <Stack.Screen
+              name="SupplierClientDetails"
+              component={SupplierClientDetailsScreen}
             />
           </Stack.Navigator>
         </NavigationContainer>

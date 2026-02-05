@@ -160,6 +160,7 @@ const SupplierDashboardScreen = () => {
                                                 title="Clients"
                                                 value={dashboardContent?.clients_count}
                                                 accentColor={colors.semantic.info.default}
+                                                onPress={() => navigation.navigate('SupplierClients')}
                                             />
                                             <OverviewCard
                                                 title="Orders"

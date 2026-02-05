@@ -3,6 +3,7 @@ import SupplierDashboardScreen from '../screens/Supplier/supplierDashboard';
 import SupplierProductsScreen from '../screens/Supplier/products';
 import SupplierRequestHistory from '../screens/Supplier/requestHistory';
 import SupplierPurchaseOrderScreen from '../screens/Supplier/purchaseOrder';
+import SupplierClientsScreen from '../screens/Supplier/clients';
 import EnterNewPasswordScreen from '../screens/enterNewPassword';
 import { BottomNavbar } from '../components/BottomNavbar';
 
@@ -18,6 +19,7 @@ const SupplierTabs = () => {
             <Tab.Screen name="SupplierProducts" component={SupplierProductsScreen} options={{ tabBarLabel: 'Products' }} />
             <Tab.Screen name="SupplierRequestHistory" component={SupplierRequestHistory} />
             <Tab.Screen name="SupplierPurchaseOrder" component={SupplierPurchaseOrderScreen} />
+            <Tab.Screen name="SupplierClients" component={SupplierClientsScreen} options={{ tabBarLabel: 'Clients' }} />
             <Tab.Screen name="EnterNewPassword" component={EnterNewPasswordScreen} options={{ tabBarLabel: 'Settings' }} />
         </Tab.Navigator>
     );

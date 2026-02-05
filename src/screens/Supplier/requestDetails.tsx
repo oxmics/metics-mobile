@@ -21,6 +21,7 @@ import { CalendarDate } from 'react-native-paper-dates/lib/typescript/Date/Calen
 import { AttachmentsCard } from '../../components/AttachmentsCard';
 import { AttachmentType } from '../../types/purchaseOrder';
 import useCreateBid from '../../api/auctions/useCreateBid';
+import useCheckMyBid from '../../api/auctions/useCheckMyBid';
 import useAuctionIgnore from '../../api/auctions/useAuctionIgnore';
 import { BottomNavbar } from '../../components/BottomNavbar';
 import { colors, typography, spacing, borderRadius } from '../../theme';
@@ -55,7 +56,42 @@ const SupplierRequestDetailsScreen = () => {
     const { mutateAsync: bid, isPending: sendingBidUpdate } = useCreateBid();
     const { mutateAsync: ignore } = useAuctionIgnore();
 
+    // Check for existing bid
+    const { data: existingBid, isPending: checkingBid } = useCheckMyBid({ id: reqId });
+
+    // Populate form with existing bid data
+    useEffect(() => {
+        if (existingBid && auctionLines) {
+            console.log('Found existing bid:', existingBid);
+            setNoteToSupplier(existingBid.note_to_supplier || '');
+
+            // Map existing bid lines to form state
+            if (existingBid.bid_lines && Array.isArray(existingBid.bid_lines)) {
+                const newQuotes: Record<number, { price: string; date: Date | undefined; quantity?: string }> = {};
+
+                auctionLines.forEach((line, index) => {
+                    // Find corresponding bid line
+                    const bidLine = existingBid.bid_lines.find((bl: any) => bl.auction_line === line.id || bl.auction_line_id === line.id);
+
+                    if (bidLine) {
+                        newQuotes[index] = {
+                            price: String(bidLine.price || 0),
+                            date: bidLine.promised_date ? new Date(bidLine.promised_date) : undefined,
+                            quantity: String(bidLine.quantity || line.quantity)
+                        };
+                    }
+                });
+
+                setLineQuotes(newQuotes);
+            }
+        }
+    }, [existingBid, auctionLines]);
+
+    const isReadOnly = useMemo(() => !!existingBid, [existingBid]);
+
     const handleStatusUpdate = (status: string) => {
+        if (isReadOnly) return;
+
         if (status === 'Bid') {
             setStatusLoading(1);
 
@@ -89,7 +125,7 @@ const SupplierRequestDetailsScreen = () => {
                 Promise.race([
                     bid({
                         id: reqId,
-                        lst_bid_line: JSON.stringify(bidLines) as any, // Trying stringified clean payload
+                        lst_bid_line: bidLines,
                         note_to_supplier: noteToSupplier,
                         template_data: selectedTemplate
                             ? JSON.stringify({
@@ -222,28 +258,42 @@ const SupplierRequestDetailsScreen = () => {
                                     </View>
                                 </View>
                                 <View style={styles.actionButtons}>
-                                    <Button
-                                        mode="contained"
-                                        style={styles.bidButton}
-                                        labelStyle={styles.buttonLabel}
-                                        disabled={sendingBidUpdate || !auction.is_open}
-                                        loading={statusLoading === 1}
-                                        onPress={() => handleStatusUpdate('Bid')}
-                                        icon="check-circle-outline"
-                                    >
-                                        Submit
-                                    </Button>
-                                    <Button
-                                        mode="outlined"
-                                        style={styles.ignoreButton}
-                                        labelStyle={styles.ignoreLabel}
-                                        disabled={sendingBidUpdate || !auction.is_open}
-                                        loading={statusLoading === 2}
-                                        onPress={() => handleStatusUpdate('Ignore')}
-                                        icon="close-circle-outline"
-                                    >
-                                        Ignore
-                                    </Button>
+                                    {isReadOnly ? (
+                                        <Button
+                                            mode="contained"
+                                            style={[styles.bidButton, { backgroundColor: colors.neutral.border.default }]}
+                                            labelStyle={{ color: colors.neutral.text.disabled }}
+                                            disabled={true}
+                                            icon="check-all"
+                                        >
+                                            Bid Submitted
+                                        </Button>
+                                    ) : (
+                                        <>
+                                            <Button
+                                                mode="contained"
+                                                style={styles.bidButton}
+                                                labelStyle={styles.buttonLabel}
+                                                disabled={sendingBidUpdate || !auction.is_open}
+                                                loading={statusLoading === 1}
+                                                onPress={() => handleStatusUpdate('Bid')}
+                                                icon="check-circle-outline"
+                                            >
+                                                Submit
+                                            </Button>
+                                            <Button
+                                                mode="outlined"
+                                                style={styles.ignoreButton}
+                                                labelStyle={styles.ignoreLabel}
+                                                disabled={sendingBidUpdate || !auction.is_open}
+                                                loading={statusLoading === 2}
+                                                onPress={() => handleStatusUpdate('Ignore')}
+                                                icon="close-circle-outline"
+                                            >
+                                                Ignore
+                                            </Button>
+                                        </>
+                                    )}
                                 </View>
                             </View>
 
@@ -265,7 +315,7 @@ const SupplierRequestDetailsScreen = () => {
                                     items={auctionLines}
                                     quotes={lineQuotes}
                                     onQuoteChange={handleQuoteChange}
-                                    editable={auction.is_open}
+                                    editable={auction.is_open && !isReadOnly}
                                     partialQuantityAllowed={auction.partial_quantity_bidding}
                                 />
                             )}
@@ -301,6 +351,7 @@ const SupplierRequestDetailsScreen = () => {
                                 title="Note to Supplier"
                                 content={noteToSupplier}
                                 setContent={setNoteToSupplier}
+                                editable={!isReadOnly}
                             />
 
                             <View style={styles.sectionSpacer} />

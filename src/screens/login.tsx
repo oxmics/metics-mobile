@@ -1,8 +1,8 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform, Animated } from 'react-native';
 import ToggleButton from '../components/ToggleButton';
 import React, { useState } from 'react';
 import GradientButton from '../components/GradientButton';
-import { Snackbar, TextInput } from 'react-native-paper';
+import { TextInput, ActivityIndicator } from 'react-native-paper';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import { useNavigation } from '@react-navigation/native';
 import { CustomNavigationProp } from '../types/common';
@@ -23,44 +23,46 @@ const LoginScreen = () => {
     const [password, setPassword] = useState<string>('');
     const [active, setActive] = useState<string>('buyer');
     const [hidePass, setHidePass] = useState(true);
-    const [snackbarVisible, setSnackbarVisible] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     const { mutateAsync: login, isPending: loading } = useLogin();
 
     const handleLogin = async () => {
+        setErrorMessage('');
+        setIsLoggingIn(true);
+
         console.log('LoginScreen: Attempting login for', email);
-        const loginResult = await login({ email, password });
-        let message = '';
-        console.log('LoginScreen: Result:', loginResult);
 
-        switch (loginResult) {
-            case LoginResponseEnum.SUCCESS:
-                message = 'Login successful!';
-                break;
-            case LoginResponseEnum.INVALID:
-                message = 'Invalid email or password!';
-                break;
-            case LoginResponseEnum.FAILED:
-                message = 'Login failed';
-                break;
-            default:
-                message = 'Unexpected error occurred!';
-                break;
-        }
-        setSnackbarMessage(message);
-        setSnackbarVisible(true);
-        if (loginResult === LoginResponseEnum.SUCCESS) {
-            console.log('LoginScreen: Navigating to', active === 'buyer' ? 'BuyerDashboard' : 'SupplierDashboard');
+        try {
+            const loginResult = await login({ email, password });
+            console.log('LoginScreen: Result:', loginResult);
 
-            // Store the selected role for persistent login
-            await EncryptedStorage.setItem('user_role', active);
+            if (loginResult === LoginResponseEnum.SUCCESS) {
+                // Store the selected role for persistent login
+                await EncryptedStorage.setItem('user_role', active);
 
-            if (active === 'buyer') {
-                navigation.replace('BuyerTabs');
+                console.log('LoginScreen: Navigating to', active === 'buyer' ? 'BuyerTabs' : 'SupplierTabs');
+
+                // Small delay for smooth transition
+                setTimeout(() => {
+                    if (active === 'buyer') {
+                        navigation.replace('BuyerTabs');
+                    } else {
+                        navigation.replace('SupplierTabs');
+                    }
+                }, 200);
+            } else if (loginResult === LoginResponseEnum.INVALID) {
+                setErrorMessage('Invalid email or password. Please try again.');
+                setIsLoggingIn(false);
             } else {
-                navigation.replace('SupplierTabs');
+                setErrorMessage('Unable to connect. Please check your internet connection.');
+                setIsLoggingIn(false);
             }
+        } catch (error) {
+            console.error('LoginScreen: Unexpected error', error);
+            setErrorMessage('An unexpected error occurred. Please try again.');
+            setIsLoggingIn(false);
         }
     };
 
@@ -98,6 +100,13 @@ const LoginScreen = () => {
                         <ToggleButton active={active} setActive={setActive} />
                     </View>
 
+                    {/* Error Message */}
+                    {errorMessage ? (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{errorMessage}</Text>
+                        </View>
+                    ) : null}
+
                     {/* Email Input */}
                     <View style={styles.inputGroup}>
                         <CustomInput
@@ -132,19 +141,30 @@ const LoginScreen = () => {
                     <TouchableOpacity
                         onPress={() => navigation.navigate('ForgotPassword')}
                         style={styles.forgotPasswordContainer}
+                        disabled={isLoggingIn}
                     >
-                        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                        <Text style={[styles.forgotPasswordText, isLoggingIn && styles.disabledText]}>Forgot Password?</Text>
                     </TouchableOpacity>
 
                     {/* Submit Button */}
                     <GradientButton
                         label="Log in"
                         onPress={handleLogin}
-                        colors={[colors.primary[600], colors.primary[700]]} // Using brand primary
-                        disabled={(!isValidEmail(email) || password.length < 1 || loading)}
-                        loading={loading}
+                        colors={[colors.primary[600], colors.primary[700]]}
+                        disabled={(!isValidEmail(email) || password.length < 1 || loading || isLoggingIn)}
+                        loading={loading || isLoggingIn}
                     />
                 </View>
+
+                {/* Loading Overlay */}
+                {isLoggingIn && (
+                    <View style={styles.loadingOverlay}>
+                        <View style={styles.loadingCard}>
+                            <ActivityIndicator size="large" color={colors.primary[500]} />
+                            <Text style={styles.loadingText}>Signing you in...</Text>
+                        </View>
+                    </View>
+                )}
 
                 {/* Footer */}
                 <View style={styles.footer}>
@@ -153,14 +173,7 @@ const LoginScreen = () => {
                     </Text>
                 </View>
 
-                <Snackbar
-                    visible={snackbarVisible}
-                    onDismiss={() => setSnackbarVisible(false)}
-                    duration={Snackbar.DURATION_SHORT}
-                    style={styles.snackbar}
-                >
-                    {snackbarMessage}
-                </Snackbar>
+
             </ScrollView>
         </KeyboardAvoidingView>
     );
@@ -243,7 +256,44 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: colors.neutral.text.tertiary,
     },
-    snackbar: {
-        backgroundColor: colors.neutral.text.primary,
+    errorContainer: {
+        backgroundColor: colors.semantic.error.light,
+        borderRadius: borderRadius.sm,
+        padding: spacing.md,
+        marginBottom: spacing.lg,
+        borderLeftWidth: 3,
+        borderLeftColor: colors.semantic.error.default,
+    },
+    errorText: {
+        fontSize: 13,
+        color: colors.semantic.error.dark,
+        fontWeight: '500',
+    },
+    disabledText: {
+        opacity: 0.5,
+    },
+    loadingOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+    },
+    loadingCard: {
+        backgroundColor: colors.neutral.surface.default,
+        borderRadius: borderRadius.lg,
+        padding: spacing['2xl'],
+        alignItems: 'center',
+        ...shadows.lg,
+    },
+    loadingText: {
+        marginTop: spacing.md,
+        fontSize: 14,
+        color: colors.neutral.text.secondary,
+        fontWeight: '500',
     },
 });

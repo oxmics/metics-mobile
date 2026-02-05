@@ -132,6 +132,11 @@ const CustomDrawer = ({ closeDrawer }: { closeDrawer: () => void }) => {
                     onPress={() => handleNavigation('SupplierPurchaseOrder')}
                 />
                 <NavItem
+                    icon="account-group"
+                    label="Clients"
+                    onPress={() => handleNavigation('SupplierClients')}
+                />
+                <NavItem
                     icon="package-variant"
                     label="Products"
                     onPress={toggleProducts}

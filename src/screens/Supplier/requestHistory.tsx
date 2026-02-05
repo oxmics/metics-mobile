@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons } from 'react-native-paper';
+import { Icon, Searchbar, Text, ActivityIndicator, SegmentedButtons, Menu } from 'react-native-paper';
+import { CustomNavigationProp } from '../../types/common';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View, StatusBar, Animated } from 'react-native';
 import useAuctionHeaders from '../../api/auctions/useAuctionHeaders';
@@ -41,14 +42,28 @@ const SupplierRequestHistory = () => {
     const [displayClosedAuctions, setDisplayClosedAuctions] = useState<AuctionType[]>([]);
     const [displayOpenAuctions, setDisplayOpenAuctions] = useState<AuctionType[]>([]);
 
+    const [sortBy, setSortBy] = useState<string>('-created_at'); // Latest First
+    const [showSortMenu, setShowSortMenu] = useState(false);
+
     const debouncedSearchQuery = useDebounce(searchQuery, 800);
 
     const handleDisplayAuctions = useCallback(() => {
         if (auctions) {
-            setDisplayOpenAuctions(auctions.open_auctions || []);
-            setDisplayClosedAuctions(auctions.closed_auctions || []);
+            let open = [...(auctions.open_auctions || [])];
+            let closed = [...(auctions.closed_auctions || [])];
+
+            // Sort function
+            const sortFn = (a: AuctionType, b: AuctionType) => {
+                if (sortBy === 'created_at') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                if (sortBy === '-created_at') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                if (sortBy === 'need_by_date') return new Date(a.need_by_date || 0).getTime() - new Date(b.need_by_date || 0).getTime();
+                return 0;
+            };
+
+            setDisplayOpenAuctions(open.sort(sortFn));
+            setDisplayClosedAuctions(closed.sort(sortFn));
         }
-    }, [auctions]);
+    }, [auctions, sortBy]);
 
     useEffect(() => {
         handleDisplayAuctions();
@@ -58,20 +73,32 @@ const SupplierRequestHistory = () => {
         if (!auctions) { return; }
 
         const query = debouncedSearchQuery.trim().toLowerCase();
+
+        let tempOpenAuctions = [...(auctions.open_auctions || [])];
+        let tempClosedAuctions = [...(auctions.closed_auctions || [])];
+
+        // Apply Search
         if (query.length > 0) {
             const filterFn = (order: AuctionType) =>
                 (order?.requisition_number?.toLowerCase() || '').includes(query) ||
                 (order?.organization_name?.toLowerCase() || '').includes(query);
 
-            let tempOpenAuctions = auctions.open_auctions?.filter(filterFn) || [];
-            let tempClosedAuctions = auctions.closed_auctions?.filter(filterFn) || [];
-
-            setDisplayOpenAuctions(tempOpenAuctions);
-            setDisplayClosedAuctions(tempClosedAuctions);
-        } else {
-            handleDisplayAuctions();
+            tempOpenAuctions = tempOpenAuctions.filter(filterFn);
+            tempClosedAuctions = tempClosedAuctions.filter(filterFn);
         }
-    }, [auctions, debouncedSearchQuery, handleDisplayAuctions]);
+
+        // Apply Sort
+        const sortFn = (a: AuctionType, b: AuctionType) => {
+            if (sortBy === 'created_at') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+            if (sortBy === '-created_at') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            if (sortBy === 'need_by_date') return new Date(a.need_by_date || 0).getTime() - new Date(b.need_by_date || 0).getTime();
+            return 0;
+        };
+
+        setDisplayOpenAuctions(tempOpenAuctions.sort(sortFn));
+        setDisplayClosedAuctions(tempClosedAuctions.sort(sortFn));
+
+    }, [auctions, debouncedSearchQuery, sortBy]);
 
     useEffect(() => {
         handleSearch();
@@ -129,6 +156,34 @@ const SupplierRequestHistory = () => {
                                 onClearIconPress={() => setSearchQuery('')}
                                 elevation={0}
                             />
+                            <Menu
+                                visible={showSortMenu}
+                                onDismiss={() => setShowSortMenu(false)}
+                                anchor={
+                                    <TouchableOpacity
+                                        style={styles.sortButton}
+                                        onPress={() => setShowSortMenu(true)}
+                                    >
+                                        <Icon source="sort" size={24} color={colors.neutral.text.secondary} />
+                                    </TouchableOpacity>
+                                }
+                            >
+                                <Menu.Item
+                                    onPress={() => { setSortBy('created_at'); setShowSortMenu(false); }}
+                                    title="Earliest First"
+                                    leadingIcon={sortBy === 'created_at' ? 'check' : undefined}
+                                />
+                                <Menu.Item
+                                    onPress={() => { setSortBy('-created_at'); setShowSortMenu(false); }}
+                                    title="Latest First"
+                                    leadingIcon={sortBy === '-created_at' ? 'check' : undefined}
+                                />
+                                <Menu.Item
+                                    onPress={() => { setSortBy('need_by_date'); setShowSortMenu(false); }}
+                                    title="Need By Date"
+                                    leadingIcon={sortBy === 'need_by_date' ? 'check' : undefined}
+                                />
+                            </Menu>
                         </View>
 
                         <View style={{ margin: spacing.md }}>
@@ -242,9 +297,20 @@ const styles = StyleSheet.create({
         borderBottomColor: colors.neutral.border.default,
     },
     searchbar: {
+        flex: 1,
         backgroundColor: colors.neutral.surface.sunken,
         borderRadius: borderRadius.base,
         height: 48,
+        borderWidth: 1,
+        borderColor: colors.neutral.border.default,
+    },
+    sortButton: {
+        width: 48,
+        height: 48,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.neutral.surface.sunken,
+        borderRadius: borderRadius.base,
         borderWidth: 1,
         borderColor: colors.neutral.border.default,
     },

@@ -50,7 +50,7 @@ const SupplierBidsScreen = () => {
 
         const query = debouncedSearchQuery.trim().toLowerCase();
         if (query.length > 0) {
-            const filtered = bidsData.results.filter(bid =>
+            const filtered = bidsData.results.filter((bid: BidType) =>
                 (bid.auction_header?.requisition_number?.toLowerCase() || '').includes(query) ||
                 (bid.auction_header?.title?.toLowerCase() || '').includes(query)
             );
@@ -64,12 +64,11 @@ const SupplierBidsScreen = () => {
         handleSearch();
     }, [debouncedSearchQuery, handleSearch]);
 
-
+    const acceptedBids = useMemo(() => {
+        return displayBids.filter(bid => acceptedBidIds.has(bid.id));
+    }, [displayBids, acceptedBidIds]);
 
     const renderItem = ({ item }: { item: BidType }) => {
-        const isAccepted = acceptedBidIds.has(item.id);
-        const displayStatus = isAccepted ? 'ACCEPTED' : item.bid_status.toUpperCase();
-
         return (
             <TouchableOpacity
                 onPress={() => item?.auction_header?.id && navigation.navigate('SupplierRequestDetails', { reqId: item.auction_header.id })}
@@ -78,7 +77,7 @@ const SupplierBidsScreen = () => {
                 <DataCard
                     title={item.auction_header?.requisition_number || '—'}
                     titleLabel="Ref #"
-                    status={displayStatus}
+                    status="ACCEPTED"
                     footerLeftText={formatDate(item.created_at)}
                     footerRightText={item.type_of_response || 'Bid'}
                 />
@@ -121,7 +120,7 @@ const SupplierBidsScreen = () => {
 
                         <View style={styles.tabContent}>
                             <FlatList
-                                data={displayBids}
+                                data={acceptedBids}
                                 renderItem={renderItem}
                                 keyExtractor={(item, index) => item?.id?.toString() || index.toString()}
                                 refreshing={loading}

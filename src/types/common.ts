@@ -35,6 +35,8 @@ export type RootStackParamList = {
     BuyerSuppliers: any;
     BuyerSupplierDetails: { supplierId: string };
     BuyerBidComparison: { auctionId: string; auctionTitle: string };
+    SupplierClients: any;
+    SupplierClientDetails: { clientId: string };
 };
 export type CustomNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 

@@ -17,7 +17,8 @@ export type BidType = {
     cancellation_date: string | null,
     disqualify_reason: string | null,
     submit_stage: string,
-    note_to_supplier: string
+    note_to_supplier: string,
+    bid_lines?: BidLineType[]
 }
 
 export type BidLineType = {

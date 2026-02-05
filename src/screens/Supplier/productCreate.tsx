@@ -63,27 +63,35 @@ const SupplierProductCreateScreen = () => {
             return;
         }
 
+        const productData = {
+            name,
+            description,
+            product_sub_category: selectedSubCategorySlug,
+            market_price: marketPrice,
+            list_price_per_unit: listPrice,
+            unit_of_issue: unitOfIssue,
+            base_item_id: baseItemId || undefined,
+            is_available: isAvailable,
+            show_in_catalogue: showInCatalogue,
+            is_inventory_item: isInventoryItem,
+            additional_attributes: [],
+            images: [],
+            documents: [],
+        };
+
+        console.log('Creating product with data:', productData);
+
         createProduct.mutate(
+            productData,
             {
-                name,
-                description,
-                product_sub_category: selectedSubCategorySlug,
-                market_price: marketPrice,
-                list_price_per_unit: listPrice,
-                unit_of_issue: unitOfIssue,
-                base_item_id: baseItemId || undefined,
-                is_available: isAvailable,
-                show_in_catalogue: showInCatalogue,
-                is_inventory_item: isInventoryItem,
-                additional_attributes: [],
-                images: [],
-                documents: [],
-            },
-            {
-                onSuccess: () => {
+                onSuccess: (data) => {
+                    console.log('Product created successfully:', data);
                     setShowSuccessDialog(true);
                 },
-                onError: () => {
+                onError: (error: any) => {
+                    console.error('Failed to create product:', error);
+                    console.error('Error response:', error.response?.data);
+                    console.error('Error status:', error.response?.status);
                     setShowErrorDialog(true);
                 },
             }
